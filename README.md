@@ -1,4 +1,4 @@
-# My Leetcode Solution in Rust
+# 🦀 Leetcode Solution in Rust, just to torture myself 
 
 Run `cargo run {id}` to initialize the template submission file of "question #id".
 
