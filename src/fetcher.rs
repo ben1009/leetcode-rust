@@ -81,7 +81,8 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
         return None;
     }
     let resp: RawProblem = resp.unwrap();
-    return Some(Problem {
+
+    Some(Problem {
         title: problem_stat.stat.question_title.clone().unwrap(),
         title_slug: problem_stat.stat.question_title_slug.clone().unwrap(),
         code_definition: serde_json::from_str(&resp.data.question.code_definition).unwrap(),
@@ -91,9 +92,9 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
         question_id: problem_stat.stat.frontend_question_id,
         return_type: {
             let v: Value = serde_json::from_str(&resp.data.question.meta_data).unwrap();
-            v["return"]["type"].to_string().replace("\"", "")
+            v["return"]["type"].to_string().replace('\"', "")
         },
-    });
+    })
 }
 
 pub fn get_problems() -> Option<Problems> {
