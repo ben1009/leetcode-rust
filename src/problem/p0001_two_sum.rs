@@ -46,7 +46,8 @@ impl Solution {
         let mut map = HashMap::new();
         let mut ret = vec![];
         for (idx, num) in nums.iter().enumerate() {
-            if let Some((k, v)) = map.get_key_value(&(target - *num)) {
+            // https://stackoverflow.com/a/43360980
+            if let Some(v) = map.get(&(target - num)) {
                 ret = vec![idx as i32, *v as i32];
                 break;
             }
