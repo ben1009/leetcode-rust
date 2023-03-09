@@ -46,7 +46,7 @@ pub fn get_problem(frontend_question_id: u32) -> Option<Problem> {
                 question_id: problem.stat.frontend_question_id,
                 return_type: {
                     let v: Value = serde_json::from_str(&resp.data.question.meta_data).unwrap();
-                    v["return"]["type"].to_string().replace("\"", "")
+                    v["return"]["type"].to_string().replace('\"', "")
                 },
             });
         }
