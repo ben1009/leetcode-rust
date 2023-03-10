@@ -37,9 +37,6 @@ impl Solution {
         let mut ret: &[u8] = &[];
         let s = s.as_bytes();
         for i in 0..s.len() - 1 {
-            if i == s.len() - 1 {
-                break;
-            }
             let s1 = Self::pali(i, i, s);
             if ret.len() < s1.len() {
                 ret = s1;
