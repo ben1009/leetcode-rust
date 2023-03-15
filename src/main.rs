@@ -82,10 +82,7 @@ fn main() {
                             return;
                         }
                         let problem = problem.unwrap();
-                        let code = problem
-                            .code_definition
-                            .iter()
-                            .find(|&d| d.value == *"rust");
+                        let code = problem.code_definition.iter().find(|&d| d.value == *"rust");
                         if code.is_none() {
                             println!("Problem {} has no rust version.", problem.question_id);
                             return;
@@ -132,10 +129,7 @@ fn main() {
                 id
             )
         });
-        let code = problem
-            .code_definition
-            .iter()
-            .find(|&d| d.value == *"rust");
+        let code = problem.code_definition.iter().find(|&d| d.value == *"rust");
         if code.is_none() {
             println!("Problem {} has no rust version.", &id);
             initialized_ids.push(problem.question_id);
@@ -358,6 +352,6 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
             .append(true)
             .open("./src/problem/mod.rs")
             .unwrap();
-        writeln!(lib_file, "mod {};", file_name);
+        writeln!(lib_file, "pub mod {};", file_name);
     }
 }
