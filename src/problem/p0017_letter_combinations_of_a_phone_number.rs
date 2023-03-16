@@ -72,14 +72,11 @@ impl Solution {
             return;
         }
 
-        while i < digits.len() {
-            let str = map.get(&digits[i]).unwrap();
-            for s in str.chars() {
-                tmp.push(s);
-                Solution::dfs(i + 1, map, digits, tmp, ret);
-                tmp.pop();
-            }
-            i += 1;
+        let str = map.get(&digits[i]).unwrap();
+        for s in str.chars() {
+            tmp.push(s);
+            Solution::dfs(i + 1, map, digits, tmp, ret);
+            tmp.pop();
         }
     }
 }
