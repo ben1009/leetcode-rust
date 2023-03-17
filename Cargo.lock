@@ -768,6 +768,7 @@ name = "leetcode-rust"
 version = "0.1.0"
 dependencies = [
  "futures 0.3.26",
+ "openssl",
  "rand 0.6.5",
  "regex",
  "reqwest",
@@ -980,6 +981,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77af24da69f9d9341038eba93a073b1fdaaa1b788221b00a69bce9e762cb32de"
 
 [[package]]
+name = "openssl-src"
+version = "111.25.0+1.1.1t"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3173cd3626c43e3854b1b727422a276e568d9ec5fe8cec197822cf52cfb743d6"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "openssl-sys"
 version = "0.9.50"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -988,6 +998,7 @@ dependencies = [
  "autocfg 0.1.6",
  "cc",
  "libc",
+ "openssl-src",
  "pkg-config",
  "vcpkg",
 ]
