@@ -44,7 +44,8 @@ pub struct Solution {}
 // submission codes start here
 
 impl Solution {
-    pub fn is_match(s: String, p: String) -> bool {        false
+    pub fn is_match(s: String, p: String) -> bool {
+        false
     }
 }
 
