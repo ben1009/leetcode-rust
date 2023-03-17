@@ -2,7 +2,7 @@ name: Rust
 
 on:
   push:
-    branches: [ "master","leetcode-*"  ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "master"]
 
@@ -20,20 +20,9 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: Check workflow permissions
-      id: check_permissions
-      uses: scherermichael-oss/action-has-permission@1.0.6
+    - run: rustup component add clippy
+    - uses: actions-rs/clippy-check@v1.0.7
       with:
-        required-permission: write
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Run clippy action to produce annotations
-      uses: actions-rs/clippy-check@v1
-      if: steps.check_permissions.outputs.has-permission
-      with:
-        args: --all-features -- -D warnings
         token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Run clippy manually without annotations
-      if: ${{ !steps.check_permissions.outputs.has-permission }}
-      run: cargo clippy --all-features -- -D warnings
+        args:  --all-targets --all-features -- -D warnings
 
