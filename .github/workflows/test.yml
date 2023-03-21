@@ -13,11 +13,16 @@ jobs:
       matrix:
         toolchain: [stable, beta]
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
         with:
           submodules: true
       - name: Install ${{ matrix.toolchain }}
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@e12eda571dc9a5ee5d58eecf4738ec291c66f295 # master
         with:
           toolchain: ${{ matrix.toolchain }}
       - name: cargo generate-lockfile
@@ -30,11 +35,11 @@ jobs:
   #   runs-on: ubuntu-latest
   #   name: ubuntu / stable / minimal-versions
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
   #       with:
   #         submodules: true
   #     - name: Install stable
-  #       uses: dtolnay/rust-toolchain@stable
+  #       uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
   #     - name: Install nightly for -Zminimal-versions
   #       uses: dtolnay/rust-toolchain@nightly
   #     - name: rustup default stable
@@ -51,11 +56,16 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
         with:
           submodules: true
       - name: Install stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
@@ -65,21 +75,26 @@ jobs:
     runs-on: ubuntu-latest
     name: ubuntu / stable / coverage
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
         with:
           submodules: true
       - name: Install stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
         with:
           components: llvm-tools-preview
       - name: cargo install cargo-llvm-cov
-        uses: taiki-e/install-action@cargo-llvm-cov
+        uses: taiki-e/install-action@29ee91bbad05696171dd917a8c7a3838049b93d5 # cargo-llvm-cov
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
       - name: cargo llvm-cov
         run: cargo llvm-cov --locked --all-features --lcov --output-path lcov.info
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # v3.1.1
         with:
           fail_ci_if_error: true

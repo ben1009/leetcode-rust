@@ -10,11 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     name: stable / fmt
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
         with:
           submodules: true
       - name: Install stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
         with:
           components: rustfmt
       - name: cargo fmt --check
@@ -30,27 +35,37 @@ jobs:
       matrix:
         toolchain: [stable, beta]
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
         with:
           submodules: true
       - name: Install ${{ matrix.toolchain }}
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@e12eda571dc9a5ee5d58eecf4738ec291c66f295 # master
         with:
           toolchain: ${{ matrix.toolchain }}
           components: clippy
       - name: cargo clippy
-        uses: actions-rs/clippy-check@v1
+        uses: actions-rs/clippy-check@b5b5f21f4797c02da247df37026fcd0a5024aa4d # v1.0.7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
   doc:
     runs-on: ubuntu-latest
     name: nightly / doc
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
         with:
           submodules: true
       - name: Install nightly
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@655bc29a221a62ee6edb6a0fa9d9530cf424d31d # nightly
       - name: cargo doc
         run: cargo doc --no-deps --all-features
         env:
@@ -59,13 +74,18 @@ jobs:
     runs-on: ubuntu-latest
     name: ubuntu / stable / features
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
         with:
           submodules: true
       - name: Install stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
       - name: cargo install cargo-hack
-        uses: taiki-e/install-action@cargo-hack
+        uses: taiki-e/install-action@de2548c6ca44a5affa3f3edd100cc348412010ab # cargo-hack
       - name: cargo hack
         run: cargo hack --feature-powerset check --lib --tests
   msrv:
@@ -77,11 +97,16 @@ jobs:
         msrv: [1.56.1] # 2021 edition requires 1.56
     name: ubuntu / ${{ matrix.msrv }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
         with:
           submodules: true
       - name: Install ${{ matrix.msrv }}
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@e12eda571dc9a5ee5d58eecf4738ec291c66f295 # master
         with:
           toolchain: ${{ matrix.msrv }}
       - name: cargo +${{ matrix.msrv }} check
