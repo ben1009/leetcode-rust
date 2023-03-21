@@ -22,9 +22,8 @@ jobs:
           disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
-          api.github.com:443
-          github.com:443
-
+            api.github.com:443
+            github.com:443
       - name: 'Checkout Repository'
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
       - name: 'Dependency Review'
