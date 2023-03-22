@@ -7,3 +7,4 @@ pub mod p0010_regular_expression_matching;
 pub mod p0011_container_with_most_water;
 pub mod p0014_longest_common_prefix;
 pub mod p0017_letter_combinations_of_a_phone_number;
+pub mod p0926_flip_string_to_monotone_increasing;
