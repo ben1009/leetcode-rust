@@ -46,24 +46,24 @@ impl Solution {
         }
 
         let n: usize = s.len();
-        let s = s.chars().collect::<Vec<_>>();
+        let s = s.as_bytes();
         let mut l = vec![0; n];
-        if s[0] == '1' {
+        if s[0] == b'1' {
             l[0] = 1;
         }
-        for i in 1..=n - 1 {
-            if s[i] == '1' {
+        for i in 1..n {
+            if s[i] == b'1' {
                 l[i] = l[i - 1] + 1;
             } else {
                 l[i] = l[i - 1];
             }
         }
         let mut r = vec![0; n];
-        if s[n - 1] == '0' {
+        if s[n - 1] == b'0' {
             r[n - 1] = 1;
         }
-        for i in (0..=n - 2).rev() {
-            if s[i] == '0' {
+        for i in (0..n - 1).rev() {
+            if s[i] == b'0' {
                 r[i] = r[i + 1] + 1;
             } else {
                 r[i] = r[i + 1];
