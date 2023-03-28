@@ -20,10 +20,14 @@ jobs:
           submodules: true
       - name: Install stable
         uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
+      #   with:
+      #     components: rustfmt
+      # - name: cargo fmt --check
+      #   run: cargo fmt --check
+
+      - uses: mbrobbel/rustfmt-check@master
         with:
-          components: rustfmt
-      - name: cargo fmt --check
-        run: cargo fmt --check
+          token: ${{ secrets.GITHUB_TOKEN }}
   clippy:
     runs-on: ubuntu-latest
     name: ${{ matrix.toolchain }} / clippy
