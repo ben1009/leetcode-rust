@@ -91,6 +91,6 @@ mod tests {
             Solution::remove_nth_from_end(to_list(vec![1, 2, 3, 4, 5]), 2),
             list!(1, 2, 3, 5)
         );
-        assert_eq!(Solution::remove_nth_from_end(to_list(vec![1]), 1), None);
+        assert_eq!(Solution::remove_nth_from_end(list!(1), 1), None);
     }
 }
