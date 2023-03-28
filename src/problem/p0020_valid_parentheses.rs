@@ -74,8 +74,7 @@ mod tests {
 
     #[test]
     fn test_20() {
-        assert!(Solution::is_valid("()".into())
-    );
+        assert!(Solution::is_valid("()".into()));
         assert!(Solution::is_valid("()[]{}".into()));
         assert!(!Solution::is_valid("()[{}".into()));
     }
