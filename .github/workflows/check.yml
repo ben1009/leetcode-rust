@@ -1,7 +1,5 @@
 permissions:
-  # Give the default GITHUB_TOKEN write permission to commit and push the
-  # added or changed files to the repository.
-  contents: write
+  contents: read
 on:
   push:
     branches: [main, master]
@@ -11,6 +9,10 @@ jobs:
   fmt:
     runs-on: ubuntu-latest
     name: stable / fmt
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1f99358870fe1c846a3ccba386cc2b2246836776 # v2.2.1
