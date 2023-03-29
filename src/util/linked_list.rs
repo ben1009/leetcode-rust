@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct ListNode {
     pub val: i32,
@@ -8,6 +10,19 @@ impl ListNode {
     #[inline]
     pub fn new(val: i32) -> Self {
         ListNode { next: None, val }
+    }
+}
+
+impl Ord for ListNode {
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.val.cmp(&other.val)
+    }
+}
+
+impl PartialOrd for ListNode {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.val.partial_cmp(&other.val)
     }
 }
 
