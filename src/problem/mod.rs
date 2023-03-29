@@ -9,5 +9,5 @@ pub mod p0014_longest_common_prefix;
 pub mod p0017_letter_combinations_of_a_phone_number;
 pub mod p0019_remove_nth_node_from_end_of_list;
 pub mod p0020_valid_parentheses;
-pub mod p0926_flip_string_to_monotone_increasing;
 pub mod p0023_merge_k_sorted_lists;
+pub mod p0926_flip_string_to_monotone_increasing;
