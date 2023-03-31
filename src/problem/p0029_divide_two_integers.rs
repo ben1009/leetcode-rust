@@ -79,6 +79,7 @@ mod tests {
 
     #[test]
     fn test_29() {
+        assert_eq!(Solution::divide(10, 2), 5);
         assert_eq!(Solution::divide(10, 3), 3);
         assert_eq!(Solution::divide(7, -3), -2);
         assert_eq!(
