@@ -54,6 +54,7 @@ pub struct Solution {}
 // submission codes start here
 
 impl Solution {
+    // same order
     pub fn remove_element(nums: &mut Vec<i32>, val: i32) -> i32 {
         if nums.is_empty() {
             return 0;
@@ -69,6 +70,29 @@ impl Solution {
         }
 
         pre as i32
+    }
+
+    // any order
+    pub fn remove_element1(nums: &mut Vec<i32>, val: i32) -> i32 {
+        if nums.is_empty() {
+            return 0;
+        }
+
+        let mut lo = 0;
+        let mut hi = nums.len() - 1;
+        while lo <= hi {
+            if nums[lo] == val {
+                nums[lo] = nums[hi];
+                if hi < 1 {
+                    break;
+                }
+                hi -= 1;
+            } else {
+                lo += 1;
+            }
+        }
+
+        lo as i32
     }
 }
 
@@ -89,5 +113,17 @@ mod tests {
             Solution::remove_element(&mut vec![0, 1, 2, 2, 3, 0, 4, 2], 0),
             6
         );
+
+        assert_eq!(Solution::remove_element1(&mut vec![3, 2, 2, 3], 3), 2);
+        assert_eq!(
+            Solution::remove_element1(&mut vec![0, 1, 2, 2, 3, 0, 4, 2], 2),
+            5
+        );
+        assert_eq!(
+            Solution::remove_element1(&mut vec![0, 1, 2, 2, 3, 0, 4, 2], 0),
+            6
+        );
+        assert_eq!(Solution::remove_element(&mut vec![1], 1), 0);
+        assert_eq!(Solution::remove_element1(&mut vec![1], 1), 0);
     }
 }
