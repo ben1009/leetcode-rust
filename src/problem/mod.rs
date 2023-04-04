@@ -15,3 +15,6 @@ pub mod p0027_remove_element;
 pub mod p0029_divide_two_integers;
 pub mod p0041_first_missing_positive;
 pub mod p0926_flip_string_to_monotone_increasing;
+pub mod p0056_merge_intervals;
+pub mod p0064_minimum_path_sum;
+pub mod p0070_climbing_stairs;
