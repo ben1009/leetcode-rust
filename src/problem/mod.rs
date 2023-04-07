@@ -18,3 +18,4 @@ pub mod p0926_flip_string_to_monotone_increasing;
 pub mod p0056_merge_intervals;
 pub mod p0064_minimum_path_sum;
 pub mod p0070_climbing_stairs;
+pub mod p0101_symmetric_tree;
