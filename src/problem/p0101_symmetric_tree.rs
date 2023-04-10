@@ -16,8 +16,8 @@
  *  
  * Constraints:
  *
- * 	The number of nodes in the tree is in the range [1, 1000].
- * 	-100 <= Node.val <= 100
+ *     The number of nodes in the tree is in the range [1, 1000].
+ *     -100 <= Node.val <= 100
  *
  *  
  * Follow up: Could you solve it both recursively and iteratively?
@@ -100,14 +100,6 @@ mod tests {
             Some(4),
             Some(3)
         ])));
-        assert!(!Solution::is_symmetric(to_tree(vec![
-            Some(1),
-            Some(2),
-            Some(2),
-            None,
-            Some(3),
-            None,
-            Some(3)
-        ])));
+        assert!(!Solution::is_symmetric(tree![1, 2, 2, null, 3, null, 3]));
     }
 }
