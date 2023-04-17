@@ -49,7 +49,7 @@ struct MinStack {
 }
 
 struct Element {
-    min: i32, // snapshot of the state of the stack, e.g. the minimum value in the stack for the current iteration
+    min: i32, // snapshot of the state of the stack, e.g. the minimum value in the stack when the current value pushed into stack
     value: i32,
 }
 
