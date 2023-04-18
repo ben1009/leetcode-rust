@@ -21,6 +21,5 @@ pub mod p0088_merge_sorted_array;
 pub mod p0101_symmetric_tree;
 pub mod p0128_longest_consecutive_sequence;
 pub mod p0155_min_stack;
-pub mod p0155_min_stack;
 pub mod p0912_sort_an_array;
 pub mod p0926_flip_string_to_monotone_increasing;
