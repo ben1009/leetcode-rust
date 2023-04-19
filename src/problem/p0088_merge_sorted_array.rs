@@ -48,6 +48,7 @@ pub struct Solution {}
 // submission codes start here
 
 impl Solution {
+    #[allow(clippy::ptr_arg)]
     pub fn merge(nums1: &mut Vec<i32>, m: i32, nums2: &mut Vec<i32>, n: i32) {
         if nums2.is_empty() {
             return;
