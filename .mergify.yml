@@ -1,6 +1,7 @@
 pull_request_rules:
   - name: Automatic merge on approval
     conditions:
+        - -conflict
         - check-success=dependency-review
         - check-success=stable / fmt
         - check-success=ubuntu / nightly
