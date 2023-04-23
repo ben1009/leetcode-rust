@@ -24,3 +24,4 @@ pub mod p0926_flip_string_to_monotone_increasing;
 pub mod p0155_min_stack;
 pub mod p0088_merge_sorted_array;
 pub mod p0114_flatten_binary_tree_to_linked_list;
+pub mod p0617_merge_two_binary_trees;
