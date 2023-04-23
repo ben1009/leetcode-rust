@@ -1,0 +1,27 @@
+pull_request_rules:
+  - name: Automatic merge on approval
+    conditions:
+        - -conflict
+        - check-success=dependency-review
+        - check-success=stable / fmt
+        - check-success=ubuntu / nightly
+        - check-success=sanitizers
+        - check-success=ubuntu / stable
+        - check-success=ubuntu / beta
+        - check-success=stable / clippy
+        - check-success=ubuntu / beta / updated
+        - check-success=miri
+        - check-success=macos-latest / stable
+        - check-success=beta / clippy
+        - check-success=windows-latest / stable
+        - check-success=nightly / doc
+        - check-success=ubuntu / stable / coverage 
+        - check-success=ubuntu / stable / features
+        - check-success=ubuntu / 1.56.1
+        - check-success=patch
+        - check-success=project
+        - check-success=clippy
+
+    actions:
+      merge:
+        method: merge
