@@ -18,8 +18,8 @@ pull_request_rules:
         - check-success=ubuntu / stable / coverage 
         - check-success=ubuntu / stable / features
         - check-success=ubuntu / 1.56.1
-        - check-success=patch
-        - check-success=project
+        - check-success=codecov/patch
+        - check-success=codecov/project
         - check-success=clippy
 
     actions:
