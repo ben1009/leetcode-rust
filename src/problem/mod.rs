@@ -26,6 +26,7 @@ pub mod p0152_maximum_product_subarray;
 pub mod p0155_min_stack;
 pub mod p0345_reverse_vowels_of_a_string;
 pub mod p0543_diameter_of_binary_tree;
+pub mod p0581_shortest_unsorted_continuous_subarray;
 pub mod p0617_merge_two_binary_trees;
 pub mod p0912_sort_an_array;
 pub mod p0926_flip_string_to_monotone_increasing;
