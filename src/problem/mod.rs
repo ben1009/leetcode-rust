@@ -24,6 +24,7 @@ pub mod p0128_longest_consecutive_sequence;
 pub mod p0145_binary_tree_postorder_traversal;
 pub mod p0152_maximum_product_subarray;
 pub mod p0155_min_stack;
+pub mod p0165_compare_version_numbers;
 pub mod p0202_happy_number;
 pub mod p0345_reverse_vowels_of_a_string;
 pub mod p0543_diameter_of_binary_tree;
