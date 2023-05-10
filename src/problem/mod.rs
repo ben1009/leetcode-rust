@@ -35,3 +35,4 @@ pub mod p0617_merge_two_binary_trees;
 pub mod p0912_sort_an_array;
 pub mod p0926_flip_string_to_monotone_increasing;
 pub mod p1376_time_needed_to_inform_all_employees;
+pub mod p2437_number_of_valid_clock_times;
