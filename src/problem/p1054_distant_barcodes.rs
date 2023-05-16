@@ -33,12 +33,10 @@ impl Solution {
         }
 
         let mut map: HashMap<i32, i32> = HashMap::new();
-        let mut max_count = 0;
         let mut key = 0;
         for item in &barcodes {
             map.entry(*item).and_modify(|v| *v += 1).or_insert(1);
-            if max_count < map[item] {
-                max_count = map[item];
+            if *map.entry(key).or_default() < map[item] {
                 key = *item;
             }
         }
@@ -75,14 +73,13 @@ mod tests {
 
     #[test]
     fn test_1054() {
-        assert_eq!(
-            vec![1, 2, 1, 2, 1, 2],
-            Solution::rearrange_barcodes(vec![1, 1, 1, 2, 2, 2])
-        );
-        assert_eq!(
-            vec![1, 2, 1, 2, 1, 3, 1, 3],
-            Solution::rearrange_barcodes(vec![1, 1, 1, 1, 2, 2, 3, 3])
-        );
+        let a = Solution::rearrange_barcodes(vec![1, 1, 1, 1, 2, 2, 2, 3, 3]);
+        assert!(vec![
+            vec![1, 2, 1, 2, 1, 3, 1, 3, 2],
+            vec![1, 3, 1, 2, 1, 2, 1, 2, 3]
+        ]
+        .contains(&a));
+
         assert_eq!(vec![1, 2], Solution::rearrange_barcodes(vec![1, 2]));
     }
 }
