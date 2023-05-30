@@ -20,6 +20,7 @@ pub mod p0064_minimum_path_sum;
 pub mod p0070_climbing_stairs;
 pub mod p0088_merge_sorted_array;
 pub mod p0091_decode_ways;
+pub mod p0095_unique_binary_search_trees_ii;
 pub mod p0101_symmetric_tree;
 pub mod p0114_flatten_binary_tree_to_linked_list;
 pub mod p0128_longest_consecutive_sequence;
