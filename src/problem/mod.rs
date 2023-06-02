@@ -27,6 +27,7 @@ pub mod p0114_flatten_binary_tree_to_linked_list;
 pub mod p0128_longest_consecutive_sequence;
 pub mod p0145_binary_tree_postorder_traversal;
 pub mod p0152_maximum_product_subarray;
+pub mod p0153_find_minimum_in_rotated_sorted_array;
 pub mod p0155_min_stack;
 pub mod p0165_compare_version_numbers;
 pub mod p0202_happy_number;
