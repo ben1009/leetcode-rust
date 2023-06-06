@@ -89,20 +89,24 @@ impl Solution {
             let k = node.as_ref().borrow().val;
             for n in node.as_ref().borrow().neighbors.iter() {
                 let k1 = n.borrow().val;
-                if dic.contains_key(&k1) {
-                    continue;
+                let t1 = dic.get(&k1);
+                let mut tt = Rc::new(RefCell::new(GraphNode::new(0)));
+                match t1 {
+                    Some(t1) => {
+                        tt = t1.clone();
+                    }
+                    None => {
+                        tt = Rc::new(RefCell::new(GraphNode::new(k1)));
+                        dic.insert(k1, tt.clone());
+                        stack.push(n.clone());
+                    }
                 }
-
-                let t1 = Rc::new(RefCell::new(GraphNode::new(k1)));
                 dic.get(&k)
                     .unwrap()
                     .as_ref()
                     .borrow_mut()
                     .neighbors
-                    .push(t1.clone());
-
-                dic.insert(k1, t1);
-                stack.push(n.clone());
+                    .push(tt);
             }
         }
     }
@@ -145,6 +149,7 @@ mod tests {
             .neighbors
             .push(n31.as_ref().unwrap().clone());
 
+        // TODO: should checked by is_same_graph instead of eq
         assert_eq!(
             Solution::clone_graph(n1.clone()),
             n11,
