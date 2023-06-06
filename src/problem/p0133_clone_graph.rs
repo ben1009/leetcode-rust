@@ -122,6 +122,7 @@ mod tests {
             Solution::clone_graph(Some(Rc::new(RefCell::new(GraphNode::new(1))))),
             Some(Rc::new(RefCell::new(GraphNode::new(1))))
         );
+
         let n1 = Some(Rc::new(RefCell::new(GraphNode::new(1))));
         let n2 = Some(Rc::new(RefCell::new(GraphNode::new(2))));
         n1.as_ref()
@@ -135,29 +136,20 @@ mod tests {
             .neighbors
             .push(Some(Rc::new(RefCell::new(GraphNode::new(3)))).unwrap());
 
-        let n11 = Some(Rc::new(RefCell::new(GraphNode::new(1))));
-        let n21 = Some(Rc::new(RefCell::new(GraphNode::new(2))));
-        let n31 = Some(Rc::new(RefCell::new(GraphNode::new(3))));
-        n11.as_ref()
-            .unwrap()
-            .borrow_mut()
-            .neighbors
-            .push(n21.as_ref().unwrap().clone());
-        n21.as_ref()
-            .unwrap()
-            .borrow_mut()
-            .neighbors
-            .push(n31.as_ref().unwrap().clone());
-
         // TODO: should checked by is_same_graph instead of eq
         assert_eq!(
             Solution::clone_graph(n1.clone()),
-            n11,
+            n1,
             "clone_graph test fail"
         );
         assert_ne!(
-            Solution::clone_graph(n1).unwrap().as_ptr(),
-            n11.unwrap().as_ptr(),
+            Solution::clone_graph(n1.clone()).unwrap().as_ptr(),
+            n1.clone().unwrap().as_ptr(),
+            "clone_graph test fail"
+        );
+        assert_eq!(
+            n1.clone().unwrap().as_ptr(),
+            n1.unwrap().as_ptr(),
             "clone_graph test fail"
         );
     }
