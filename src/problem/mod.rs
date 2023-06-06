@@ -25,6 +25,7 @@ pub mod p0096_unique_binary_search_trees;
 pub mod p0101_symmetric_tree;
 pub mod p0114_flatten_binary_tree_to_linked_list;
 pub mod p0128_longest_consecutive_sequence;
+pub mod p0133_clone_graph;
 pub mod p0145_binary_tree_postorder_traversal;
 pub mod p0152_maximum_product_subarray;
 pub mod p0153_find_minimum_in_rotated_sorted_array;
