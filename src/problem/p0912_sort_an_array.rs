@@ -14,7 +14,7 @@
  *
  * Input: nums = [5,1,1,2,0,0]
  * Output: [0,0,1,1,2,5]
- * Explanation: Note that the values of nums are not necessairly unique.
+ * Explanation: Note that the values of nums are not necessarily unique.
  *
  *  
  * Constraints:
