@@ -41,7 +41,7 @@
 pub struct Solution {}
 use std::{cmp::Reverse, collections::BinaryHeap};
 
-use crate::util::linked_list::{to_list, ListNode};
+use crate::util::linked_list::ListNode;
 
 // problem: https://leetcode.com/problems/merge-k-sorted-lists/
 // discuss: https://leetcode.com/problems/merge-k-sorted-lists/discuss/?currentPage=1&orderBy=most_votes&query=

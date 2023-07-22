@@ -24,6 +24,7 @@ pub mod p0095_unique_binary_search_trees_ii;
 pub mod p0096_unique_binary_search_trees;
 pub mod p0101_symmetric_tree;
 pub mod p0109_convert_sorted_list_to_binary_search_tree;
+pub mod p0111_minimum_depth_of_binary_tree;
 pub mod p0114_flatten_binary_tree_to_linked_list;
 pub mod p0128_longest_consecutive_sequence;
 pub mod p0133_clone_graph;

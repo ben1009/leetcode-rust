@@ -45,6 +45,7 @@ impl Solution {
         }
         x *= sign;
 
+        #[allow(unused_assignments)]
         let mut num = 1;
         let mut ret: i64 = 0;
         while x > 0 {

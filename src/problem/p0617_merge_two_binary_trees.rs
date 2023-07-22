@@ -24,7 +24,7 @@
  *
  */
 pub struct Solution {}
-use crate::util::tree::{to_tree, TreeNode};
+use crate::util::tree::TreeNode;
 
 // problem: https://leetcode.com/problems/merge-two-binary-trees/
 // discuss: https://leetcode.com/problems/merge-two-binary-trees/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -64,7 +64,7 @@ impl Solution {
         }
 
         let val = root1.as_ref().unwrap().borrow().val + root2.as_ref().unwrap().borrow().val;
-        let mut root = Some(Rc::new(RefCell::new(TreeNode::new(val))));
+        let root = Some(Rc::new(RefCell::new(TreeNode::new(val))));
         root.as_ref().unwrap().borrow_mut().left = Self::merge_trees(
             root1.as_ref().unwrap().borrow().left.clone(),
             root2.as_ref().unwrap().borrow().left.clone(),
@@ -83,6 +83,7 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::util::tree::to_tree;
 
     #[test]
     fn test_617() {

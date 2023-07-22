@@ -50,7 +50,7 @@ impl Solution {
         String::from_utf8(ret.to_owned()).unwrap()
     }
 
-    fn pali(mut i: usize, mut j: usize, s: &[u8]) -> &[u8] {
+    fn pali(i: usize, mut j: usize, s: &[u8]) -> &[u8] {
         // kind of ugly
         let mut i = i as i32;
         while i >= 0 && j < s.len() {

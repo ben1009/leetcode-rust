@@ -61,7 +61,7 @@ impl Solution {
     }
 
     fn dfs(
-        mut i: usize,
+        i: usize,
         map: &HashMap<char, &str>,
         digits: &Vec<char>,
         tmp: &mut Vec<char>,

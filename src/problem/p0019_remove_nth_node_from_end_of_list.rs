@@ -31,9 +31,8 @@
  *
  */
 pub struct Solution {}
-use reqwest::header;
 
-use crate::util::linked_list::{to_list, ListNode};
+use crate::util::linked_list::ListNode;
 
 // problem: https://leetcode.com/problems/remove-nth-node-from-end-of-list/
 // discuss: https://leetcode.com/problems/remove-nth-node-from-end-of-list/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -83,6 +82,8 @@ impl Solution {
 
 #[cfg(test)]
 mod tests {
+    use crate::util::linked_list::to_list;
+
     use super::*;
 
     #[test]

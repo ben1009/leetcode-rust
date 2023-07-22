@@ -49,7 +49,7 @@ pub struct Solution {}
 
 impl Solution {
     #[allow(clippy::ptr_arg)]
-    pub fn merge(nums1: &mut Vec<i32>, m: i32, nums2: &mut Vec<i32>, n: i32) {
+    pub fn merge(nums1: &mut Vec<i32>, m: i32, nums2: &Vec<i32>, n: i32) {
         if nums2.is_empty() {
             return;
         }
@@ -79,11 +79,11 @@ mod tests {
     #[test]
     fn test_88() {
         let mut num1 = vec![1, 2, 3, 0, 0, 0];
-        Solution::merge(&mut num1, 3, &mut vec![2, 5, 6], 3);
+        Solution::merge(&mut num1, 3, &vec![2, 5, 6], 3);
         assert_eq!(vec![1, 2, 2, 3, 5, 6], num1);
 
         let mut num1 = vec![1, 2, 3, 0, 0, 0];
-        Solution::merge(&mut num1, 3, &mut vec![], 0);
+        Solution::merge(&mut num1, 3, &vec![], 0);
         assert_eq!(vec![1, 2, 3, 0, 0, 0], num1)
     }
 }

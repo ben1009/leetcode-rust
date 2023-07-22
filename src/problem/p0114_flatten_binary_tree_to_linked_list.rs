@@ -32,7 +32,7 @@
  * Follow up: Can you flatten the tree in-place (with O(1) extra space)?
  */
 pub struct Solution {}
-use crate::util::tree::{to_tree, TreeNode};
+use crate::util::tree::TreeNode;
 
 // problem: https://leetcode.com/problems/flatten-binary-tree-to-linked-list/
 // discuss: https://leetcode.com/problems/flatten-binary-tree-to-linked-list/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -60,14 +60,14 @@ use crate::util::tree::{to_tree, TreeNode};
 use std::cell::RefCell;
 use std::rc::Rc;
 impl Solution {
-    pub fn flatten(root: &mut Option<Rc<RefCell<TreeNode>>>) {
+    pub fn flatten(root: &Option<Rc<RefCell<TreeNode>>>) {
         if root.is_none() {
             return;
         }
 
         let mut root = root.as_ref().unwrap().borrow_mut();
-        Self::flatten(&mut root.left.clone());
-        Self::flatten(&mut root.right.clone());
+        Self::flatten(&root.left.clone());
+        Self::flatten(&root.right.clone());
 
         if root.left.is_none() {
             return;
@@ -93,11 +93,12 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::util::tree::to_tree;
 
     #[test]
     fn test_114() {
-        let mut tree_node = tree!(1, 2, 5, 3, 4, null, 6);
-        Solution::flatten(&mut tree_node);
+        let tree_node = tree!(1, 2, 5, 3, 4, null, 6);
+        Solution::flatten(&tree_node);
         assert_eq!(
             tree_node,
             tree![1, null, 2, null, 3, null, 4, null, 5, null, 6]
