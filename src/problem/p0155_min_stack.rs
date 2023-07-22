@@ -44,10 +44,12 @@ pub struct Solution {}
 
 // submission codes start here
 
+#[allow(dead_code)]
 struct MinStack {
     vec: Vec<Element>,
 }
 
+#[allow(dead_code)]
 struct Element {
     min: i32, // snapshot of the state of the stack, e.g. the minimum value in the stack when the current value pushed into stack
     value: i32,
@@ -57,6 +59,7 @@ struct Element {
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
+#[allow(dead_code)]
 impl MinStack {
     fn new() -> Self {
         Self { vec: vec![] }

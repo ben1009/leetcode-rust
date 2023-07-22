@@ -46,7 +46,7 @@ impl Solution {
             return true;
         }
 
-        let mut map = HashMap::from([(')', '('), (']', '['), ('}', '{')]);
+        let map = HashMap::from([(')', '('), (']', '['), ('}', '{')]);
         let mut stack = vec![];
         for c in s.chars() {
             if stack.is_empty() {

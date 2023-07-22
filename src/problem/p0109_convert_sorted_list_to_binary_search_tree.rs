@@ -22,10 +22,9 @@
  *
  */
 pub struct Solution {}
-use reqwest::header;
 
-use crate::util::linked_list::{to_list, ListNode};
-use crate::util::tree::{to_tree, TreeNode};
+use crate::util::linked_list::ListNode;
+use crate::util::tree::TreeNode;
 
 // problem: https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/
 // discuss: https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -109,6 +108,8 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::util::linked_list::to_list;
+    use crate::util::tree::to_tree;
 
     #[test]
     fn test_109() {

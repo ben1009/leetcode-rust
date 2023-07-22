@@ -84,20 +84,19 @@ impl Solution {
         dic.insert(k, t);
         stack.push(node);
 
-        while !stack.is_empty() {
-            let node = stack.pop().unwrap();
+        while let Some(node) = stack.pop() {
             let k = node.as_ref().borrow().val;
             for n in node.as_ref().borrow().neighbors.iter() {
                 let k1 = n.borrow().val;
                 let t1 = dic.get(&k1);
-                let mut tt = Rc::new(RefCell::new(GraphNode::new(0)));
+                let mut _tt = Rc::new(RefCell::new(GraphNode::new(0)));
                 match t1 {
                     Some(t1) => {
-                        tt = t1.clone();
+                        _tt = t1.clone();
                     }
                     None => {
-                        tt = Rc::new(RefCell::new(GraphNode::new(k1)));
-                        dic.insert(k1, tt.clone());
+                        _tt = Rc::new(RefCell::new(GraphNode::new(k1)));
+                        dic.insert(k1, _tt.clone());
                         stack.push(n.clone());
                     }
                 }
@@ -106,7 +105,7 @@ impl Solution {
                     .as_ref()
                     .borrow_mut()
                     .neighbors
-                    .push(tt);
+                    .push(_tt);
             }
         }
     }
@@ -134,7 +133,7 @@ mod tests {
             .unwrap()
             .borrow_mut()
             .neighbors
-            .push(Some(Rc::new(RefCell::new(GraphNode::new(3)))).unwrap());
+            .push(Rc::new(RefCell::new(GraphNode::new(3))));
 
         // TODO: should checked by is_same_graph instead of eq
         assert_eq!(

@@ -44,7 +44,7 @@ pub struct Solution {}
 // submission codes start here
 
 impl Solution {
-    pub fn is_match(s: String, p: String) -> bool {
+    pub fn is_match(_s: String, _p: String) -> bool {
         false
     }
 }
@@ -53,7 +53,6 @@ impl Solution {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
     fn test_10() {}

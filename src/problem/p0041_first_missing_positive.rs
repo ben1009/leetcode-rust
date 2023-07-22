@@ -46,7 +46,7 @@ impl Solution {
                 continue;
             }
 
-            let mut tmp = nums[i] as usize;
+            let tmp = nums[i] as usize;
             if tmp > 0 && nums.len() > tmp - 1 && nums[tmp - 1] != nums[i] {
                 nums.swap(i, tmp - 1);
             } else {

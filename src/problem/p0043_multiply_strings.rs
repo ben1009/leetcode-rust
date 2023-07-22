@@ -36,13 +36,13 @@ impl Solution {
         let mut tmp = vec![];
         for i in (0..num1.len()).rev() {
             let mut s = vec![0; num1.len() - 1 - i];
-            let mut num = 0;
+            let mut _num = 0;
             let mut carry = 0;
             for j in (0..num2.len()).rev() {
-                num = (num1[i] - b'0') * (num2[j] - b'0') + carry;
-                carry = num / 10;
-                num %= 10;
-                s.push(num);
+                _num = (num1[i] - b'0') * (num2[j] - b'0') + carry;
+                carry = _num / 10;
+                _num %= 10;
+                s.push(_num);
             }
             if carry != 0 {
                 s.push(carry);
@@ -64,17 +64,17 @@ impl Solution {
         let mut carry = 0;
         let mut i = a.len() as i32 - 1;
         let mut j = b.len() as i32 - 1;
-        let mut num = 0;
+        let mut _num = 0;
         while i >= 0 || j >= 0 {
-            num = carry;
+            _num = carry;
             if i >= 0 {
-                num += a[i as usize];
+                _num += a[i as usize];
             }
             if j >= 0 {
-                num += b[j as usize];
+                _num += b[j as usize];
             }
-            ret.push(num % 10);
-            carry = num / 10;
+            ret.push(_num % 10);
+            carry = _num / 10;
             i -= 1;
             j -= 1;
         }

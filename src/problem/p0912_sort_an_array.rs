@@ -52,8 +52,8 @@ impl Solution {
     }
 
     fn sort(nums: &Vec<i32>, k: u32) -> Vec<i32> {
-        let mut count = vec![0; 21]; // [-9 - 9]
-        for (i, item) in nums.iter().enumerate() {
+        let mut count = [0; 21]; // [-9 - 9]
+        for (_i, item) in nums.iter().enumerate() {
             let n = item / 10_i32.pow(k) % 10 + 10;
             count[n as usize + 1] += 1;
         }
@@ -62,7 +62,7 @@ impl Solution {
         }
 
         let mut ret = vec![0; nums.len()];
-        for (i, item) in nums.iter().enumerate() {
+        for (_i, item) in nums.iter().enumerate() {
             let n = item / 10_i32.pow(k) % 10 + 10;
             ret[count[n as usize]] = *item;
             count[n as usize] += 1;

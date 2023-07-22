@@ -20,7 +20,7 @@
  *
  */
 pub struct Solution {}
-use crate::util::tree::{to_tree, TreeNode};
+use crate::util::tree::TreeNode;
 
 // problem: https://leetcode.com/problems/unique-binary-search-trees-ii/
 // discuss: https://leetcode.com/problems/unique-binary-search-trees-ii/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -81,6 +81,7 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::util::tree::to_tree;
 
     #[test]
     fn test_95() {

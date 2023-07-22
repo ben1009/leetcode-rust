@@ -28,7 +28,7 @@
  * Follow up: Recursive solution is trivial, could you do it iteratively?
  */
 pub struct Solution {}
-use crate::util::tree::{to_tree, TreeNode};
+use crate::util::tree::TreeNode;
 
 // problem: https://leetcode.com/problems/binary-tree-postorder-traversal/
 // discuss: https://leetcode.com/problems/binary-tree-postorder-traversal/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -96,6 +96,7 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::util::tree::to_tree;
 
     #[test]
     fn test_145() {
