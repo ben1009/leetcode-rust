@@ -1,30 +1,26 @@
-/**
- * [109] Convert Sorted List to Binary Search Tree
- *
- * Given the head of a singly linked list where elements are sorted in ascending order, convert it to a <span data-keyword="height-balanced">height-balanced</span> binary search tree.
- *  
- * <strong class="example">Example 1:
- * <img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/linked.jpg" style="width: 500px; height: 388px;" />
- * Input: head = [-10,-3,0,5,9]
- * Output: [0,-3,9,-10,null,5]
- * Explanation: One possible answer is [0,-3,9,-10,null,5], which represents the shown height balanced BST.
- *
- * <strong class="example">Example 2:
- *
- * Input: head = []
- * Output: []
- *
- *  
- * Constraints:
- *
- *     The number of nodes in head is in the range [0, 2 * 10^4].
- *     -10^5 <= Node.val <= 10^5
- *
- */
+/// [109] Convert Sorted List to Binary Search Tree
+///
+/// Given the head of a singly linked list where elements are sorted in ascending order, convert it
+/// to a <span data-keyword="height-balanced">height-balanced</span> binary search tree.  
+/// <strong class="example">Example 1:
+/// <img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/linked.jpg" style="width: 500px; height: 388px;" />
+/// Input: head = [-10,-3,0,5,9]
+/// Output: [0,-3,9,-10,null,5]
+/// Explanation: One possible answer is [0,-3,9,-10,null,5], which represents the shown height
+/// balanced BST.
+///
+/// <strong class="example">Example 2:
+///
+/// Input: head = []
+/// Output: []
+///
+///  
+/// Constraints:
+///
+///     The number of nodes in head is in the range [0, 2 * 10^4].
+///     -10^5 <= Node.val <= 10^5
+///
 pub struct Solution {}
-
-use crate::util::linked_list::ListNode;
-use crate::util::tree::TreeNode;
 
 // problem: https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/
 // discuss: https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -67,6 +63,8 @@ use crate::util::tree::TreeNode;
 // }
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use crate::util::{linked_list::ListNode, tree::TreeNode};
 impl Solution {
     pub fn sorted_list_to_bst(head: Option<Box<ListNode>>) -> Option<Rc<RefCell<TreeNode>>> {
         head.as_ref()?;
@@ -82,7 +80,8 @@ impl Solution {
             return None;
         }
 
-        // TODO: could push into a vec, get mid by idx, instead of traversing again and again for better time complexity
+        // TODO: could push into a vec, get mid by idx, instead of traversing again and again for
+        // better time complexity
         let mid = Self::find_mid(head.clone(), tail.clone());
         let mut n = TreeNode::new(mid.as_ref().unwrap().val);
         n.left = Self::to_bst(head, mid.clone());
@@ -108,8 +107,7 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::util::linked_list::to_list;
-    use crate::util::tree::to_tree;
+    use crate::util::{linked_list::to_list, tree::to_tree};
 
     #[test]
     fn test_109() {

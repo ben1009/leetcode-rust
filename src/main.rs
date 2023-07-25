@@ -5,19 +5,23 @@ extern crate serde_json;
 
 mod fetcher;
 
-use crate::fetcher::{CodeDefinition, Problem};
-use regex::Regex;
-use std::fs;
-use std::fs::File;
-use std::io;
-use std::io::{BufRead, Write};
-use std::path::Path;
+use std::{
+    fs,
+    fs::File,
+    io,
+    io::{BufRead, Write},
+    path::Path,
+    sync::{Arc, Mutex},
+};
 
-use futures::executor::block_on;
-use futures::executor::ThreadPool;
-use futures::future::join_all;
-use futures::task::SpawnExt;
-use std::sync::{Arc, Mutex};
+use futures::{
+    executor::{block_on, ThreadPool},
+    future::join_all,
+    task::SpawnExt,
+};
+use regex::Regex;
+
+use crate::fetcher::{CodeDefinition, Problem};
 
 /// main() helps to generate the submission template .rs
 fn main() {

@@ -1,35 +1,31 @@
-/**
- * [145] Binary Tree Postorder Traversal
- *
- * Given the root of a binary tree, return the postorder traversal of its nodes' values.
- *  
- * <strong class="example">Example 1:
- * <img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/pre1.jpg" style="width: 127px; height: 200px;" />
- * Input: root = [1,null,2,3]
- * Output: [3,2,1]
- *
- * <strong class="example">Example 2:
- *
- * Input: root = []
- * Output: []
- *
- * <strong class="example">Example 3:
- *
- * Input: root = [1]
- * Output: [1]
- *
- *  
- * Constraints:
- *
- *     The number of the nodes in the tree is in the range [0, 100].
- *     -100 <= Node.val <= 100
- *
- *  
- * Follow up: Recursive solution is trivial, could you do it iteratively?
- */
+/// [145] Binary Tree Postorder Traversal
+///
+/// Given the root of a binary tree, return the postorder traversal of its nodes' values.
+///  
+/// <strong class="example">Example 1:
+/// <img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/pre1.jpg" style="width: 127px; height: 200px;" />
+/// Input: root = [1,null,2,3]
+/// Output: [3,2,1]
+///
+/// <strong class="example">Example 2:
+///
+/// Input: root = []
+/// Output: []
+///
+/// <strong class="example">Example 3:
+///
+/// Input: root = [1]
+/// Output: [1]
+///
+///  
+/// Constraints:
+///
+///     The number of the nodes in the tree is in the range [0, 100].
+///     -100 <= Node.val <= 100
+///
+///  
+/// Follow up: Recursive solution is trivial, could you do it iteratively?
 pub struct Solution {}
-use crate::util::tree::TreeNode;
-
 // problem: https://leetcode.com/problems/binary-tree-postorder-traversal/
 // discuss: https://leetcode.com/problems/binary-tree-postorder-traversal/discuss/?currentPage=1&orderBy=most_votes&query=
 
@@ -55,6 +51,8 @@ use crate::util::tree::TreeNode;
 // }
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use crate::util::tree::TreeNode;
 impl Solution {
     pub fn postorder_traversal(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<i32> {
         if root.is_none() {
