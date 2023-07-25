@@ -1,26 +1,24 @@
-/**
- * [5] Longest Palindromic Substring
- *
- * Given a string s, return the longest <span data-keyword="palindromic-string">palindromic</span> <span data-keyword="substring-nonempty">substring</span> in s.
- *  
- * <strong class="example">Example 1:
- *
- * Input: s = "babad"
- * Output: "bab"
- * Explanation: "aba" is also a valid answer.
- *
- * <strong class="example">Example 2:
- *
- * Input: s = "cbbd"
- * Output: "bb"
- *
- *  
- * Constraints:
- *
- *     1 <= s.length <= 1000
- *     s consist of only digits and English letters.
- *
- */
+/// [5] Longest Palindromic Substring
+///
+/// Given a string s, return the longest <span data-keyword="palindromic-string">palindromic</span>
+/// <span data-keyword="substring-nonempty">substring</span> in s.  
+/// <strong class="example">Example 1:
+///
+/// Input: s = "babad"
+/// Output: "bab"
+/// Explanation: "aba" is also a valid answer.
+///
+/// <strong class="example">Example 2:
+///
+/// Input: s = "cbbd"
+/// Output: "bb"
+///
+///  
+/// Constraints:
+///
+///     1 <= s.length <= 1000
+///     s consist of only digits and English letters.
+///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/longest-palindromic-substring/

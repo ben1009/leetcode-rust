@@ -1,8 +1,9 @@
 extern crate reqwest;
 extern crate serde_json;
 
-use serde_json::Value;
 use std::fmt::{Display, Error, Formatter};
+
+use serde_json::Value;
 
 const PROBLEMS_URL: &str = "https://leetcode.com/api/problems/algorithms/";
 const GRAPHQL_URL: &str = "https://leetcode.com/graphql";
