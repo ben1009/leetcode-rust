@@ -102,7 +102,7 @@ jobs:
       - name: Install nextest
         uses: taiki-e/install-action@nextest
       - name: cargo llvm-cov
-        run: cargo llvm-cov nextest--locked --workspace --all-features --all-targets --lcov --output-path lcov.info
+        run: cargo llvm-cov nextest --locked --workspace --all-features --all-targets --lcov --output-path lcov.info
       - name: Upload to codecov.io
         uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
         with:
