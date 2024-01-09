@@ -11,6 +11,7 @@ skip_crate_env_info = true
 min_version = "0.36.10"
 
 [tasks.install-nextest]
+category = "Misc"
 description = "install cargo-nextest"
 install_crate = { crate_name = "cargo-nextest", version = "0.9.61", binary = "cargo", test_arg = [
     "nextest",
@@ -18,6 +19,7 @@ install_crate = { crate_name = "cargo-nextest", version = "0.9.61", binary = "ca
 ] }
 
 [tasks.install-llvm-cov]
+category = "Misc"
 description = "install cargo-llvm-cov"
 install_crate = { crate_name = "cargo-llvm-cov", version = "0.5.35", binary = "cargo", test_arg = [
     "llvm-cov",
@@ -25,11 +27,13 @@ install_crate = { crate_name = "cargo-llvm-cov", version = "0.5.35", binary = "c
 ] }
 
 [tasks.clean]
+category = "Dev - check"
 description = "Run cargo clean"
 command = "cargo"
 args = ["clean"]
 
 [tasks.check-clippy]
+category = "Dev - check"
 description = "Run full cargo clippy check"
 script = """
 #!/usr/bin/env bash
@@ -38,11 +42,13 @@ cargo clippy --workspace --all-features --all-targets -- -D warnings
 """
 
 [tasks.check-fmt]
+category = "Dev - check"
 description = "Run cargo fmt check"
 command = "cargo"
 args = ["fmt", "--all"]
 
 [tasks.check-typos]
+category = "Dev - check"
 description = "Run cargo typos-cli check"
 install_crate = { version = "1.16.20", crate_name = "typos-cli", binary = "typos", test_arg = [
     "--help",
@@ -58,6 +64,7 @@ fi
 """
 
 [tasks.check-hakari]
+category = "Dev - check"
 description = "Run cargo hakari check and attempt to fix"
 install_crate = { version = "0.9.27", crate_name = "cargo-hakari", binary = "cargo", test_arg = [
     "hakari",
@@ -71,6 +78,7 @@ cargo hakari verify > /dev/null
 """
 
 [tasks.check-machete]
+category = "Dev - check"
 description = "Run cargo machete check"
 install_crate = { version = "0.6.0", crate_name = "cargo-machete", binary = "cargo", test_arg = [
     "machete",
@@ -84,6 +92,7 @@ cargo machete
 """
 
 [tasks.check-dep-sort]
+category = "Dev - check"
 description = "Run cargo sort check and attempt to fix"
 install_crate = { version = "1.0.9", crate_name = "cargo-sort", binary = "cargo", test_arg = [
     "sort",
@@ -96,6 +105,7 @@ script = """
 """
 
 [tasks.test-cov]
+category = "Dev - check"
 description = "Run unit tests and report coverage"
 dependencies = ["install-llvm-cov", "install-nextest"]
 script = """
@@ -106,6 +116,7 @@ cargo llvm-cov nextest --workspace --all-features --all-targets --html
 """
 
 [tasks.test]
+category = "Dev - check"
 description = "Run unit tests"
 dependencies = ["install-nextest"]
 script = """
@@ -116,6 +127,8 @@ cargo nextest run --workspace --all-features --all-targets
 """
 
 [tasks.check]
+category = "Dev - check"
+description = "Run all checks one by one"
 dependencies = [
     "check-fmt",
     "check-dep-sort",
