@@ -162,6 +162,8 @@ fn generate_random_id(except_ids: &[u32]) -> u32 {
 
 fn get_initialized_ids() -> Vec<u32> {
     let content = fs::read_to_string("./src/problem/mod.rs").unwrap();
+    // TODO: bug if the problem is comment out, should not include in the list, e.g. // pub mod
+    // p0001_two_sum;
     let id_pattern = Regex::new(r"p(\d{4})_").unwrap();
     id_pattern
         .captures_iter(&content)
@@ -321,6 +323,7 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
         problem.title_slug.replace('-', "_")
     );
     let file_path = Path::new("./src/problem").join(format!("{}.rs", file_name));
+    // TODO: add a --force to overwrite
     if file_path.exists() {
         panic!("problem already initialized");
     }

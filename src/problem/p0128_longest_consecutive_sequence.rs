@@ -22,7 +22,6 @@ use std::collections::HashSet;
 ///
 ///     0 <= nums.length <= 10^5
 ///     -10^9 <= nums[i] <= 10^9
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/longest-consecutive-sequence/

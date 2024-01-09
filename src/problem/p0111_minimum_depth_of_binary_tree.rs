@@ -19,7 +19,6 @@
 ///
 ///     The number of nodes in the tree is in the range [0, 10^5].
 ///     -1000 <= Node.val <= 1000
-///
 pub struct Solution {}
 // problem: https://leetcode.com/problems/minimum-depth-of-binary-tree/
 // discuss: https://leetcode.com/problems/minimum-depth-of-binary-tree/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -44,8 +43,7 @@ pub struct Solution {}
 //     }
 //   }
 // }
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 use crate::util::tree::TreeNode;
 impl Solution {

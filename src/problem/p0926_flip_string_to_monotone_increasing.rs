@@ -29,7 +29,6 @@ use std::cmp::min;
 ///
 ///     1 <= s.length <= 10^5
 ///     s[i] is either '0' or '1'.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/flip-string-to-monotone-increasing/

@@ -38,7 +38,6 @@ use std::collections::HashMap;
 ///     0 <= informTime[i] <= 1000
 ///     informTime[i] == 0 if employee i has no subordinates.
 ///     It is guaranteed that all the employees can be informed.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/time-needed-to-inform-all-employees/

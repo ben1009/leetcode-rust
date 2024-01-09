@@ -15,7 +15,6 @@
 ///     1 <= s.length <= 1000
 ///     s[i] is either '0' or '1'.
 ///     1 <= n <= 10^9
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/binary-string-with-substrings-representing-1-to-n/

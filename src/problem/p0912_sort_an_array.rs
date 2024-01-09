@@ -21,7 +21,6 @@
 ///
 ///     1 <= nums.length <= 5 * 10^4
 ///     -5 * 10^4 <= nums[i] <= 5 * 10^4
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/sort-an-array/
@@ -50,9 +49,9 @@ impl Solution {
         nums
     }
 
-    fn sort(nums: &Vec<i32>, k: u32) -> Vec<i32> {
+    fn sort(nums: &[i32], k: u32) -> Vec<i32> {
         let mut count = [0; 21]; // [-9 - 9]
-        for (_i, item) in nums.iter().enumerate() {
+        for item in nums.iter() {
             let n = item / 10_i32.pow(k) % 10 + 10;
             count[n as usize + 1] += 1;
         }
@@ -61,7 +60,7 @@ impl Solution {
         }
 
         let mut ret = vec![0; nums.len()];
-        for (_i, item) in nums.iter().enumerate() {
+        for item in nums.iter() {
             let n = item / 10_i32.pow(k) % 10 + 10;
             ret[count[n as usize]] = *item;
             count[n as usize] += 1;

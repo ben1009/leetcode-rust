@@ -42,7 +42,6 @@
 ///
 ///  
 /// Follow up: Can you come up with an algorithm that runs in O(m + n) time?
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/merge-sorted-array/

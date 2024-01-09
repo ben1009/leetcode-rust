@@ -33,7 +33,6 @@
 ///     "00" <= mm <= "59"
 ///     Some of the digits might be replaced with '?' and need to be replaced with digits from 0 to
 /// 9.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/number-of-valid-clock-times/

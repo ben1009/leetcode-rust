@@ -26,7 +26,6 @@
 ///
 ///     1 <= nums.length <= 10^5
 ///     -2^31 <= nums[i] <= 2^31 - 1
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/first-missing-positive/

@@ -5,16 +5,19 @@ authors = ["ben1009"]
 edition = "2021"
 
 [dependencies]
-reqwest = "0.9.8"
-serde = "1.0"
-serde_json = "1.0"
-serde_derive = "1.0"
+futures = { version = "0.3.5", features = ["thread-pool"] }
+openssl = { version = "0.10", features = ["vendored"] }
 rand = "0.6.5"
 regex = "1.3.4"
-futures = { version = "0.3.5", features = ["thread-pool"] }
+reqwest = "0.9.8"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
 surf = "1.0.3"
-openssl = { version = "0.10", features = ["vendored"] }
 
 [lib]
 doctest = false
 test = true
+
+[package.metadata.cargo-machete]
+ignored = ["openssl", "serde"]

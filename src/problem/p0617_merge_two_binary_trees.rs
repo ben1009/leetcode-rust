@@ -22,7 +22,6 @@
 ///
 ///     The number of nodes in both trees is in the range [0, 2000].
 ///     -10^4 <= Node.val <= 10^4
-///
 pub struct Solution {}
 // problem: https://leetcode.com/problems/merge-two-binary-trees/
 // discuss: https://leetcode.com/problems/merge-two-binary-trees/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -47,8 +46,7 @@ pub struct Solution {}
 //     }
 //   }
 // }
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 use crate::util::tree::TreeNode;
 impl Solution {

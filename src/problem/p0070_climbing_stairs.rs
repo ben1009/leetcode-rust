@@ -24,7 +24,6 @@
 /// Constraints:
 ///
 ///     1 <= n <= 45
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/climbing-stairs/

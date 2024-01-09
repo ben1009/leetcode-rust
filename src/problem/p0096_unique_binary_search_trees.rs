@@ -16,7 +16,6 @@
 /// Constraints:
 ///
 ///     1 <= n <= 19
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/unique-binary-search-trees/

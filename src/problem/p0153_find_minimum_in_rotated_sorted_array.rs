@@ -36,7 +36,6 @@
 ///     -5000 <= nums[i] <= 5000
 ///     All the integers of nums are unique.
 ///     nums is sorted and rotated between 1 and n times.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/

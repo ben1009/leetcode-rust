@@ -150,7 +150,7 @@ mod tests {
         );
         assert_eq!(
             n1.clone().unwrap().as_ptr(),
-            n1.unwrap().as_ptr(),
+            n1.clone().unwrap().as_ptr(),
             "clone_graph test fail"
         );
     }

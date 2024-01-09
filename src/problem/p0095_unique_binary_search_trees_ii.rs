@@ -16,7 +16,6 @@
 /// Constraints:
 ///
 ///     1 <= n <= 8
-///
 pub struct Solution {}
 // problem: https://leetcode.com/problems/unique-binary-search-trees-ii/
 // discuss: https://leetcode.com/problems/unique-binary-search-trees-ii/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -41,8 +40,7 @@ pub struct Solution {}
 //     }
 //   }
 // }
-use std::cell::RefCell;
-use std::{rc::Rc, vec};
+use std::{cell::RefCell, rc::Rc, vec};
 
 use crate::util::tree::TreeNode;
 impl Solution {

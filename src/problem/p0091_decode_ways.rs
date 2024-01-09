@@ -42,7 +42,6 @@
 ///
 ///     1 <= s.length <= 100
 ///     s contains only digits and may contain leading zero(s).
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/decode-ways/

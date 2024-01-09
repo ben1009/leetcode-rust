@@ -26,7 +26,6 @@ use std::collections::HashMap;
 ///
 ///     0 <= digits.length <= 4
 ///     digits[i] is a digit in the range ['2', '9'].
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/letter-combinations-of-a-phone-number/

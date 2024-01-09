@@ -4,6 +4,13 @@ on:
   push:
     branches: [main, master]
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+env:    
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+
 name: test
 jobs:
   required:
@@ -11,7 +18,7 @@ jobs:
     name: ubuntu / ${{ matrix.toolchain }}
     strategy:
       matrix:
-        toolchain: [stable, beta]
+        toolchain: [nightly-2023-12-11]
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -30,31 +37,15 @@ jobs:
         run: cargo generate-lockfile
       # https://twitter.com/jonhoo/status/1571290371124260865
       - name: cargo test --locked
-        run: cargo test --locked --all-features --all-targets
-  # minimal:
-  #   runs-on: ubuntu-latest
-  #   name: ubuntu / stable / minimal-versions
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-  #       with:
-  #         submodules: true
-  #     - name: Install stable
-  #       uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
-  #     - name: Install nightly for -Zminimal-versions
-  #       uses: dtolnay/rust-toolchain@nightly
-  #     - name: rustup default stable
-  #       run: rustup default stable
-  #     - name: cargo update -Zminimal-versions
-  #       run: cargo +nightly update -Zminimal-versions
-  #     - name: cargo test
-  #       run: cargo test --locked --all-features --all-targets
+        run: cargo test --locked --workspace --all-features --all-targets
   os-check:
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} / stable
+    name: ${{ matrix.os }} / nightly
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
+        toolchain: [nightly-2023-12-11]
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -64,8 +55,10 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: true
-      - name: Install stable
-        uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}  
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
@@ -73,7 +66,10 @@ jobs:
         run: cargo test --locked --all-features --all-targets
   coverage:
     runs-on: ubuntu-latest
-    name: ubuntu / stable / coverage
+    name: ubuntu / nightly / coverage
+    strategy:
+      matrix:
+        toolchain: [nightly-2023-12-11]
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -83,9 +79,10 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: true
-      - name: Install stable
-        uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: ${{ matrix.toolchain }}  
           components: llvm-tools-preview
       - name: cargo install cargo-llvm-cov
         uses: taiki-e/install-action@29ee91bbad05696171dd917a8c7a3838049b93d5 # cargo-llvm-cov
@@ -93,7 +90,7 @@ jobs:
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
       - name: cargo llvm-cov
-        run: cargo llvm-cov --locked --all-features --lcov --output-path lcov.info
+        run: cargo llvm-cov --locked --workspace --all-features --all-targets --lcov --output-path lcov.info
       - name: Upload to codecov.io
         uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
         with:

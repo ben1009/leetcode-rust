@@ -16,7 +16,6 @@ use std::collections::HashSet;
 ///
 ///     1 <= s.length <= 3 * 10^5
 ///     s consist of printable ASCII characters.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/reverse-vowels-of-a-string/

@@ -21,7 +21,6 @@
 ///     1 <= intervals.length <= 10^4
 ///     intervals[i].length == 2
 ///     0 <= starti <= endi <= 10^4
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/merge-intervals/

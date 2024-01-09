@@ -20,7 +20,6 @@
 ///     1 <= strs.length <= 200
 ///     0 <= strs[i].length <= 200
 ///     strs[i] consists of only lowercase English letters.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/longest-common-prefix/

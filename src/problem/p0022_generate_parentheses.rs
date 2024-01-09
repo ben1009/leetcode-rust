@@ -12,7 +12,6 @@
 /// Constraints:
 ///
 ///     1 <= n <= 8
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/generate-parentheses/

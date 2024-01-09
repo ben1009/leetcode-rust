@@ -19,7 +19,6 @@
 ///
 ///     The number of nodes in head is in the range [0, 2 * 10^4].
 ///     -10^5 <= Node.val <= 10^5
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/
@@ -61,8 +60,7 @@ pub struct Solution {}
 //     }
 //   }
 // }
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 use crate::util::{linked_list::ListNode, tree::TreeNode};
 impl Solution {

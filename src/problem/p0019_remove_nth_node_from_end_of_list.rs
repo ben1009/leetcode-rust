@@ -27,7 +27,6 @@
 ///
 ///  
 /// Follow up: Could you do this in one pass?
-///
 pub struct Solution {}
 
 use crate::util::linked_list::ListNode;

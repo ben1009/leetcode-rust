@@ -30,7 +30,6 @@ use std::collections::HashMap;
 ///
 ///     1 <= s.length <= 10^4
 ///     s consists of parentheses only '()[]{}'.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/valid-parentheses/
