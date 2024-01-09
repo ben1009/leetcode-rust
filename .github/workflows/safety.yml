@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master]
   pull_request:
-name: safety
+name: Safety
 jobs:
   sanitizers:
     runs-on: ubuntu-latest

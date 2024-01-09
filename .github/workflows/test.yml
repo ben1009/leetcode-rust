@@ -11,7 +11,7 @@ concurrency:
 env:    
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
 
-name: test
+name: Test
 jobs:
   required:
     runs-on: ubuntu-latest
@@ -38,8 +38,10 @@ jobs:
       # https://twitter.com/jonhoo/status/1571290371124260865
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
-      - name: cargo test --locked
-        run: cargo test --locked --workspace --all-features --all-targets
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
+      - name: cargo nextest --locked
+        run: cargo nextest run --locked --workspace --all-features --all-targets
   os-check:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} / nightly
@@ -66,8 +68,10 @@ jobs:
         run: cargo generate-lockfile
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
-      - name: cargo test
-        run: cargo test --locked --all-features --all-targets
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
+      - name: cargo nextest
+        run: cargo nextest run --locked --all-features --all-targets
   coverage:
     runs-on: ubuntu-latest
     name: ubuntu / nightly / coverage
@@ -95,8 +99,10 @@ jobs:
         run: cargo generate-lockfile
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2        
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
       - name: cargo llvm-cov
-        run: cargo llvm-cov --locked --workspace --all-features --all-targets --lcov --output-path lcov.info
+        run: cargo llvm-cov nextest--locked --workspace --all-features --all-targets --lcov --output-path lcov.info
       - name: Upload to codecov.io
         uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
         with:
