@@ -22,7 +22,6 @@
 /// Constraints:
 ///
 ///     -2^31 <= x <= 2^31 - 1
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/reverse-integer/

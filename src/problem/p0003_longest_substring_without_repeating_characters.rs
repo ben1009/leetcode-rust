@@ -28,7 +28,6 @@ use std::{cmp, collections::HashMap};
 ///
 ///     0 <= s.length <= 5 * 10^4
 ///     s consists of English letters, digits, symbols and spaces.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/longest-substring-without-repeating-characters/

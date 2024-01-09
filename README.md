@@ -1,4 +1,4 @@
-# 🦀 Leetcode Solution in Rust, just to torture myself
+# 🦀 Leetcode Solution in Rust, just to torture myself for fun 🤪
 
 [![codecov](https://codecov.io/gh/ben1009/leetcode-rust/branch/master/graph/badge.svg)](https://codecov.io/gh/ben1009/leetcode-rust)
 [![Build Status](https://github.com/ben1009/leetcode-rust/workflows/check/badge.svg)](https://github.com/ben1009/leetcode-rust/actions?query=workflow:check)

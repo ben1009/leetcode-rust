@@ -25,7 +25,6 @@
 ///
 ///     -2^31 <= dividend, divisor <= 2^31 - 1
 ///     divisor != 0
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/divide-two-integers/

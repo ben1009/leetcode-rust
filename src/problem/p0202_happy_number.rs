@@ -29,7 +29,6 @@
 /// Constraints:
 ///
 ///     1 <= n <= 2^31 - 1
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/happy-number/

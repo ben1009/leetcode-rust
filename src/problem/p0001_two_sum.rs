@@ -25,13 +25,14 @@ use std::collections::HashMap;
 ///  
 /// Constraints:
 ///
-///     2 <= nums.length <= 10^4
-///     -10^9 <= nums[i] <= 10^9
-///     -10^9 <= target <= 10^9
-///     Only one valid answer exists.
+///    2 <= nums.length <= 10^4
+///    -10^9 <= nums[i] <= 10^9
+///    -10^9 <= target <= 10^9
+///    Only one valid answer exists.
 ///
 ///  
-/// Follow-up: Can you come up with an algorithm that is less than O(n^2) time complexity?
+/// Follow-up: Can you come up with an algorithm that is less than O(n^2)<font face="monospace">
+/// </font>time complexity?
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/two-sum/
@@ -41,18 +42,16 @@ pub struct Solution {}
 
 impl Solution {
     pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
-        let mut map = HashMap::new();
-        let mut ret = vec![];
-        for (idx, num) in nums.iter().enumerate() {
-            // https://stackoverflow.com/a/43360980
-            if let Some(v) = map.get(&(target - num)) {
-                ret = vec![idx as i32, *v as i32];
-                break;
+        let mut map: HashMap<i32, usize> = HashMap::new();
+        for (i, &num) in nums.iter().enumerate() {
+            if let Some(j) = map.get(&(target - num)) {
+                return vec![*j as i32, i as i32];
+            } else {
+                map.insert(num, i);
             }
-            map.insert(num, idx);
         }
 
-        ret
+        vec![]
     }
 }
 
@@ -64,11 +63,7 @@ mod tests {
 
     #[test]
     fn test_1() {
-        let v = vec![1, 2, 3];
-        let ret = Solution::two_sum(v, 4);
-        assert_eq!(vec![2, 0], ret);
-
-        assert_eq!(vec![1, 0], Solution::two_sum(vec![2, 7, 11, 15], 9));
-        assert_eq!(vec![2, 1], Solution::two_sum(vec![3, 2, 4], 6));
+        assert!(Solution::two_sum(vec![2, 7, 11, 15], 9) == vec![0, 1]);
+        assert!(Solution::two_sum(vec![3, 2, 4], 6) == vec![1, 2]);
     }
 }

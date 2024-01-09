@@ -20,7 +20,6 @@
 ///
 ///     The number of nodes in the tree is in the range [1, 10^4].
 ///     -100 <= Node.val <= 100
-///
 pub struct Solution {}
 // problem: https://leetcode.com/problems/diameter-of-binary-tree/
 // discuss: https://leetcode.com/problems/diameter-of-binary-tree/discuss/?currentPage=1&orderBy=most_votes&query=
@@ -45,8 +44,7 @@ pub struct Solution {}
 //     }
 //   }
 // }
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 use crate::util::tree::TreeNode;
 impl Solution {

@@ -235,3 +235,4 @@ mod s0704_binary_search;
 mod s0969_pancake_sorting;
 mod s1018_binary_prefix_divisible_by_5;
 mod s1046_last_stone_weight;
+mod s0001_two_sum;

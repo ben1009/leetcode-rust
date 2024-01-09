@@ -23,7 +23,6 @@ use std::cmp;
 ///     n == grid[i].length
 ///     1 <= m, n <= 200
 ///     0 <= grid[i][j] <= 100
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/minimum-path-sum/

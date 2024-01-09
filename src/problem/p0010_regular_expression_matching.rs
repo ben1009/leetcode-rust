@@ -36,7 +36,6 @@
 ///     s contains only lowercase English letters.
 ///     It is guaranteed for each appearance of the character '*', there will be a previous valid
 /// character to match.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/regular-expression-matching/

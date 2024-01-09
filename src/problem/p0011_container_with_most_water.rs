@@ -25,7 +25,6 @@ use std::cmp::{max, min};
 ///     n == height.length
 ///     2 <= n <= 10^5
 ///     0 <= height[i] <= 10^4
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/container-with-most-water/

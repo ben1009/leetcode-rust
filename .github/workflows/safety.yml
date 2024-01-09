@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master]
   pull_request:
-name: safety
+name: Safety
 jobs:
   sanitizers:
     runs-on: ubuntu-latest
@@ -28,6 +28,8 @@ jobs:
             sed -i '/profile.dev/a opt-level = 1' Cargo.toml
             cat Cargo.toml
         name: Enable debug symbols
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
       - name: cargo test -Zsanitizer=address
         # only --lib --tests b/c of https://github.com/rust-lang/rust/issues/53945
         run: cargo test --lib --tests --all-features --target x86_64-unknown-linux-gnu
@@ -42,6 +44,10 @@ jobs:
           RUSTFLAGS: "-Z sanitizer=leak"
   miri:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [nightly-2023-12-11]
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -53,11 +59,13 @@ jobs:
           submodules: true
       - run: |
           echo "NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)" >> $GITHUB_ENV
-      - name: Install ${{ env.NIGHTLY }}
+      - name: Install ${{ matrix.toolchain }}
         uses: dtolnay/rust-toolchain@e12eda571dc9a5ee5d58eecf4738ec291c66f295 # master
         with:
-          toolchain: ${{ env.NIGHTLY }}
+          toolchain: ${{ matrix.toolchain }}
           components: miri
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
       - name: cargo miri test
         run: cargo miri test
         env:

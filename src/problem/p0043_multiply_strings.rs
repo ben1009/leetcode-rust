@@ -15,7 +15,6 @@
 ///     1 <= num1.length, num2.length <= 200
 ///     num1 and num2 consist of digits only.
 ///     Both num1 and num2 do not contain any leading zero, except the number 0 itself.
-///
 pub struct Solution {}
 
 // problem: https://leetcode.com/problems/multiply-strings/
@@ -57,7 +56,7 @@ impl Solution {
         ret.iter().map(|x| x.to_string()).collect::<String>()
     }
 
-    fn add(a: &Vec<u8>, b: &Vec<u8>) -> Vec<u8> {
+    fn add(a: &[u8], b: &[u8]) -> Vec<u8> {
         let mut ret = vec![];
         let mut carry = 0;
         let mut i = a.len() as i32 - 1;

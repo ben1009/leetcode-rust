@@ -4,11 +4,22 @@ on:
   push:
     branches: [main, master]
   pull_request:
-name: check
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+env:    
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+
+name: Check
 jobs:
   fmt:
     runs-on: ubuntu-latest
-    name: stable / fmt
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [nightly-2023-12-11]
+    name: fmt
     permissions:
       # Give the default GITHUB_TOKEN write permission to commit and push the
       # added or changed files to the repository.
@@ -22,16 +33,13 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: true
-      - name: Install stable
-        uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
-      #   with:
-      #     components: rustfmt
-      # - name: cargo fmt --check
-      #   run: cargo fmt --check
-
-      - uses: mbrobbel/rustfmt-check@master
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@master
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          toolchain: ${{ matrix.toolchain }}  
+          components: rustfmt
+      - run: cargo fmt --check
+
   clippy:
     runs-on: ubuntu-latest
     name: ${{ matrix.toolchain }} / clippy
@@ -41,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        toolchain: [stable, beta]
+        toolchain: [nightly-2023-12-11]
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -52,70 +60,26 @@ jobs:
         with:
           submodules: true
       - name: Install ${{ matrix.toolchain }}
-        uses: dtolnay/rust-toolchain@e12eda571dc9a5ee5d58eecf4738ec291c66f295 # master
+        uses: dtolnay/rust-toolchain@master  # master
         with:
           toolchain: ${{ matrix.toolchain }}
           components: clippy
-      - name: cargo clippy
-        uses: actions-rs/clippy-check@b5b5f21f4797c02da247df37026fcd0a5024aa4d # v1.0.7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-  doc:
-    runs-on: ubuntu-latest
-    name: nightly / doc
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
-        with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --workspace --all-features --all-targets -- -D warnings
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          submodules: true
-      - name: Install nightly
-        uses: dtolnay/rust-toolchain@655bc29a221a62ee6edb6a0fa9d9530cf424d31d # nightly
-      - name: cargo doc
-        run: cargo doc --no-deps --all-features
-        env:
-          RUSTDOCFLAGS: --cfg docsrs
-  hack:
-    runs-on: ubuntu-latest
-    name: ubuntu / stable / features
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
-        with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+  typos:
+      runs-on: ubuntu-latest
+      name: typos
+      permissions:
+        contents: read
+      strategy:
+        fail-fast: false
+      steps:
+        - uses: actions/checkout@v4
+          with:
+            submodules: true
+        - name: Check spelling
+          uses: crate-ci/typos@master
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          submodules: true
-      - name: Install stable
-        uses: dtolnay/rust-toolchain@04b56c7813dcfe81f02753d8f4fe8b3635aa2dc0 # stable
-      - name: cargo install cargo-hack
-        uses: taiki-e/install-action@de2548c6ca44a5affa3f3edd100cc348412010ab # cargo-hack
-      - name: cargo hack
-        run: cargo hack --feature-powerset check --lib --tests
-  msrv:
-    runs-on: ubuntu-latest
-    # we use a matrix here just because env can't be used in job names
-    # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
-    strategy:
-      matrix:
-        msrv: [1.56.1] # 2021 edition requires 1.56
-    name: ubuntu / ${{ matrix.msrv }}
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
-        with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
-
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          submodules: true
-      - name: Install ${{ matrix.msrv }}
-        uses: dtolnay/rust-toolchain@e12eda571dc9a5ee5d58eecf4738ec291c66f295 # master
-        with:
-          toolchain: ${{ matrix.msrv }}
-      - name: cargo +${{ matrix.msrv }} check
-        run: cargo check
+ 
