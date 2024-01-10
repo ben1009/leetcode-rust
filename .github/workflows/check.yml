@@ -4,12 +4,15 @@ on:
   push:
     branches: [main, master]
   pull_request:
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
+
 env:    
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  RUST_TOOLCHAIN: nightly-2023-12-11
 
 name: Check
 jobs:
@@ -17,8 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        toolchain: [nightly-2023-12-11]
     name: fmt
     permissions:
       # Give the default GITHUB_TOKEN write permission to commit and push the
@@ -36,20 +37,18 @@ jobs:
       - name: Install rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ matrix.toolchain }}  
+          toolchain: ${{ env.RUST_TOOLCHAIN }}  
           components: rustfmt
       - run: cargo fmt --check
 
   clippy:
     runs-on: ubuntu-latest
-    name: ${{ matrix.toolchain }} / clippy
+    name: clippy
     permissions:
       contents: read
       checks: write
     strategy:
       fail-fast: false
-      matrix:
-        toolchain: [nightly-2023-12-11]
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -59,10 +58,10 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: true
-      - name: Install ${{ matrix.toolchain }}
+      - name: Install ${{ env.RUST_TOOLCHAIN }}
         uses: dtolnay/rust-toolchain@master  # master
         with:
-          toolchain: ${{ matrix.toolchain }}
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           components: clippy
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
