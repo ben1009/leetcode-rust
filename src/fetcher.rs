@@ -1,9 +1,14 @@
 extern crate reqwest;
 extern crate serde_json;
 
-use std::fmt::{Display, Error, Formatter};
+use std::{
+    fmt::{Display, Error, Formatter},
+    time::{Duration, SystemTime},
+};
 
+use reqwest::Request;
 use serde_json::Value;
+use surf::http::request;
 
 const PROBLEMS_URL: &str = "https://leetcode.com/api/problems/algorithms/";
 const GRAPHQL_URL: &str = "https://leetcode.com/graphql";
@@ -27,7 +32,11 @@ pub fn get_problem(frontend_question_id: u32) -> Option<Problem> {
                 return None;
             }
 
-            let client = reqwest::Client::new();
+            println!("getting problem ...");
+            let client = reqwest::Client::builder()
+                .timeout(Duration::from_secs(100))
+                .build()
+                .unwrap();
             let resp: RawProblem = client
                 .post(GRAPHQL_URL)
                 .json(&Query::question_query(
@@ -99,7 +108,17 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
 }
 
 pub fn get_problems() -> Option<Problems> {
-    reqwest::get(PROBLEMS_URL).unwrap().json().unwrap()
+    println!("getting all problems ...");
+
+    reqwest::Client::builder()
+        .timeout(Duration::from_secs(100))
+        .build()
+        .unwrap()
+        .get(PROBLEMS_URL)
+        .send()
+        .unwrap()
+        .json()
+        .unwrap()
 }
 
 #[derive(Serialize, Deserialize)]
