@@ -1,7 +1,12 @@
 use std::{
     cmp::{self, max},
-    collections::HashMap,
+    collections::{
+        hash_map::{Entry, OccupiedEntry},
+        HashMap,
+    },
 };
+
+use reqwest::header::VacantEntry;
 
 /// [3] Longest Substring Without Repeating Characters
 ///
@@ -49,13 +54,19 @@ impl Solution {
         let mut ret = 0;
         let s = s.chars();
         for (i, c) in s.enumerate() {
-            if let Some(v) = map.get(&c) {
-                if *v >= pre {
-                    pre = v + 1;
+            match map.entry(c) {
+                Entry::Occupied(mut o) => {
+                    let v = o.get();
+                    if v >= &pre {
+                        pre = v + 1;
+                    }
+                    o.insert(i);
+                }
+                Entry::Vacant(v) => {
+                    v.insert(i);
                 }
             }
 
-            map.insert(c, i);
             ret = max(i - pre + 1, ret);
         }
 
