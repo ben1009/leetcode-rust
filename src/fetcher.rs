@@ -3,12 +3,10 @@ extern crate serde_json;
 
 use std::{
     fmt::{Display, Error, Formatter},
-    time::{Duration, SystemTime},
+    time::Duration,
 };
 
-use reqwest::Request;
 use serde_json::Value;
-use surf::http::request;
 
 const PROBLEMS_URL: &str = "https://leetcode.com/api/problems/algorithms/";
 const GRAPHQL_URL: &str = "https://leetcode.com/graphql";

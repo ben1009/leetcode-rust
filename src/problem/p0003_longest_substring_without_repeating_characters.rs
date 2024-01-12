@@ -1,12 +1,7 @@
 use std::{
-    cmp::{self, max},
-    collections::{
-        hash_map::{Entry, OccupiedEntry},
-        HashMap,
-    },
+    cmp::max,
+    collections::{hash_map::Entry, HashMap},
 };
-
-use reqwest::header::VacantEntry;
 
 /// [3] Longest Substring Without Repeating Characters
 ///
