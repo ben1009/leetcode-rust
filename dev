@@ -10,7 +10,7 @@ if [ -z "$(which cargo-make)" ]; then
     cargo binstall cargo-make
 fi
 
-if [ $# -eq 0 ] || [ "$1" == "-h" ] || [ "$1" ==  "--help" ]; then
+if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" =  "--help" ]; then
     cargo make --list-all-steps --hide-uninteresting
     exit 0
 fi

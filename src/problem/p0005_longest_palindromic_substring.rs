@@ -31,38 +31,39 @@ impl Solution {
             return s;
         }
 
-        let mut ret: &[u8] = &[];
-        let s = s.as_bytes();
-        for i in 0..s.len() - 1 {
-            let s1 = Self::pali(i, i, s);
-            if ret.len() < s1.len() {
-                ret = s1;
+        let a = s.as_bytes();
+        let mut ret = "";
+        for i in 0..=a.len() - 2 {
+            let (x, y) = Self::is_pali(a, i as i32, i as i32 + 1);
+            if y - x + 1 > ret.len() {
+                ret = &s[x..y + 1];
             }
-            let s2 = Self::pali(i, i + 1, s);
-            if ret.len() < s2.len() {
-                ret = s2;
+            let (x, y) = Self::is_pali(a, i as i32, i as i32);
+            if y - x + 1 > ret.len() {
+                ret = &s[x..y + 1];
             }
         }
 
-        String::from_utf8(ret.to_owned()).unwrap()
+        ret.to_string()
     }
 
-    fn pali(i: usize, mut j: usize, s: &[u8]) -> &[u8] {
-        // kind of ugly
-        let mut i = i as i32;
-        while i >= 0 && j < s.len() {
-            if s[i as usize] != s[j] {
+    fn is_pali(a: &[u8], mut i: i32, mut j: i32) -> (usize, usize) {
+        if a[i as usize] != a[j as usize] {
+            return (0, 0);
+        }
+
+        while i >= 0 && j < a.len() as i32 {
+            if a[i as usize] != a[j as usize] {
                 break;
             }
             i -= 1;
             j += 1;
         }
-        if i + 1 > j as i32 - 1 {
-            return &[];
-        }
 
         i += 1;
-        &s[i as usize..j]
+        j -= 1;
+
+        (i as usize, j as usize)
     }
 }
 
