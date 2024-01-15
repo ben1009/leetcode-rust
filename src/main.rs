@@ -108,7 +108,6 @@ fn main() {
             }
             block_on(join_all(tasks));
             let mut lib_file = fs::OpenOptions::new()
-                .write(true)
                 .append(true)
                 .open("./src/problem/mod.rs")
                 .unwrap();
@@ -353,7 +352,6 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
 
     if write_mod_file {
         let mut lib_file = fs::OpenOptions::new()
-            .write(true)
             .append(true)
             .open("./src/problem/mod.rs")
             .unwrap();
