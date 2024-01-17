@@ -38,12 +38,14 @@ impl Solution {
         let mut ret = strs[0].as_bytes();
         for str in strs.iter().skip(1) {
             let t = str.as_bytes();
-            for j in 0..cmp::max(ret.len(), t.len()) {
-                if j >= cmp::min(ret.len(), t.len()) || ret[j] != t[j] {
-                    ret = &ret[0..j];
+            let mut j = 0;
+            while j < cmp::min(ret.len(), t.len()) {
+                if ret[j] != t[j] {
                     break;
                 }
+                j += 1;
             }
+            ret = &ret[0..j];
         }
 
         String::from_utf8_lossy(ret).to_string()
