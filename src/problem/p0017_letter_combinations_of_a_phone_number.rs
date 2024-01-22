@@ -40,41 +40,40 @@ impl Solution {
         }
 
         let mut map = HashMap::new();
-        map.insert('2', "abc");
-        map.insert('3', "def");
-        map.insert('4', "ghi");
-        map.insert('5', "jkl");
-        map.insert('6', "mno");
-        map.insert('7', "qprs");
-        map.insert('8', "tuv");
-        map.insert('9', "wxyz");
+        map.insert(b'2', "abc".as_bytes());
+        map.insert(b'3', "def".as_bytes());
+        map.insert(b'4', "ghi".as_bytes());
+        map.insert(b'5', "jkl".as_bytes());
+        map.insert(b'6', "mno".as_bytes());
+        map.insert(b'7', "qprs".as_bytes());
+        map.insert(b'8', "tuv".as_bytes());
+        map.insert(b'9', "wxyz".as_bytes());
 
-        let mut tmp = vec![];
-        let mut ret = vec![];
-        let digits = digits.chars().collect();
-        Solution::dfs(0, &map, &digits, &mut tmp, &mut ret);
-
-        ret
+        Self::dfs(0, digits.as_bytes(), &map, &mut vec![], vec![])
     }
 
     fn dfs(
         i: usize,
-        map: &HashMap<char, &str>,
-        digits: &Vec<char>,
-        tmp: &mut Vec<char>,
-        ret: &mut Vec<String>,
-    ) {
+        digits: &[u8],
+        map: &HashMap<u8, &[u8]>,
+        tmp: &mut Vec<u8>,
+        mut ret: Vec<String>,
+    ) -> Vec<String> {
         if tmp.len() == digits.len() {
-            ret.push(tmp.iter().collect());
-            return;
+            let s = String::from_utf8_lossy(tmp).to_string();
+            ret.push(s);
+
+            return ret;
         }
 
         let str = map.get(&digits[i]).unwrap();
-        for s in str.chars() {
-            tmp.push(s);
-            Solution::dfs(i + 1, map, digits, tmp, ret);
+        for s in str.iter() {
+            tmp.push(*s);
+            ret = Self::dfs(i + 1, digits, map, tmp, ret);
             tmp.pop();
         }
+
+        ret
     }
 }
 
