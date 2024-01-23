@@ -26,7 +26,7 @@ use crate::fetcher::{CodeDefinition, Problem};
 /// main() helps to generate the submission template .rs
 fn main() {
     println!("Welcome to leetcode-rust system.\n");
-    let mut initialized_ids = get_initialized_ids();
+    let mut initialized_ids = get_initialized_ids("./src/problem/mod.rs");
     loop {
         println!(
             "Please enter a frontend problem id, \n\
@@ -140,6 +140,7 @@ fn main() {
         deal_problem(&problem, code, true);
         break;
     }
+    println!("Done, Thanks for using leetcode-rust system.\n");
 }
 
 fn generate_random_id(except_ids: &[u32]) -> u32 {
@@ -159,15 +160,20 @@ fn generate_random_id(except_ids: &[u32]) -> u32 {
     }
 }
 
-fn get_initialized_ids() -> Vec<u32> {
-    let content = fs::read_to_string("./src/problem/mod.rs").unwrap();
-    // TODO: bug if the problem is comment out, should not include in the list, e.g. // pub mod
-    // p0001_two_sum;
+fn get_initialized_ids(path: &str) -> Vec<u32> {
+    let content = fs::read_to_string(path).unwrap();
     let id_pattern = Regex::new(r"p(\d{4})_").unwrap();
-    id_pattern
-        .captures_iter(&content)
-        .map(|x| x.get(1).unwrap().as_str().parse().unwrap())
-        .collect()
+
+    let mut ret = vec![];
+    for l in content.lines() {
+        if !l.trim().starts_with("//") {
+            if let Some(id) = id_pattern.captures(l) {
+                ret.push(id.get(1).unwrap().as_str().parse::<u32>().unwrap());
+            }
+        }
+    }
+
+    ret
 }
 
 fn parse_extra_use(code: &str) -> String {
@@ -322,10 +328,6 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
         problem.title_slug.replace('-', "_")
     );
     let file_path = Path::new("./src/problem").join(format!("{}.rs", file_name));
-    // TODO: add a --force to overwrite
-    if file_path.exists() {
-        panic!("problem already initialized");
-    }
 
     let template = fs::read_to_string("./template.rs").unwrap();
     let source = template
@@ -344,7 +346,7 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
         .write(true)
         .create(true)
         .truncate(true)
-        .open(&file_path)
+        .open(file_path)
         .unwrap();
 
     file.write_all(source.as_bytes()).unwrap();
@@ -356,5 +358,27 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
             .open("./src/problem/mod.rs")
             .unwrap();
         let _ = writeln!(lib_file, "pub mod {};", file_name);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_get_initialized_ids() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let path = dir.path().join("test_get_initialized_ids");
+        let mut file = fs::File::create(path.clone()).unwrap();
+        let content = r#"
+        // pub mod p0001_two_sum;
+        pub mod p0002_add_two_numbers;
+        pub mod p0003_longest_substring_without_repeating_characters;"#;
+        writeln!(file, "{}", content).unwrap();
+        let ids = get_initialized_ids(path.to_str().unwrap());
+        println!("{:?}", ids);
+        assert!(ids.len() == 2);
+        assert!(ids[0] == 2);
+        assert!(ids[1] == 3);
     }
 }
