@@ -39,24 +39,26 @@ pub struct Solution {}
 
 impl Solution {
     pub fn is_valid(s: String) -> bool {
-        if s.is_empty() {
-            return true;
+        if s.len() == 1 {
+            return false;
         }
 
-        let map = HashMap::from([(')', '('), (']', '['), ('}', '{')]);
         let mut stack = vec![];
-        for c in s.chars() {
-            if stack.is_empty() {
-                stack.push(c);
-                continue;
-            }
-            if let Some(v) = map.get(&c) {
-                if stack.last().unwrap() == v {
-                    stack.pop();
-                    continue;
+        let s = s.as_bytes();
+        let map = HashMap::from([(b'}', b'{'), (b')', b'('), (b']', b'[')]);
+        for v in s {
+            let t = stack.last();
+            if let Some(t) = t {
+                let p = map.get(v);
+                if let Some(p) = p {
+                    if p == t {
+                        stack.pop();
+                        continue;
+                    }
                 }
             }
-            stack.push(c);
+
+            stack.push(*v);
         }
 
         stack.is_empty()
