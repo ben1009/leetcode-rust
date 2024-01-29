@@ -36,7 +36,7 @@
 ///     lists[i] is sorted in ascending order.
 ///     The sum of lists[i].length will not exceed 10^4.
 pub struct Solution {}
-use std::{cmp::Reverse, collections::BinaryHeap};
+use std::collections::BinaryHeap;
 
 use crate::util::linked_list::ListNode;
 
@@ -67,25 +67,27 @@ impl Solution {
             return None;
         }
 
-        let mut pq = BinaryHeap::new();
-        for l in lists {
-            if l.is_some() {
-                pq.push(Reverse(l));
+        let mut ret = ListNode::new(-1);
+        let mut current = &mut ret;
+        let mut heap = BinaryHeap::new();
+        for l in lists.into_iter().flatten() {
+            heap.push(std::cmp::Reverse(*l));
+        }
+
+        while !heap.is_empty() {
+            if let Some(t) = heap.pop() {
+                if let Some(t) = t.0.next {
+                    heap.push(std::cmp::Reverse(*t));
+                }
+
+                let n = ListNode::new(t.0.val);
+                current.next = Some(Box::new(n));
+                let next = current.next.as_mut().unwrap();
+                current = next;
             }
         }
 
-        let mut ret = Some(Box::new(ListNode::new(0)));
-        let mut head = &mut ret;
-        while !pq.is_empty() {
-            let node = pq.pop().unwrap().0.unwrap();
-            head.as_mut().unwrap().next = Some(Box::new(ListNode::new(node.val)));
-            head = &mut head.as_mut().unwrap().next;
-            if node.next.is_some() {
-                pq.push(Reverse(node.next));
-            }
-        }
-
-        ret.unwrap().next
+        ret.next
     }
 }
 
