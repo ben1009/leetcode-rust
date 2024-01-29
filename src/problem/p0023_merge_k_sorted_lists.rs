@@ -71,13 +71,13 @@ impl Solution {
         let mut current = &mut ret;
         let mut heap = BinaryHeap::new();
         for l in lists.into_iter().flatten() {
-            heap.push(std::cmp::Reverse(*l));
+            heap.push(std::cmp::Reverse(l));
         }
 
         while !heap.is_empty() {
             if let Some(t) = heap.pop() {
                 if let Some(t) = t.0.next {
-                    heap.push(std::cmp::Reverse(*t));
+                    heap.push(std::cmp::Reverse(t));
                 }
 
                 let n = ListNode::new(t.0.val);
