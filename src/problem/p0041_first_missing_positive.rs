@@ -38,28 +38,24 @@ impl Solution {
         let mut nums = nums;
         let mut i = 0;
         while i < nums.len() {
-            if nums[i] == i as i32 + 1 {
+            if nums[i] <= 0
+                || nums[i] >= nums.len() as i32
+                || nums[i] == nums[nums[i] as usize]
+                || nums[i] == i as i32 + 1
+            {
                 i += 1;
                 continue;
             }
-
-            let tmp = nums[i] as usize;
-            if tmp > 0 && nums.len() > tmp - 1 && nums[tmp - 1] != nums[i] {
-                nums.swap(i, tmp - 1);
-            } else {
-                i += 1;
-            }
+            let t = nums[i];
+            nums.swap(t as usize, i);
         }
 
-        let mut j = 0;
-        while j < nums.len() {
-            if nums[j] != j as i32 + 1 {
-                break;
+        for (i, item) in nums.iter().enumerate() {
+            if *item != i as i32 + 1 {
+                return i as i32 + 1;
             }
-            j += 1;
         }
-
-        j as i32 + 1
+        nums.len() as i32 + 1
     }
 }
 
