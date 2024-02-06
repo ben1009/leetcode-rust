@@ -59,16 +59,15 @@ impl Solution {
             return 0;
         }
 
-        let mut pre = 0;
+        let mut lo = 0;
         for i in 0..nums.len() {
-            if nums[i] == val {
-                continue;
+            if nums[i] != val {
+                nums[lo] = nums[i];
+                lo += 1;
             }
-            nums[pre] = nums[i];
-            pre += 1;
         }
 
-        pre as i32
+        lo as i32
     }
 
     // any order
@@ -77,21 +76,19 @@ impl Solution {
             return 0;
         }
 
+        let mut hi = nums.len() as i32 - 1;
         let mut lo = 0;
-        let mut hi = nums.len() - 1;
-        while lo <= hi {
+        while lo as i32 <= hi {
             if nums[lo] == val {
-                nums[lo] = nums[hi];
-                if hi < 1 {
-                    break;
-                }
+                nums[lo] = nums[hi as usize];
                 hi -= 1;
-            } else {
-                lo += 1;
+                continue;
             }
+
+            lo += 1;
         }
 
-        lo as i32
+        hi + 1
     }
 }
 
