@@ -36,14 +36,16 @@ impl Solution {
 
         let mut intervals = intervals;
         intervals.sort_by(|a, b| a[0].cmp(&b[0]));
-
         let mut ret = vec![intervals[0].clone()];
+
         for item in intervals.iter().skip(1) {
-            let n = ret.len();
-            if ret[n - 1][1] < item[0] {
-                ret.push(item.clone());
-            } else if ret[n - 1][1] <= item[1] {
-                ret[n - 1][1] = item[1];
+            let j = ret.len() - 1;
+            let t = ret[j][1];
+
+            if (t >= item[0]) && (t <= item[1]) {
+                ret[j][1] = item[1];
+            } else if t < item[0] {
+                ret.push(item.to_owned());
             }
         }
 
