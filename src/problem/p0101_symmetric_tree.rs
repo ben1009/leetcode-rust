@@ -53,30 +53,30 @@ impl Solution {
             return true;
         }
 
-        return Self::is_sym(
+        Self::is_sym(
             root.as_ref().unwrap().borrow().left.clone(),
             root.as_ref().unwrap().borrow().right.clone(),
-        );
+        )
     }
 
-    fn is_sym(l: Option<Rc<RefCell<TreeNode>>>, r: Option<Rc<RefCell<TreeNode>>>) -> bool {
-        if l.is_none() && r.is_none() {
+    fn is_sym(r: Option<Rc<RefCell<TreeNode>>>, l: Option<Rc<RefCell<TreeNode>>>) -> bool {
+        if r.is_none() && l.is_none() {
             return true;
         }
-        if l.is_none() || r.is_none() {
+        if r.is_none() || l.is_none() {
             return false;
         }
-        if l.as_ref().unwrap().borrow().val != r.as_ref().unwrap().borrow().val {
+        if r.as_ref().unwrap().borrow().val != l.as_ref().unwrap().borrow().val {
             return false;
         }
 
-        return Self::is_sym(
-            l.as_ref().unwrap().borrow().left.clone(),
-            r.as_ref().unwrap().borrow().right.clone(),
-        ) && Self::is_sym(
-            l.as_ref().unwrap().borrow().right.clone(),
+        Self::is_sym(
             r.as_ref().unwrap().borrow().left.clone(),
-        );
+            l.as_ref().unwrap().borrow().right.clone(),
+        ) && Self::is_sym(
+            r.as_ref().unwrap().borrow().right.clone(),
+            l.as_ref().unwrap().borrow().left.clone(),
+        )
     }
 }
 
