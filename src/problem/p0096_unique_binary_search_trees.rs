@@ -29,16 +29,17 @@ impl Solution {
             return 1;
         }
 
-        let mut dp = vec![0; n as usize + 1];
+        let n = n as usize;
+        let mut dp = vec![0; n + 1];
         dp[0] = 1;
         dp[1] = 1;
-        for i in 2..=n as usize {
-            for j in 1..=i {
-                dp[i] += dp[j - 1] * dp[i - j];
+        for i in 2..=n {
+            for j in 0..i {
+                dp[i] += dp[j] * dp[i - j - 1];
             }
         }
 
-        dp[n as usize]
+        dp[n]
     }
 }
 
