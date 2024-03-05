@@ -43,12 +43,35 @@ pub struct Solution {}
 //     }
 //   }
 // }
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
 use crate::util::tree::TreeNode;
+
 impl Solution {
-    pub fn min_depth(_root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
-        0
+    pub fn min_depth(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        if root.is_none() {
+            return 0;
+        }
+
+        let mut root = root;
+        let mut ret = 1;
+        let mut queue = VecDeque::from([(root, ret)]);
+        while !queue.is_empty() {
+            (root, ret) = queue.pop_front().unwrap();
+            if root.as_ref().unwrap().borrow().left.is_none()
+                && root.as_ref().unwrap().borrow().right.is_none()
+            {
+                break;
+            }
+            if let l @ Some(_) = &root.as_ref().unwrap().borrow().left {
+                queue.push_back((l.clone(), ret + 1));
+            }
+            if let r @ Some(_) = &root.as_ref().unwrap().borrow().right {
+                queue.push_back((r.clone(), ret + 1));
+            }
+        }
+
+        ret
     }
 }
 
@@ -56,7 +79,13 @@ impl Solution {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::util::tree::to_tree;
 
     #[test]
-    fn test_111() {}
+    fn test_111() {
+        assert_eq!(Solution::min_depth(tree![3, 9, 20, null, null, 15, 7]), 2);
+        assert_eq!(Solution::min_depth(tree![3, 9, 20, 15, 7]), 2);
+        assert_eq!(Solution::min_depth(tree![1, 2]), 2);
+    }
 }
