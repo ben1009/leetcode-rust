@@ -1,4 +1,4 @@
-use std::cmp::{max, min};
+use std::cmp::{self};
 
 /// [152] Maximum Product Subarray
 ///
@@ -32,19 +32,19 @@ pub struct Solution {}
 
 impl Solution {
     pub fn max_product(nums: Vec<i32>) -> i32 {
-        if nums.len() < 2 {
+        if nums.len() == 1 {
             return nums[0];
         }
 
         let mut ret = nums[0];
-        let mut pre_max = nums[0];
-        let mut pre_min = nums[0];
-        for item in nums.iter().skip(1) {
-            let m = pre_max * item;
-            let n = pre_min * item;
-            pre_max = max(*item, max(n, m));
-            pre_min = min(*item, min(n, m));
-            ret = max(ret, pre_max);
+        let mut pre_min = ret;
+        let mut pre_max = ret;
+        for n in nums.iter().skip(1) {
+            let t_min = pre_min;
+            pre_min = cmp::min(cmp::min(pre_min * n, pre_max * n), *n);
+            pre_max = cmp::max(cmp::max(t_min * n, pre_max * n), *n);
+
+            ret = cmp::max(ret, pre_max);
         }
 
         ret
@@ -62,5 +62,6 @@ mod tests {
         assert_eq!(6, Solution::max_product(vec![2, 3, -2, 4]));
         assert_eq!(0, Solution::max_product(vec![-2, 0, -1]));
         assert_eq!(0, Solution::max_product(vec![-2, 0]));
+        assert_eq!(1, Solution::max_product(vec![1]));
     }
 }
