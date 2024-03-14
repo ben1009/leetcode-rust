@@ -1,3 +1,5 @@
+use std::cmp;
+
 /// [155] Min Stack
 ///
 /// Design a stack that supports push, pop, top, and retrieving the minimum element in constant
@@ -43,18 +45,9 @@ pub struct Solution {}
 
 #[allow(dead_code)]
 struct MinStack {
-    vec: Vec<Element>,
+    vec: Vec<(i32, i32)>,
 }
 
-#[allow(dead_code)]
-struct Element {
-    min: i32, /* snapshot of the state of the stack, e.g. the minimum value in the stack when
-               * the current value pushed into stack */
-    value: i32,
-}
-
-/// `&self` means the method takes an immutable reference.
-/// If you need a mutable reference, change it to `&mut self` instead.
 #[allow(dead_code)]
 impl MinStack {
     fn new() -> Self {
@@ -63,19 +56,12 @@ impl MinStack {
 
     fn push(&mut self, val: i32) {
         if self.vec.is_empty() {
-            self.vec.push(Element {
-                value: val,
-                min: val,
-            });
-
+            self.vec.push((val, val));
             return;
         }
 
-        let mut min = self.vec[self.vec.len() - 1].min;
-        if min > val {
-            min = val;
-        }
-        self.vec.push(Element { value: val, min })
+        let min = self.vec.last().unwrap().1;
+        self.vec.push((val, cmp::min(val, min)));
     }
 
     fn pop(&mut self) {
@@ -83,11 +69,11 @@ impl MinStack {
     }
 
     fn top(&self) -> i32 {
-        return self.vec.last().unwrap().value;
+        return self.vec.last().unwrap().0;
     }
 
     fn get_min(&self) -> i32 {
-        return self.vec.last().unwrap().min;
+        return self.vec.last().unwrap().1;
     }
 }
 
