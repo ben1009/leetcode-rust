@@ -16,22 +16,22 @@ pub struct Solution {}
 
 impl Solution {
     pub fn shortest_distance(words: Vec<String>, word1: String, word2: String) -> i32 {
-        if words.is_empty() {
-            return 0;
+        if words.len() == 2 {
+            return 1;
         }
 
-        let mut w1 = -1;
-        let mut w2 = -1;
         let mut ret = words.len() as i32;
-        for (i, item) in words.iter().enumerate() {
-            if *item == word1 {
-                w1 = i as i32;
+        let mut p1 = -1;
+        let mut p2 = -1;
+        for (i, w) in words.iter().enumerate() {
+            if w == &word1 {
+                p1 = i as i32;
             }
-            if *item == word2 {
-                w2 = i as i32
+            if w == &word2 {
+                p2 = i as i32;
             }
-            if w1 != -1 && w2 != -1 {
-                ret = ret.min((w1 - w2).abs());
+            if p1 != -1 && p2 != -1 {
+                ret = ret.min((p1 - p2).abs());
             }
         }
 

@@ -24,28 +24,27 @@ pub struct Solution {}
 // submission codes start here
 
 impl Solution {
-    pub fn reverse_vowels(s: String) -> String {
+    pub fn reverse_vowels(mut s: String) -> String {
         if s.len() < 2 {
             return s;
         }
+        let set = HashSet::from([b'a', b'A', b'e', b'E', b'i', b'I', b'o', b'O', b'u', b'U']);
 
-        let dic = HashSet::from([b'a', b'e', b'i', b'o', b'u', b'A', b'E', b'I', b'O', b'U']);
-        let mut i: i32 = 0;
-        let mut j = s.len() as i32 - 1;
-        let mut s = s;
-        let ret = unsafe { s.as_bytes_mut() };
+        let s1 = unsafe { s.as_bytes_mut() };
+        let mut i = 0;
+        let mut j = s1.len() - 1;
         while i < j {
-            if !dic.contains(&ret[i as usize]) {
+            if !set.contains(&s1[i]) {
                 i += 1;
+                continue;
             }
-            if !dic.contains(&ret[j as usize]) {
+            if !set.contains(&s1[j]) {
                 j -= 1;
+                continue;
             }
-            if dic.contains(&ret[i as usize]) && dic.contains(&ret[j as usize]) {
-                ret.swap(i as usize, j as usize);
-                i += 1;
-                j -= 1;
-            }
+            s1.swap(i, j);
+            i += 1;
+            j -= 1;
         }
 
         s
@@ -75,6 +74,10 @@ mod tests {
         assert_eq!(
             Solution::reverse_vowels(String::from("ar")),
             String::from("ar")
+        );
+        assert_eq!(
+            Solution::reverse_vowels(String::from("sfsfsf")),
+            String::from("sfsfsf")
         );
     }
 }

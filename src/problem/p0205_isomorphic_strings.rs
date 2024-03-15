@@ -35,19 +35,17 @@ impl Solution {
             return true;
         }
 
-        let s = s.as_bytes();
-        let t = t.as_bytes();
         let mut ss = HashMap::new();
         let mut tt = HashMap::new();
+        let s = s.as_bytes();
+        let t = t.as_bytes();
         for i in 0..s.len() {
             ss.insert(s[i], t[i]);
             tt.insert(t[i], s[i]);
         }
+
         for i in 0..s.len() {
-            if ss[&s[i]] != t[i] {
-                return false;
-            }
-            if tt[&t[i]] != s[i] {
+            if ss[&s[i]] != t[i] || tt[&t[i]] != s[i] {
                 return false;
             }
         }
