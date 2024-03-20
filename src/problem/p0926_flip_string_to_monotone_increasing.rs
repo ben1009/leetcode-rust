@@ -38,39 +38,39 @@ pub struct Solution {}
 
 impl Solution {
     pub fn min_flips_mono_incr(s: String) -> i32 {
-        if s.len() < 2 {
-            return s.len() as i32;
+        if s.len() == 1 {
+            return 0;
         }
 
-        let n: usize = s.len();
-        let s = s.as_bytes();
+        let n = s.len();
+        let mut ret = n as i32;
         let mut l = vec![0; n];
+        let mut r = vec![0; n];
+        let s = s.as_bytes();
+
         if s[0] == b'1' {
             l[0] = 1;
         }
         for i in 1..n {
+            l[i] = l[i - 1];
             if s[i] == b'1' {
                 l[i] = l[i - 1] + 1;
-            } else {
-                l[i] = l[i - 1];
             }
         }
-        let mut r = vec![0; n];
+
         if s[n - 1] == b'0' {
             r[n - 1] = 1;
         }
         for i in (0..n - 1).rev() {
+            r[i] = r[i + 1];
             if s[i] == b'0' {
                 r[i] = r[i + 1] + 1;
-            } else {
-                r[i] = r[i + 1];
             }
         }
-        let mut ret: i32 = n as i32;
-        for i in 0..n - 1 {
-            ret = min(ret, l[i] + r[i + 1]);
+        ret = min(ret, min(l[n - 1], r[0]));
+        for i in 1..n - 1 {
+            ret = min(ret, l[i - 1] + r[i + 1]);
         }
-        ret = min(ret, min(r[0], l[n - 1]));
 
         ret
     }
