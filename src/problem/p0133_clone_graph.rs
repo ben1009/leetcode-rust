@@ -73,43 +73,43 @@ impl Solution {
     pub fn clone_graph(node: Option<Rc<RefCell<GraphNode>>>) -> Option<Rc<RefCell<GraphNode>>> {
         node.as_ref()?;
 
-        let mut dic: HashMap<i32, Rc<RefCell<GraphNode>>> = HashMap::new();
-        Self::bfs(node.unwrap(), &mut dic);
+        let mut map = HashMap::new();
+        Self::bfs(node.unwrap(), &mut map);
 
-        Some(dic.get(&1).unwrap().clone())
+        Some(map.get(&1)?.clone())
     }
 
-    fn bfs(node: Rc<RefCell<GraphNode>>, dic: &mut HashMap<i32, Rc<RefCell<GraphNode>>>) {
-        let mut stack = vec![];
-        let k = node.as_ref().borrow().val;
-        let t = Rc::new(RefCell::new(GraphNode::new(k)));
-        dic.insert(k, t);
-        stack.push(node);
+    fn bfs(
+        node: Rc<RefCell<GraphNode>>,
+        map: &mut HashMap<i32, Rc<RefCell<GraphNode>>>,
+    ) -> Option<()> {
+        let mut stack = vec![node.clone()];
+        map.insert(
+            node.borrow().val,
+            Rc::new(RefCell::new(GraphNode::new(node.borrow().val))),
+        );
 
         while let Some(node) = stack.pop() {
-            let k = node.as_ref().borrow().val;
-            for n in node.as_ref().borrow().neighbors.iter() {
-                let k1 = n.borrow().val;
-                let t1 = dic.get(&k1);
-                let mut _tt = Rc::new(RefCell::new(GraphNode::new(0)));
-                match t1 {
-                    Some(t1) => {
-                        _tt = t1.clone();
+            for n in &node.borrow().neighbors {
+                let mut c_node = Rc::new(RefCell::new(GraphNode::new(n.borrow().val)));
+                match map.entry(n.borrow().val) {
+                    std::collections::hash_map::Entry::Occupied(m) => {
+                        c_node = m.get().clone();
                     }
-                    None => {
-                        _tt = Rc::new(RefCell::new(GraphNode::new(k1)));
-                        dic.insert(k1, _tt.clone());
+                    std::collections::hash_map::Entry::Vacant(m) => {
+                        m.insert(c_node.clone());
                         stack.push(n.clone());
                     }
                 }
-                dic.get(&k)
-                    .unwrap()
-                    .as_ref()
+
+                map.get(&node.borrow().val)?
                     .borrow_mut()
                     .neighbors
-                    .push(_tt);
+                    .push(c_node);
             }
         }
+
+        None
     }
 }
 
