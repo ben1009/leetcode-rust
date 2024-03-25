@@ -74,7 +74,7 @@ impl Solution {
         node.as_ref()?;
 
         let mut map = HashMap::new();
-        Self::bfs(node.unwrap(), &mut map);
+        Self::bfs(node?, &mut map);
 
         Some(map.get(&1)?.clone())
     }
