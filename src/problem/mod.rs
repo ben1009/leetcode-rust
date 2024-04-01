@@ -14,6 +14,7 @@ pub mod p0023_merge_k_sorted_lists;
 pub mod p0027_remove_element;
 pub mod p0029_divide_two_integers;
 pub mod p0041_first_missing_positive;
+pub mod p0042_trapping_rain_water;
 pub mod p0043_multiply_strings;
 pub mod p0056_merge_intervals;
 pub mod p0064_minimum_path_sum;
