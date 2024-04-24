@@ -27,6 +27,7 @@
 ///     0 <= Node.val <= 9
 ///     It is guaranteed that the list represents a number that does not have leading zeros.
 pub struct Solution {}
+
 use crate::util::linked_list::ListNode;
 
 // problem: https://leetcode.com/problems/add-two-numbers/
@@ -56,33 +57,34 @@ impl Solution {
         l1: Option<Box<ListNode>>,
         l2: Option<Box<ListNode>>,
     ) -> Option<Box<ListNode>> {
+        if l1.is_none() {
+            return l2;
+        }
+        if l2.is_none() {
+            return l1;
+        }
+
         let mut l1 = l1;
         let mut l2 = l2;
-        let mut ret = ListNode::new(-1);
+        let mut ret = ListNode::new(0);
         let mut current = &mut ret;
         let mut carry = 0;
-        loop {
-            if l1.is_none() && l2.is_none() && carry == 0 {
-                break;
-            }
 
-            let mut n = 0;
-            if l1.is_some() {
-                let t = l1.unwrap();
-                n += t.val;
-                l1 = t.next;
+        while l1.is_some() || l2.is_some() || carry != 0 {
+            let mut v1 = 0;
+            let mut v2 = 0;
+            if let Some(l) = l1 {
+                v1 = l.val;
+                l1 = l.next;
             }
-            if l2.is_some() {
-                let t = l2.unwrap();
-                n += t.val;
-                l2 = t.next;
+            if let Some(l) = l2 {
+                v2 = l.val;
+                l2 = l.next;
             }
-
-            n += carry;
-            carry = n / 10;
-            n %= 10;
-            let next = ListNode::new(n);
-            current.next = Some(Box::new(next));
+            let num = v1 + v2 + carry;
+            carry = num / 10;
+            let n = num % 10;
+            current.next = Some(Box::new(ListNode::new(n)));
             current = current.next.as_mut().unwrap();
         }
 
