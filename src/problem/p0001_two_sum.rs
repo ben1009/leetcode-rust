@@ -42,13 +42,12 @@ pub struct Solution {}
 
 impl Solution {
     pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
-        let mut map: HashMap<i32, usize> = HashMap::new();
-        for (i, &num) in nums.iter().enumerate() {
-            if let Some(j) = map.get(&(target - num)) {
-                return vec![*j as i32, i as i32];
-            } else {
-                map.insert(num, i);
+        let mut map = HashMap::new();
+        for (i, item) in nums.iter().enumerate() {
+            if map.contains_key(&(target - item)) {
+                return vec![map[&(target - item)], i as i32];
             }
+            map.insert(item, i as i32);
         }
 
         vec![]
