@@ -32,38 +32,32 @@ impl Solution {
         }
 
         let a = s.as_bytes();
-        let mut ret = "";
-        for i in 0..=a.len() - 2 {
-            let (x, y) = Self::is_pali(a, i as i32, i as i32 + 1);
-            if y - x + 1 > ret.len() {
-                ret = &s[x..y + 1];
+        let mut ret = &a[0..1];
+        for i in 0..a.len() - 1 {
+            let s1 = Self::pali(a, i as i32, i as i32 + 1);
+            let s2 = Self::pali(a, i as i32, i as i32);
+            if ret.len() < s1.len() {
+                ret = s1;
             }
-            let (x, y) = Self::is_pali(a, i as i32, i as i32);
-            if y - x + 1 > ret.len() {
-                ret = &s[x..y + 1];
+            if ret.len() < s2.len() {
+                ret = s2;
             }
         }
 
-        ret.to_string()
+        String::from_utf8_lossy(ret).to_string()
     }
 
-    fn is_pali(a: &[u8], mut i: i32, mut j: i32) -> (usize, usize) {
+    fn pali(a: &[u8], mut i: i32, mut j: i32) -> &[u8] {
         if a[i as usize] != a[j as usize] {
-            return (0, 0);
+            return &[];
         }
 
-        while i >= 0 && j < a.len() as i32 {
-            if a[i as usize] != a[j as usize] {
-                break;
-            }
+        while i >= 0 && j < a.len() as i32 && a[i as usize] == a[j as usize] {
             i -= 1;
             j += 1;
         }
 
-        i += 1;
-        j -= 1;
-
-        (i as usize, j as usize)
+        &a[(i + 1) as usize..j as usize]
     }
 }
 
