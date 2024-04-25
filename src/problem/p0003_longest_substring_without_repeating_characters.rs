@@ -1,7 +1,4 @@
-use std::{
-    cmp::max,
-    collections::{hash_map::Entry, HashMap},
-};
+use std::collections::{hash_map::Entry, HashMap};
 
 /// [3] Longest Substring Without Repeating Characters
 ///
@@ -40,29 +37,24 @@ pub struct Solution {}
 
 impl Solution {
     pub fn length_of_longest_substring(s: String) -> i32 {
-        if s.is_empty() {
-            return 0;
+        if s.len() <= 1 {
+            return s.len() as i32;
         }
 
-        let mut map = HashMap::new();
-        let mut pre = 0;
         let mut ret = 0;
-        let s = s.chars();
-        for (i, c) in s.enumerate() {
-            match map.entry(c) {
-                Entry::Occupied(mut o) => {
-                    let v = o.get();
-                    if v >= &pre {
-                        pre = v + 1;
+        let mut pre = 0;
+        let mut dic = HashMap::new();
+        for (i, b) in s.as_bytes().iter().enumerate() {
+            match dic.entry(b) {
+                Entry::Occupied(o) => {
+                    if pre <= *o.get() {
+                        pre = o.get() + 1;
                     }
-                    o.insert(i);
                 }
-                Entry::Vacant(v) => {
-                    v.insert(i);
-                }
+                Entry::Vacant(_) => {}
             }
-
-            ret = max(i - pre + 1, ret);
+            ret = std::cmp::max(ret, i - pre + 1);
+            dic.insert(b, i);
         }
 
         ret as i32
@@ -80,5 +72,6 @@ mod tests {
         assert_eq!(Solution::length_of_longest_substring("abcda".into()), 4);
         assert_eq!(Solution::length_of_longest_substring("abcd".into()), 4);
         assert_eq!(Solution::length_of_longest_substring("".into()), 0);
+        assert!(Solution::length_of_longest_substring("tmmzuxt".into()) == 5);
     }
 }
