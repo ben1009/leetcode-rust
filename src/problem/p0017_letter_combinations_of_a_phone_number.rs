@@ -36,44 +36,43 @@ pub struct Solution {}
 impl Solution {
     pub fn letter_combinations(digits: String) -> Vec<String> {
         if digits.is_empty() {
-            return vec![];
+            return Vec::new();
         }
 
-        let mut map = HashMap::new();
-        map.insert(b'2', "abc".as_bytes());
-        map.insert(b'3', "def".as_bytes());
-        map.insert(b'4', "ghi".as_bytes());
-        map.insert(b'5', "jkl".as_bytes());
-        map.insert(b'6', "mno".as_bytes());
-        map.insert(b'7', "qprs".as_bytes());
-        map.insert(b'8', "tuv".as_bytes());
-        map.insert(b'9', "wxyz".as_bytes());
+        let dic = HashMap::from([
+            (b'2', "abc"),
+            (b'3', "def"),
+            (b'4', "ghi"),
+            (b'5', "jkl"),
+            (b'6', "mno"),
+            (b'7', "pqrs"),
+            (b'8', "tuv"),
+            (b'9', "wxyz"),
+        ]);
 
-        Self::dfs(0, digits.as_bytes(), &map, &mut vec![], vec![])
+        let mut ret = vec![];
+        Self::dfs(digits, 0, &dic, &mut vec![], &mut ret);
+
+        ret
     }
 
     fn dfs(
-        i: usize,
-        digits: &[u8],
-        map: &HashMap<u8, &[u8]>,
+        digits: String,
+        idx: usize,
+        dic: &HashMap<u8, &str>,
         tmp: &mut Vec<u8>,
-        mut ret: Vec<String>,
-    ) -> Vec<String> {
+        ret: &mut Vec<String>,
+    ) {
         if tmp.len() == digits.len() {
-            let s = String::from_utf8_lossy(tmp).to_string();
-            ret.push(s);
-
-            return ret;
+            ret.push(String::from_utf8(tmp.clone()).unwrap());
+            return;
         }
 
-        let str = map.get(&digits[i]).unwrap();
-        for s in str.iter() {
-            tmp.push(*s);
-            ret = Self::dfs(i + 1, digits, map, tmp, ret);
+        for c in dic[&digits.as_bytes()[idx]].as_bytes() {
+            tmp.push(*c);
+            Self::dfs(digits.clone(), idx + 1, dic, tmp, ret);
             tmp.pop();
         }
-
-        ret
     }
 }
 
