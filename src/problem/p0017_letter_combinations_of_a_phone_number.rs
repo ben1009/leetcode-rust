@@ -51,13 +51,13 @@ impl Solution {
         ]);
 
         let mut ret = vec![];
-        Self::dfs(digits, 0, &dic, &mut vec![], &mut ret);
+        Self::dfs(digits.as_bytes(), 0, &dic, &mut vec![], &mut ret);
 
         ret
     }
 
     fn dfs(
-        digits: String,
+        digits: &[u8],
         idx: usize,
         dic: &HashMap<u8, &str>,
         tmp: &mut Vec<u8>,
@@ -68,9 +68,9 @@ impl Solution {
             return;
         }
 
-        for c in dic[&digits.as_bytes()[idx]].as_bytes() {
+        for c in dic[&digits[idx]].as_bytes() {
             tmp.push(*c);
-            Self::dfs(digits.clone(), idx + 1, dic, tmp, ret);
+            Self::dfs(digits, idx + 1, dic, tmp, ret);
             tmp.pop();
         }
     }
