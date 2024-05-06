@@ -47,10 +47,8 @@ impl Solution {
         let s = s.as_bytes();
         let map = HashMap::from([(b'}', b'{'), (b')', b'('), (b']', b'[')]);
         for v in s {
-            let t = stack.last();
-            if let Some(t) = t {
-                let p = map.get(v);
-                if let Some(p) = p {
+            if let Some(t) = stack.last() {
+                if let Some(p) = map.get(v) {
                     if p == t {
                         stack.pop();
                         continue;
