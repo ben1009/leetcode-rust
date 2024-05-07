@@ -22,24 +22,24 @@ pub struct Solution {}
 impl Solution {
     pub fn generate_parenthesis(n: i32) -> Vec<String> {
         let mut ret = vec![];
-        Self::gen(n, 0, 0, &mut String::new(), &mut ret);
+        Self::gen(n, 0, 0, &mut vec![], &mut ret);
 
         ret
     }
 
-    pub fn gen(n: i32, l: i32, r: i32, tmp: &mut String, ret: &mut Vec<String>) {
+    fn gen(n: i32, l: i32, r: i32, tmp: &mut Vec<u8>, ret: &mut Vec<String>) {
         if tmp.len() == n as usize * 2 {
-            ret.push(tmp.to_owned());
+            ret.push(String::from_utf8(tmp.clone()).unwrap());
             return;
         }
 
         if l < n {
-            tmp.push('(');
+            tmp.push(b'(');
             Self::gen(n, l + 1, r, tmp, ret);
             tmp.pop();
         }
         if r < l {
-            tmp.push(')');
+            tmp.push(b')');
             Self::gen(n, l, r + 1, tmp, ret);
             tmp.pop();
         }
