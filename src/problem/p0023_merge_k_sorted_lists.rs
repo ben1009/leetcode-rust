@@ -67,23 +67,22 @@ impl Solution {
             return None;
         }
 
-        let mut ret = ListNode::new(-1);
+        let mut ret = ListNode::new(0);
         let mut current = &mut ret;
         let mut heap = BinaryHeap::new();
-        for l in lists.into_iter().flatten() {
-            heap.push(std::cmp::Reverse(l));
+
+        for list in lists.into_iter().flatten() {
+            heap.push(std::cmp::Reverse(list));
         }
 
-        while !heap.is_empty() {
-            if let Some(t) = heap.pop() {
-                if let Some(t) = t.0.next {
-                    heap.push(std::cmp::Reverse(t));
-                }
-
-                let n = ListNode::new(t.0.val);
-                current.next = Some(Box::new(n));
-                let next = current.next.as_mut().unwrap();
-                current = next;
+        while let Some(std::cmp::Reverse(l)) = heap.pop() {
+            current.next = Some(Box::new(ListNode {
+                val: l.val,
+                next: None,
+            }));
+            current = current.next.as_mut().unwrap();
+            if let Some(l) = l.next {
+                heap.push(std::cmp::Reverse(l));
             }
         }
 
