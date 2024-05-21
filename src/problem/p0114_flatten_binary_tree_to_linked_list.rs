@@ -76,9 +76,12 @@ impl Solution {
     }
 
     fn find_right_last(mut root: Option<Rc<RefCell<TreeNode>>>) -> Option<Rc<RefCell<TreeNode>>> {
-        while root.as_ref().unwrap().borrow().right.is_some() {
-            let n = root.as_ref().unwrap().borrow().right.clone();
-            root = n;
+        loop {
+            let n = root.as_ref().unwrap().borrow_mut().right.clone();
+            match n {
+                n @ Some(_) => root = n,
+                None => break,
+            }
         }
 
         root

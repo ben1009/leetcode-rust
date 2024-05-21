@@ -36,13 +36,9 @@ impl Solution {
             return nums.len() as i32;
         }
 
-        let mut dic = HashSet::new();
-        for n in nums.iter() {
-            dic.insert(n);
-        }
-
+        let mut dic = nums.iter().collect::<HashSet<_>>();
         let mut ret = 0;
-        for k in nums.iter() {
+        for k in &nums {
             let mut k1 = *k;
             while dic.remove(&(k1 - 1)) {
                 k1 -= 1;
