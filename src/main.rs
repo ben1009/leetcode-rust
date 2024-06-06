@@ -28,7 +28,7 @@ use crate::fetcher::{CodeDefinition, Problem};
 /// main() helps to generate the submission template .rs
 fn main() {
     println!("Welcome to leetcode-rust system.\n");
-    dotenv().ok();
+    dotenv().unwrap();
 
     let mut initialized_ids = get_initialized_ids("./src/problem/mod.rs");
     loop {

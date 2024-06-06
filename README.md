@@ -3,6 +3,8 @@
 [![codecov](https://codecov.io/gh/ben1009/leetcode-rust/branch/master/graph/badge.svg)](https://codecov.io/gh/ben1009/leetcode-rust)
 [![Build Status](https://github.com/ben1009/leetcode-rust/workflows/check/badge.svg)](https://github.com/ben1009/leetcode-rust/actions?query=workflow:check)
 
+Set `LEETCODE_COOKIE` in `.env` file or environment variable first.
+
 Run `cargo run {id}` to initialize the template submission file of "question #id".
 
 Run `cargo test test_{id}` to test the solution for "question #id".
