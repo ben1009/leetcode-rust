@@ -2,6 +2,7 @@
 extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
+extern crate dotenv;
 
 mod fetcher;
 
@@ -14,6 +15,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use dotenv::dotenv;
 use futures::{
     executor::{block_on, ThreadPool},
     future::join_all,
@@ -26,6 +28,8 @@ use crate::fetcher::{CodeDefinition, Problem};
 /// main() helps to generate the submission template .rs
 fn main() {
     println!("Welcome to leetcode-rust system.\n");
+    dotenv().ok();
+
     let mut initialized_ids = get_initialized_ids("./src/problem/mod.rs");
     loop {
         println!(
