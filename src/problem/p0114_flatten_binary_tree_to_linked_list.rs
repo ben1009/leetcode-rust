@@ -57,6 +57,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::util::tree::TreeNode;
 impl Solution {
+    #[allow(clippy::assigning_clones)]
     pub fn flatten(root: &Option<Rc<RefCell<TreeNode>>>) {
         if root.is_none() {
             return;
@@ -70,7 +71,12 @@ impl Solution {
             return;
         }
         let n = Self::find_right_last(root.left.clone());
-        n.as_ref().unwrap().borrow_mut().right = root.right.clone();
+        n.as_ref()
+            .unwrap()
+            .borrow_mut()
+            .right
+            .clone_from(&root.right);
+        // n.as_ref().unwrap().borrow_mut().right = root.right.clone();
         root.right = root.left.clone();
         root.left = None
     }

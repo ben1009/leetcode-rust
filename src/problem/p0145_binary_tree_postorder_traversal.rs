@@ -70,7 +70,8 @@ impl Solution {
                 continue;
             }
 
-            root = stack.last().unwrap().clone();
+            root.clone_from(stack.last().unwrap());
+            // root = stack.last().unwrap().clone();
             if root.as_ref().unwrap().borrow().right.is_none()
                 || root.as_ref().unwrap().borrow().right == pre
             {

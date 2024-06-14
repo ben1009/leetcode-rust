@@ -60,8 +60,8 @@ impl Solution {
             for l in &left {
                 for r in &right {
                     let mut node = TreeNode::new(k);
-                    node.left = l.clone();
-                    node.right = r.clone();
+                    node.left.clone_from(l);
+                    node.right.clone_from(r);
                     ret.push(Some(Rc::new(RefCell::new(node))));
                 }
             }

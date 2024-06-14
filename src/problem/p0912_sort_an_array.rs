@@ -34,7 +34,7 @@ impl Solution {
             return nums;
         }
 
-        let mut max = std::i32::MIN;
+        let mut max = i32::MIN;
         for i in &nums {
             max = std::cmp::max(max, i.abs());
         }
