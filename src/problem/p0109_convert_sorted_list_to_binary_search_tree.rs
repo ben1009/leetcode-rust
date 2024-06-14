@@ -88,6 +88,7 @@ impl Solution {
         Some(Rc::new(RefCell::new(n)))
     }
 
+    #[allow(clippy::assigning_clones)]
     fn find_mid(head: Option<Box<ListNode>>, tail: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
         let mut slow = head.clone();
         let mut fast = head;
