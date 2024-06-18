@@ -43,6 +43,7 @@ pub mod p0345_reverse_vowels_of_a_string;
 pub mod p0543_diameter_of_binary_tree;
 pub mod p0581_shortest_unsorted_continuous_subarray;
 pub mod p0617_merge_two_binary_trees;
+pub mod p0705_design_hashset;
 pub mod p0912_sort_an_array;
 pub mod p0926_flip_string_to_monotone_increasing;
 pub mod p1016_binary_string_with_substrings_representing_1_to_n;
