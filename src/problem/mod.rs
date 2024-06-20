@@ -40,6 +40,7 @@ pub mod p0202_happy_number;
 pub mod p0205_isomorphic_strings;
 pub mod p0243_shortest_word_distance;
 pub mod p0345_reverse_vowels_of_a_string;
+pub mod p0521_longest_uncommon_subsequence;
 pub mod p0543_diameter_of_binary_tree;
 pub mod p0581_shortest_unsorted_continuous_subarray;
 pub mod p0617_merge_two_binary_trees;
