@@ -51,6 +51,7 @@ pub mod p1016_binary_string_with_substrings_representing_1_to_n;
 pub mod p1054_distant_barcodes;
 pub mod p1376_time_needed_to_inform_all_employees;
 pub mod p2437_number_of_valid_clock_times;
+pub mod p2810_faulty_keyboard;
 pub mod p2923_find_champion_i;
 pub mod p2924_find_champion_ii;
 pub mod p2938_separate_black_and_white_balls;
