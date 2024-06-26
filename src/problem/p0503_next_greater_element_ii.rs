@@ -33,7 +33,9 @@ impl Solution {
                 let j = stack.pop().unwrap();
                 ret[j] = nums[i % nums.len()];
             }
-            stack.push(i % nums.len());
+            if i < nums.len() {
+                stack.push(i);
+            }
         }
 
         ret
