@@ -41,6 +41,7 @@ pub mod p0205_isomorphic_strings;
 pub mod p0243_shortest_word_distance;
 pub mod p0345_reverse_vowels_of_a_string;
 pub mod p0496_next_greater_element_i;
+pub mod p0503_next_greater_element_ii;
 pub mod p0521_longest_uncommon_subsequence;
 pub mod p0543_diameter_of_binary_tree;
 pub mod p0581_shortest_unsorted_continuous_subarray;
