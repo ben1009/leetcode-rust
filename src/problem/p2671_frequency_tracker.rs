@@ -102,7 +102,7 @@ impl FrequencyTracker {
     }
 
     fn has_frequency(&self, frequency: i32) -> bool {
-        if let Some((_, v)) = self.fre.get_key_value(&frequency) {
+        if let Some(v) = self.fre.get(&frequency) {
             !v.is_empty()
         } else {
             false
