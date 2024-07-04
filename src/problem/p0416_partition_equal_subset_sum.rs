@@ -41,6 +41,9 @@ impl Solution {
                 if j >= nums[i - 1] as usize {
                     dp[i][j] = dp[i - 1][j - nums[i - 1] as usize] + dp[i - 1][j];
                 }
+                if j == m && dp[i][j] != 0 {
+                    return true;
+                }
             }
         }
 
