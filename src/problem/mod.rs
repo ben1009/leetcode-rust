@@ -50,6 +50,7 @@ pub mod p0560_subarray_sum_equals_k;
 pub mod p0581_shortest_unsorted_continuous_subarray;
 pub mod p0617_merge_two_binary_trees;
 pub mod p0705_design_hashset;
+pub mod p0724_find_pivot_index;
 pub mod p0739_daily_temperatures;
 pub mod p0912_sort_an_array;
 pub mod p0926_flip_string_to_monotone_increasing;
