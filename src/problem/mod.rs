@@ -63,5 +63,6 @@ pub mod p2810_faulty_keyboard;
 pub mod p2923_find_champion_i;
 pub mod p2924_find_champion_ii;
 pub mod p2938_separate_black_and_white_balls;
+pub mod p2956_find_common_elements_between_two_arrays;
 pub mod p2974_minimum_number_game;
 pub mod p3033_modify_the_matrix;
