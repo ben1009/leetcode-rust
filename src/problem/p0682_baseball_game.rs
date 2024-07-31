@@ -78,7 +78,7 @@ impl Solution {
                     n.push(n[n.len() - 1] + n[n.len() - 2]);
                 }
                 _ => {
-                    n.push(i.parse::<i32>().unwrap());
+                    n.push(i.parse().unwrap());
                 }
             }
         }
