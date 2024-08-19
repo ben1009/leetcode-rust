@@ -46,6 +46,7 @@ pub mod p0496_next_greater_element_i;
 pub mod p0503_next_greater_element_ii;
 pub mod p0521_longest_uncommon_subsequence;
 pub mod p0543_diameter_of_binary_tree;
+pub mod p0551_student_attendance_record_i;
 pub mod p0560_subarray_sum_equals_k;
 pub mod p0581_shortest_unsorted_continuous_subarray;
 pub mod p0617_merge_two_binary_trees;
