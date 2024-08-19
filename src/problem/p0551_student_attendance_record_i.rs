@@ -68,5 +68,6 @@ mod test {
     fn test_0551() {
         assert!(Solution::check_record("PPALLP".to_string()));
         assert!(!Solution::check_record("PPALLL".to_string()));
+        assert!(Solution::check_record("A".to_string()));
     }
 }
