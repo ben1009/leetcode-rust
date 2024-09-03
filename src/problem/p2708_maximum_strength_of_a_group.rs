@@ -38,14 +38,14 @@ impl Solution {
         let mut ret = 1_i64;
         let mut zero = 0;
         let mut neg_max = -9_i64;
-        for n in nums.iter() {
-            if *n == 0 {
+        for &n in &nums {
+            if n == 0 {
                 zero += 1;
                 continue;
             }
-            ret *= *n as i64;
-            if *n < 0 {
-                neg_max = std::cmp::max(neg_max, *n as i64);
+            ret *= n as i64;
+            if n < 0 {
+                neg_max = std::cmp::max(neg_max, n as i64);
             }
         }
 
