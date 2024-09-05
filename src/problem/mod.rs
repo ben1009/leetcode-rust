@@ -56,6 +56,7 @@ pub mod p0724_find_pivot_index;
 pub mod p0739_daily_temperatures;
 pub mod p0912_sort_an_array;
 pub mod p0926_flip_string_to_monotone_increasing;
+pub mod p1004_max_consecutive_ones_iii;
 pub mod p1016_binary_string_with_substrings_representing_1_to_n;
 pub mod p1054_distant_barcodes;
 pub mod p1186_maximum_subarray_sum_with_one_deletion;
