@@ -17,7 +17,7 @@ use std::{
 
 use dotenv::dotenv;
 use futures::{
-    executor::{block_on, ThreadPool},
+    executor::{ThreadPool, block_on},
     future::join_all,
     task::SpawnExt,
 };

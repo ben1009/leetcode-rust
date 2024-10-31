@@ -54,10 +54,9 @@ mod tests {
 
     #[test]
     fn test_22() {
-        assert_eq!(
-            Solution::generate_parenthesis(3),
-            vec!["((()))", "(()())", "(())()", "()(())", "()()()"]
-        );
+        assert_eq!(Solution::generate_parenthesis(3), vec![
+            "((()))", "(()())", "(())()", "()(())", "()()()"
+        ]);
         assert_eq!(Solution::generate_parenthesis(1), vec!["()"]);
         assert_eq!(Solution::generate_parenthesis(2), vec!["(())", "()()"]);
     }

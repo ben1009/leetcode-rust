@@ -84,14 +84,12 @@ mod tests {
 
     #[test]
     fn test_17() {
-        assert_eq!(
-            Solution::letter_combinations("23".to_owned()),
-            vec!["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]
-        );
-        assert_eq!(
-            Solution::letter_combinations("2".to_owned()),
-            vec!["a", "b", "c"]
-        );
+        assert_eq!(Solution::letter_combinations("23".to_owned()), vec![
+            "ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"
+        ]);
+        assert_eq!(Solution::letter_combinations("2".to_owned()), vec![
+            "a", "b", "c"
+        ]);
         assert_eq!(
             Solution::letter_combinations("".to_owned()),
             Vec::<String>::new()

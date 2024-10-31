@@ -72,10 +72,9 @@ mod tests {
     fn test_1054() {
         let a = Solution::rearrange_barcodes(vec![1, 1, 1, 1, 2, 2, 2, 3, 3]);
         assert!(
-            [
-                vec![1, 2, 1, 2, 1, 3, 1, 3, 2],
-                vec![1, 3, 1, 2, 1, 2, 1, 2, 3]
-            ]
+            [vec![1, 2, 1, 2, 1, 3, 1, 3, 2], vec![
+                1, 3, 1, 2, 1, 2, 1, 2, 3
+            ]]
             .contains(&a)
         );
 
