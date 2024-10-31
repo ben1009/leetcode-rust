@@ -69,20 +69,20 @@ impl MinStack {
     }
 
     fn top(&self) -> i32 {
-        return self.vec.last().unwrap().0;
+        self.vec.last().unwrap().0
     }
 
     fn get_min(&self) -> i32 {
-        return self.vec.last().unwrap().1;
+        self.vec.last().unwrap().1
     }
 }
 
-/// Your MinStack object will be instantiated and called as such:
-/// let obj = MinStack::new();
-/// obj.push(val);
-/// obj.pop();
-/// let ret_3: i32 = obj.top();
-/// let ret_4: i32 = obj.get_min();
+// /// Your MinStack object will be instantiated and called as such:
+// /// let obj = MinStack::new();
+// /// obj.push(val);
+// /// obj.pop();
+// /// let ret_3: i32 = obj.top();
+// /// let ret_4: i32 = obj.get_min();
 
 // submission codes end
 

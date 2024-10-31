@@ -105,9 +105,8 @@ mod tests {
     fn test_114() {
         let tree_node = tree!(1, 2, 5, 3, 4, null, 6);
         Solution::flatten(&tree_node);
-        assert_eq!(
-            tree_node,
-            tree![1, null, 2, null, 3, null, 4, null, 5, null, 6]
-        );
+        assert_eq!(tree_node, tree![
+            1, null, 2, null, 3, null, 4, null, 5, null, 6
+        ]);
     }
 }

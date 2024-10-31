@@ -1,4 +1,4 @@
-use std::cmp::{max, Ordering};
+use std::cmp::{Ordering, max};
 
 /// [165] Compare Version Numbers
 ///

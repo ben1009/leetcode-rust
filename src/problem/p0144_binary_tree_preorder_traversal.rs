@@ -89,10 +89,9 @@ mod tests {
 
     #[test]
     fn test_144() {
-        assert_eq!(
-            Solution::preorder_traversal(tree![1, null, 2, 3]),
-            vec![1, 2, 3]
-        );
+        assert_eq!(Solution::preorder_traversal(tree![1, null, 2, 3]), vec![
+            1, 2, 3
+        ]);
         assert_eq!(Solution::preorder_traversal(tree![1]), vec![1]);
         assert_eq!(Solution::preorder_traversal(tree![]), vec![]);
     }
