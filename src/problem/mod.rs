@@ -75,3 +75,4 @@ pub mod p3033_modify_the_matrix;
 pub mod p3153_sum_of_digit_differences_of_all_pairs;
 pub mod p3174_clear_digits;
 pub mod p3226_number_of_bit_changes_to_make_two_integers_equal;
+pub mod p3259_maximum_energy_boost_from_two_drinks;
