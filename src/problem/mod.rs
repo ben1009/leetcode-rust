@@ -72,6 +72,7 @@ pub mod p2938_separate_black_and_white_balls;
 pub mod p2956_find_common_elements_between_two_arrays;
 pub mod p2974_minimum_number_game;
 pub mod p3033_modify_the_matrix;
+pub mod p3142_check_if_grid_satisfies_conditions;
 pub mod p3151_special_array_i;
 pub mod p3152_special_array_ii;
 pub mod p3153_sum_of_digit_differences_of_all_pairs;
