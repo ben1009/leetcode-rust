@@ -65,6 +65,7 @@ pub mod p2437_number_of_valid_clock_times;
 pub mod p2671_frequency_tracker;
 pub mod p2708_maximum_strength_of_a_group;
 pub mod p2710_remove_trailing_zeros_from_a_string;
+pub mod p2766_relocate_marbles;
 pub mod p2810_faulty_keyboard;
 pub mod p2923_find_champion_i;
 pub mod p2924_find_champion_ii;
