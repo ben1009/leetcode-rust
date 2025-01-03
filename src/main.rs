@@ -31,6 +31,10 @@ fn main() {
     dotenv().unwrap();
 
     let mut initialized_ids = get_initialized_ids("./src/problem/mod.rs");
+    let random_pattern = Regex::new(r"^random$").unwrap();
+    let solving_pattern = Regex::new(r"^solve (\d+)$").unwrap();
+    let all_pattern = Regex::new(r"^all$").unwrap();
+
     loop {
         println!(
             "Please enter a frontend problem id, \n\
@@ -46,10 +50,6 @@ fn main() {
             .read_line(&mut id_arg)
             .expect("Failed to read line");
         let id_arg = id_arg.trim();
-
-        let random_pattern = Regex::new(r"^random$").unwrap();
-        let solving_pattern = Regex::new(r"^solve (\d+)$").unwrap();
-        let all_pattern = Regex::new(r"^all$").unwrap();
 
         if random_pattern.is_match(id_arg) {
             println!("You select random mode.");
