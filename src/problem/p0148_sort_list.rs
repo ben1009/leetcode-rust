@@ -41,6 +41,29 @@ use crate::util::linked_list::ListNode;
 pub struct Solution;
 
 impl Solution {
+    pub fn sort_list_with_vec(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+        if head.is_none() || head.as_ref().unwrap().next.is_none() {
+            return head;
+        }
+
+        let mut t = vec![];
+        let mut head = head;
+        while let Some(mut n) = head {
+            head = n.next.take();
+            t.push(n);
+        }
+
+        t.sort();
+
+        let mut head = None;
+        while let Some(mut item) = t.pop() {
+            item.next = head;
+            head = Some(item);
+        }
+
+        head
+    }
+
     pub fn sort_list(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
         if head.is_none() || head.as_ref().unwrap().next.is_none() {
             return head;
@@ -68,20 +91,22 @@ impl Solution {
         let mut pre = &mut head_pointer;
         while h1.is_some() || h2.is_some() {
             if h1.is_none() {
-                pre.next = h2.clone();
+                pre.next = h2.take();
                 break;
             }
             if h2.is_none() {
-                pre.next = h1.clone();
+                pre.next = h1.take();
                 break;
             }
 
             if h1.as_ref().unwrap().val < h2.as_ref().unwrap().val {
-                pre.next = h1.clone();
-                h1 = h1.as_ref().unwrap().next.clone();
+                pre.next = Some(Box::new(ListNode::new(h1.as_ref().unwrap().val)));
+                // h1.clone();
+                h1 = h1.as_mut().unwrap().next.take();
             } else {
-                pre.next = h2.clone();
-                h2 = h2.as_ref().unwrap().next.clone();
+                pre.next = Some(Box::new(ListNode::new(h2.as_ref().unwrap().val)));
+                // pre.next = h2.clone();
+                h2 = h2.as_mut().unwrap().next.take();
             }
             pre = pre.next.as_deref_mut().unwrap();
         }
@@ -101,10 +126,10 @@ impl Solution {
         let mut fast = Some(Box::new(slow.clone()));
         while fast.is_some() && fast.as_ref().unwrap().next.is_some() {
             slow = slow.next.as_mut().unwrap();
-            fast = fast.as_ref().unwrap().next.as_ref().unwrap().next.clone();
+            fast = fast.as_mut().unwrap().next.as_mut().unwrap().next.take();
         }
-        let head2 = slow.next.clone();
-        slow.next = None;
+        let head2 = slow.next.take();
+        // slow.next = None;
 
         (head_pointer.next, head2)
     }
@@ -123,6 +148,23 @@ mod tests {
         );
         assert_eq!(
             Solution::sort_list(linked_list::to_list(vec![-1, 5, 3, 4, 0])),
+            linked_list::to_list(vec![-1, 0, 3, 4, 5])
+        );
+        assert_eq!(
+            Solution::sort_list(linked_list::to_list(vec![])),
+            linked_list::to_list(vec![])
+        );
+
+        assert_eq!(
+            Solution::sort_list_with_vec(linked_list::to_list(vec![4, 2, 1, 3])),
+            linked_list::to_list(vec![1, 2, 3, 4])
+        );
+        assert_eq!(
+            Solution::sort_list_with_vec(linked_list::to_list(vec![])),
+            linked_list::to_list(vec![])
+        );
+        assert_eq!(
+            Solution::sort_list_with_vec(linked_list::to_list(vec![-1, 5, 3, 4, 0])),
             linked_list::to_list(vec![-1, 0, 3, 4, 5])
         );
     }
