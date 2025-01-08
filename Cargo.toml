@@ -24,6 +24,7 @@ tempfile = "3.9.0"
 [lib]
 doctest = false
 test = true
+# bench = false
 
 [package.metadata.cargo-machete]
 ignored = ["openssl", "serde"]

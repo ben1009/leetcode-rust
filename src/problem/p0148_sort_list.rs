@@ -168,4 +168,28 @@ mod tests {
             linked_list::to_list(vec![-1, 0, 3, 4, 5])
         );
     }
+
+    extern crate test;
+    use test::{Bencher, black_box};
+
+    #[rustfmt::skip]
+    // test problem::p0148_sort_list::tests::bench_sort_list          ... bench:      16,858.58 ns/iter (+/- 419.48)
+    // test problem::p0148_sort_list::tests::bench_sort_list_with_vec ... bench:       1,120.72 ns/iter (+/- 54.88)
+    #[bench]
+    fn bench_sort_list(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(Solution::sort_list(linked_list::to_list(
+                (1..=100).rev().collect(),
+            )))
+        });
+    }
+
+    #[bench]
+    fn bench_sort_list_with_vec(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(Solution::sort_list_with_vec(linked_list::to_list(
+                (1..=100).rev().collect(),
+            )))
+        });
+    }
 }
