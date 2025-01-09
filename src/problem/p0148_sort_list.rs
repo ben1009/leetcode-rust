@@ -43,6 +43,43 @@ use crate::util::linked_list::ListNode;
 pub struct Solution;
 
 impl Solution {
+    // need randomize pivot, optimize for == povit, three may quick sort,
+    // e.g. [1,1,1,,1,1,4,4,4,6,5,7,8,9], bla, bla
+    pub fn sort_list_with_quick_sort(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+        if head.is_none() || head.as_ref().unwrap().next.is_none() {
+            return head;
+        }
+
+        let povit = head.as_ref().unwrap().val;
+        let mut less = None;
+        let mut great = None;
+        let mut current = head;
+        while let Some(mut n) = current {
+            current = n.next.take();
+            if n.val < povit {
+                n.next = less;
+                less = Some(n);
+            } else {
+                n.next = great;
+                great = Some(n);
+            }
+        }
+
+        let less = Solution::sort_list_with_quick_sort(less);
+        let great = Solution::sort_list_with_quick_sort(great);
+
+        let mut less_head_pointer = ListNode::new(0);
+        less_head_pointer.next = less;
+        let mut less_tail = &mut less_head_pointer;
+        while let Some(ref mut n) = less_tail.next {
+            less_tail = n;
+        }
+
+        less_tail.next = great;
+
+        less_head_pointer.next
+    }
+
     pub fn sort_list_with_vec(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
         if head.is_none() || head.as_ref().unwrap().next.is_none() {
             return head;
@@ -189,6 +226,21 @@ mod tests {
 
     #[test]
     fn test_148() {
+        // sort_list_with_quick_sort
+        assert_eq!(
+            Solution::sort_list_with_quick_sort(linked_list::to_list(vec![4, 2, 1, 3])),
+            linked_list::to_list(vec![1, 2, 3, 4])
+        );
+        assert_eq!(
+            Solution::sort_list_with_quick_sort(linked_list::to_list(vec![-1, 5, 3, 4, 0])),
+            linked_list::to_list(vec![-1, 0, 3, 4, 5])
+        );
+        assert_eq!(
+            Solution::sort_list_with_quick_sort(linked_list::to_list(vec![])),
+            linked_list::to_list(vec![])
+        );
+
+        // sort_list_half_cut
         assert_eq!(
             Solution::sort_list_half_cut(linked_list::to_list(vec![4, 2, 1, 3])),
             linked_list::to_list(vec![1, 2, 3, 4])
@@ -202,6 +254,7 @@ mod tests {
             linked_list::to_list(vec![])
         );
 
+        // sort_list_half_cut_len
         assert_eq!(
             Solution::sort_list_half_cut_len(linked_list::to_list(vec![4, 2, 1, 3])),
             linked_list::to_list(vec![1, 2, 3, 4])
@@ -215,6 +268,7 @@ mod tests {
             linked_list::to_list(vec![])
         );
 
+        // sort_list_with_vec
         assert_eq!(
             Solution::sort_list_with_vec(linked_list::to_list(vec![4, 2, 1, 3])),
             linked_list::to_list(vec![1, 2, 3, 4])
@@ -232,10 +286,21 @@ mod tests {
     extern crate test;
     use test::{Bencher, black_box};
 
-    #[rustfmt::skip]    
-    // test problem::p0148_sort_list::tests::bench_sort_list_half_cut     ... bench:       7,633.79 ns/iter (+/- 207.15)
-    // test problem::p0148_sort_list::tests::bench_sort_list_half_cut_len ... bench:       1,823.08 ns/iter (+/- 40.39)
-    // test problem::p0148_sort_list::tests::bench_sort_list_with_vec     ... bench:       1,034.86 ns/iter (+/- 30.86)
+    #[rustfmt::skip]
+    // test problem::p0148_sort_list::tests::bench_sort_list_half_cut     ... bench:       8,389.08 ns/iter (+/- 243.06)
+    // test problem::p0148_sort_list::tests::bench_sort_list_half_cut_len ... bench:       1,913.11 ns/iter (+/- 57.90)
+    // test problem::p0148_sort_list::tests::bench_sort_list_with_quick   ... bench:      16,013.85 ns/iter (+/- 116.08)
+    // test problem::p0148_sort_list::tests::bench_sort_list_with_vec     ... bench:       1,142.24 ns/iter (+/- 35.95)
+    
+    #[bench]
+    fn bench_sort_list_with_quick(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(Solution::sort_list_with_quick_sort(linked_list::to_list(
+                (1..=100).rev().collect(),
+            )))
+        });
+    }
+
     #[bench]
     fn bench_sort_list_half_cut(b: &mut Bencher) {
         b.iter(|| {
