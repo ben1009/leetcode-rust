@@ -20,6 +20,8 @@
 
 // Follow up: Can you sort the linked list in O(n logn) time and O(1) memory (i.e. constant space)?
 
+// https://leetcode.com/problems/sort-list/
+
 use crate::util::linked_list::ListNode;
 
 // Definition for singly-linked list.
@@ -64,14 +66,26 @@ impl Solution {
         head
     }
 
-    pub fn sort_list(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+    pub fn sort_list_half_cut(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
         if head.is_none() || head.as_ref().unwrap().next.is_none() {
             return head;
         }
 
         let (h1, h2) = Solution::half_cut(head);
-        let h1 = Solution::sort_list(h1);
-        let h2 = Solution::sort_list(h2);
+        let h1 = Solution::sort_list_half_cut(h1);
+        let h2 = Solution::sort_list_half_cut(h2);
+
+        Solution::merge(h1, h2)
+    }
+
+    pub fn sort_list_half_cut_len(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+        if head.is_none() || head.as_ref().unwrap().next.is_none() {
+            return head;
+        }
+
+        let (h1, h2) = Solution::half_cut_len(head);
+        let h1 = Solution::sort_list_half_cut_len(h1);
+        let h2 = Solution::sort_list_half_cut_len(h2);
 
         Solution::merge(h1, h2)
     }
@@ -100,13 +114,13 @@ impl Solution {
             }
 
             if h1.as_ref().unwrap().val < h2.as_ref().unwrap().val {
-                pre.next = Some(Box::new(ListNode::new(h1.as_ref().unwrap().val)));
-                // h1.clone();
-                h1 = h1.as_mut().unwrap().next.take();
+                let n = h1.as_mut().unwrap().next.take();
+                pre.next = h1.take();
+                h1 = n;
             } else {
-                pre.next = Some(Box::new(ListNode::new(h2.as_ref().unwrap().val)));
-                // pre.next = h2.clone();
-                h2 = h2.as_mut().unwrap().next.take();
+                let n = h2.as_mut().unwrap().next.take();
+                pre.next = h2.take();
+                h2 = n;
             }
             pre = pre.next.as_deref_mut().unwrap();
         }
@@ -114,16 +128,49 @@ impl Solution {
         head_pointer.next
     }
 
+    fn half_cut_len(
+        mut head: Option<Box<ListNode>>,
+    ) -> (Option<Box<ListNode>>, Option<Box<ListNode>>) {
+        if head.is_none() || head.as_ref().unwrap().next.is_none() {
+            return (head, None);
+        }
+
+        let len = Solution::len(&mut head);
+        let mid = len / 2;
+
+        let mut head_pointer = ListNode::new(0);
+        head_pointer.next = head;
+        let mut head2 = &mut head_pointer;
+        for _i in 0..mid {
+            head2 = head2.next.as_mut().unwrap();
+        }
+        let head2 = head2.next.take();
+
+        (head_pointer.next, head2)
+    }
+
+    fn len(head: &mut Option<Box<ListNode>>) -> i32 {
+        let mut len = 0;
+        let mut head = head;
+        while let Some(ref mut n) = head {
+            head = &mut n.next;
+            len += 1;
+        }
+
+        len
+    }
+
     fn half_cut(head: Option<Box<ListNode>>) -> (Option<Box<ListNode>>, Option<Box<ListNode>>) {
         if head.is_none() || head.as_ref().unwrap().next.is_none() {
             return (head, None);
         }
 
+        let mut head = head;
         let mut head_pointer = ListNode::new(0);
-        head_pointer.next = head.clone();
+        head_pointer.next = head.take();
 
         let mut slow = &mut head_pointer;
-        let mut fast = Some(Box::new(slow.clone()));
+        let mut fast = Some(Box::new(slow.clone())); // clone() kind of slow down the algorithm
         while fast.is_some() && fast.as_ref().unwrap().next.is_some() {
             slow = slow.next.as_mut().unwrap();
             fast = fast.as_mut().unwrap().next.as_mut().unwrap().next.take();
@@ -143,15 +190,28 @@ mod tests {
     #[test]
     fn test_148() {
         assert_eq!(
-            Solution::sort_list(linked_list::to_list(vec![4, 2, 1, 3])),
+            Solution::sort_list_half_cut(linked_list::to_list(vec![4, 2, 1, 3])),
             linked_list::to_list(vec![1, 2, 3, 4])
         );
         assert_eq!(
-            Solution::sort_list(linked_list::to_list(vec![-1, 5, 3, 4, 0])),
+            Solution::sort_list_half_cut(linked_list::to_list(vec![-1, 5, 3, 4, 0])),
             linked_list::to_list(vec![-1, 0, 3, 4, 5])
         );
         assert_eq!(
-            Solution::sort_list(linked_list::to_list(vec![])),
+            Solution::sort_list_half_cut(linked_list::to_list(vec![])),
+            linked_list::to_list(vec![])
+        );
+
+        assert_eq!(
+            Solution::sort_list_half_cut_len(linked_list::to_list(vec![4, 2, 1, 3])),
+            linked_list::to_list(vec![1, 2, 3, 4])
+        );
+        assert_eq!(
+            Solution::sort_list_half_cut_len(linked_list::to_list(vec![-1, 5, 3, 4, 0])),
+            linked_list::to_list(vec![-1, 0, 3, 4, 5])
+        );
+        assert_eq!(
+            Solution::sort_list_half_cut_len(linked_list::to_list(vec![])),
             linked_list::to_list(vec![])
         );
 
@@ -172,13 +232,23 @@ mod tests {
     extern crate test;
     use test::{Bencher, black_box};
 
-    #[rustfmt::skip]
-    // test problem::p0148_sort_list::tests::bench_sort_list          ... bench:      16,858.58 ns/iter (+/- 419.48)
-    // test problem::p0148_sort_list::tests::bench_sort_list_with_vec ... bench:       1,120.72 ns/iter (+/- 54.88)
+    #[rustfmt::skip]    
+    // test problem::p0148_sort_list::tests::bench_sort_list_half_cut     ... bench:       7,633.79 ns/iter (+/- 207.15)
+    // test problem::p0148_sort_list::tests::bench_sort_list_half_cut_len ... bench:       1,823.08 ns/iter (+/- 40.39)
+    // test problem::p0148_sort_list::tests::bench_sort_list_with_vec     ... bench:       1,034.86 ns/iter (+/- 30.86)
     #[bench]
-    fn bench_sort_list(b: &mut Bencher) {
+    fn bench_sort_list_half_cut(b: &mut Bencher) {
         b.iter(|| {
-            black_box(Solution::sort_list(linked_list::to_list(
+            black_box(Solution::sort_list_half_cut(linked_list::to_list(
+                (1..=100).rev().collect(),
+            )))
+        });
+    }
+
+    #[bench]
+    fn bench_sort_list_half_cut_len(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(Solution::sort_list_half_cut_len(linked_list::to_list(
                 (1..=100).rev().collect(),
             )))
         });
