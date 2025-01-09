@@ -43,7 +43,7 @@ use crate::util::linked_list::ListNode;
 pub struct Solution;
 
 impl Solution {
-    // need randomize pivot, optimize for == povit, three may quick sort,
+    // need randomize pivot, optimize for == povit, three way quick sort,
     // e.g. [1,1,1,,1,1,4,4,4,6,5,7,8,9], bla, bla
     pub fn sort_list_with_quick_sort(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
         if head.is_none() || head.as_ref().unwrap().next.is_none() {
