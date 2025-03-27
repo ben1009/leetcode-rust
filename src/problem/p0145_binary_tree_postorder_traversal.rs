@@ -98,9 +98,10 @@ mod tests {
 
     #[test]
     fn test_145() {
-        assert_eq!(Solution::postorder_traversal(tree![1, null, 2, 3]), vec![
-            3, 2, 1
-        ]);
+        assert_eq!(
+            Solution::postorder_traversal(tree![1, null, 2, 3]),
+            vec![3, 2, 1]
+        );
         assert_eq!(Solution::postorder_traversal(tree![1]), vec![1]);
         assert_eq!(Solution::postorder_traversal(tree![1, 2]), vec![2, 1]);
     }

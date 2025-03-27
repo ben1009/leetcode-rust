@@ -64,31 +64,29 @@ impl Solution {
             return l1;
         }
 
+        let mut root_pointer = ListNode::new(0);
+        let mut current = &mut root_pointer;
+        let mut carry = 0;
         let mut l1 = l1;
         let mut l2 = l2;
-        let mut ret = ListNode::new(0);
-        let mut current = &mut ret;
-        let mut carry = 0;
-
         while l1.is_some() || l2.is_some() || carry != 0 {
             let mut v1 = 0;
             let mut v2 = 0;
-            if let Some(l) = l1 {
-                v1 = l.val;
-                l1 = l.next;
+            if let Some(mut n1) = l1 {
+                v1 = n1.val;
+                l1 = n1.next.take();
             }
-            if let Some(l) = l2 {
-                v2 = l.val;
-                l2 = l.next;
+            if let Some(mut n2) = l2 {
+                v2 = n2.val;
+                l2 = n2.next.take();
             }
-            let num = v1 + v2 + carry;
-            carry = num / 10;
-            let n = num % 10;
-            current.next = Some(Box::new(ListNode::new(n)));
+            let v = (v1 + v2 + carry) % 10;
+            carry = (v1 + v2 + carry) / 10;
+            current.next = Some(Box::new(ListNode::new(v)));
             current = current.next.as_mut().unwrap();
         }
 
-        ret.next
+        root_pointer.next
     }
 }
 

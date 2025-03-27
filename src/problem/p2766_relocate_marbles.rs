@@ -68,9 +68,10 @@ mod tests {
 
     #[test]
     fn test_2766() {
-        assert_eq!(Solution::relocate_marbles(vec![1], vec![1], vec![2]), vec![
-            2
-        ]);
+        assert_eq!(
+            Solution::relocate_marbles(vec![1], vec![1], vec![2]),
+            vec![2]
+        );
         assert_eq!(
             Solution::relocate_marbles(vec![1, 6, 7, 8], vec![1, 7, 2], vec![2, 9, 5]),
             vec![5, 6, 8, 9]
@@ -80,9 +81,11 @@ mod tests {
             vec![2]
         );
         assert_eq!(
-            Solution::relocate_marbles(vec![3, 4], vec![4, 3, 1, 2, 2, 3, 2, 4, 1], vec![
-                3, 1, 2, 2, 3, 2, 4, 1, 1
-            ]),
+            Solution::relocate_marbles(
+                vec![3, 4],
+                vec![4, 3, 1, 2, 2, 3, 2, 4, 1],
+                vec![3, 1, 2, 2, 3, 2, 4, 1, 1]
+            ),
             vec![1]
         );
     }

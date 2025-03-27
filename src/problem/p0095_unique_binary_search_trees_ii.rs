@@ -80,12 +80,15 @@ mod tests {
 
     #[test]
     fn test_95() {
-        assert_eq!(Solution::generate_trees(3), vec![
-            tree![1, null, 2, null, 3],
-            tree![1, null, 3, 2],
-            tree![2, 1, 3],
-            tree![3, 1, null, null, 2],
-            tree![3, 2, null, 1]
-        ]);
+        assert_eq!(
+            Solution::generate_trees(3),
+            vec![
+                tree![1, null, 2, null, 3],
+                tree![1, null, 3, 2],
+                tree![2, 1, 3],
+                tree![3, 1, null, null, 2],
+                tree![3, 2, null, 1]
+            ]
+        );
     }
 }
