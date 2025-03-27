@@ -1,4 +1,4 @@
-use std::collections::{HashMap, hash_map::Entry};
+use std::collections::HashMap;
 
 /// [3] Longest Substring Without Repeating Characters
 ///
@@ -41,20 +41,20 @@ impl Solution {
             return s.len() as i32;
         }
 
+        let mut map = HashMap::new();
         let mut ret = 0;
         let mut pre = 0;
-        let mut dic = HashMap::new();
-        for (i, b) in s.as_bytes().iter().enumerate() {
-            match dic.entry(b) {
-                Entry::Occupied(o) => {
-                    if pre <= *o.get() {
+        for (i, c) in s.bytes().enumerate() {
+            match map.entry(c) {
+                std::collections::hash_map::Entry::Occupied(o) => {
+                    if o.get() >= &pre {
                         pre = o.get() + 1;
                     }
                 }
-                Entry::Vacant(_) => {}
+                std::collections::hash_map::Entry::Vacant(_) => {}
             }
-            ret = std::cmp::max(ret, i - pre + 1);
-            dic.insert(b, i);
+            ret = ret.max(i - pre + 1);
+            map.insert(c, i);
         }
 
         ret as i32

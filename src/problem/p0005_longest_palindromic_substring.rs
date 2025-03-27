@@ -27,19 +27,19 @@ pub struct Solution {}
 
 impl Solution {
     pub fn longest_palindrome(s: String) -> String {
-        if s.len() < 2 {
+        if s.len() == 1 {
             return s;
         }
 
-        let a = s.as_bytes();
-        let mut ret = &a[0..1];
-        for i in 0..a.len() - 1 {
-            let s1 = Self::pali(a, i as i32, i as i32 + 1);
-            let s2 = Self::pali(a, i as i32, i as i32);
-            if ret.len() < s1.len() {
+        let s = s.as_bytes();
+        let mut ret: &[u8] = &[];
+        for i in 0..s.len() - 1 {
+            let s1 = Solution::pali(s, i as i32, i);
+            let s2 = Solution::pali(s, i as i32, i + 1);
+            if s1.len() > ret.len() {
                 ret = s1;
             }
-            if ret.len() < s2.len() {
+            if s2.len() > ret.len() {
                 ret = s2;
             }
         }
@@ -47,17 +47,13 @@ impl Solution {
         String::from_utf8_lossy(ret).to_string()
     }
 
-    fn pali(a: &[u8], mut i: i32, mut j: i32) -> &[u8] {
-        if a[i as usize] != a[j as usize] {
-            return &[];
+    fn pali(s: &[u8], mut l: i32, mut r: usize) -> &[u8] {
+        while l >= 0 && r < s.len() && s[l as usize] == s[r] {
+            l -= 1;
+            r += 1;
         }
 
-        while i >= 0 && j < a.len() as i32 && a[i as usize] == a[j as usize] {
-            i -= 1;
-            j += 1;
-        }
-
-        &a[(i + 1) as usize..j as usize]
+        &s[(l + 1) as usize..r]
     }
 }
 
