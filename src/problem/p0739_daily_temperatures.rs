@@ -37,8 +37,9 @@ impl Solution {
         let mut stack = vec![];
         for i in 0..temperatures.len() {
             while !stack.is_empty() && temperatures[stack[stack.len() - 1]] < temperatures[i] {
-                let j = stack.pop().unwrap();
-                ret[j] = (i - j) as i32;
+                if let Some(j) = stack.pop() {
+                    ret[j] = (i - j) as i32;
+                }
             }
             stack.push(i);
         }

@@ -80,12 +80,11 @@ impl Solution {
         let mut lo = 0;
         while lo as i32 <= hi {
             if nums[lo] == val {
-                nums[lo] = nums[hi as usize];
+                nums.swap(lo, hi as usize);
                 hi -= 1;
-                continue;
+            } else {
+                lo += 1;
             }
-
-            lo += 1;
         }
 
         hi + 1

@@ -37,9 +37,9 @@ impl Solution {
         let m = matrix.len();
         let n = matrix[0].len();
         let mut ret = vec![vec![0; n]; m];
-        let mut max = vec![0; n];
-        for i in 0..m {
-            for j in 0..n {
+        let mut max = vec![-2; n];
+        for j in 0..n {
+            for i in 0..m {
                 ret[i][j] = matrix[i][j];
                 max[j] = std::cmp::max(max[j], matrix[i][j]);
             }

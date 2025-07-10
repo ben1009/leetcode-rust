@@ -55,13 +55,12 @@ impl MinStack {
     }
 
     fn push(&mut self, val: i32) {
-        if self.vec.is_empty() {
-            self.vec.push((val, val));
-            return;
+        let mut min = val;
+        if let Some(v) = self.vec.last() {
+            min = cmp::min(v.1, min);
         }
 
-        let min = self.vec.last().unwrap().1;
-        self.vec.push((val, cmp::min(val, min)));
+        self.vec.push((val, min));
     }
 
     fn pop(&mut self) {

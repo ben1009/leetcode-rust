@@ -34,7 +34,7 @@ impl Solution {
             return nums;
         }
 
-        let mut max = i32::MIN;
+        let mut max = 0;
         for i in &nums {
             max = std::cmp::max(max, i.abs());
         }
@@ -50,7 +50,7 @@ impl Solution {
     }
 
     fn sort(nums: &[i32], k: u32) -> Vec<i32> {
-        let mut count = [0; 21]; // [-9 - 9]
+        let mut count = [0; 21]; // [-9 - 9], 9+10=19, max_idx=19+1=20,len=max_idx+1
         for item in nums.iter() {
             let n = item / 10_i32.pow(k) % 10 + 10;
             count[n as usize + 1] += 1;

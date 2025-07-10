@@ -64,16 +64,14 @@ impl Solution {
         let mut root = root;
         let mut ret = vec![];
         while root.is_some() || !stack.is_empty() {
-            if root.is_some() {
-                stack.push(root.clone());
-                ret.push(root.as_ref().unwrap().borrow().val);
-                let t = root.as_ref().unwrap().borrow().left.clone();
-                root = t;
-                continue;
+            if let Some(n) = root {
+                stack.push(n.clone());
+                ret.push(n.borrow().val);
+                root = n.borrow_mut().left.take();
+            } else {
+                let t = stack.pop().unwrap();
+                root = t.borrow_mut().right.take();
             }
-            root = stack.pop().unwrap();
-            let t = root.as_ref().unwrap().borrow().right.clone();
-            root = t;
         }
 
         ret

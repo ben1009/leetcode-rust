@@ -54,20 +54,22 @@ impl Solution {
         }
 
         let mut set = HashSet::new();
-        for i in edges {
-            set.insert(i[1]);
+        for e in edges {
+            set.insert(e[1]);
         }
-        let mut ret = vec![];
+        if set.len() != n as usize - 1 {
+            return -1;
+        }
+
+        let mut ret = 0;
         for i in 0..n {
             if !set.contains(&i) {
-                if !ret.is_empty() {
-                    return -1;
-                }
-                ret.push(i);
+                ret = i;
+                break;
             }
         }
 
-        ret[0]
+        ret
     }
 }
 

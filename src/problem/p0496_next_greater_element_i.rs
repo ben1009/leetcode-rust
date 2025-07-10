@@ -55,8 +55,9 @@ impl Solution {
         let mut dic = hash_map::HashMap::new();
         for n in nums2 {
             while !stack.is_empty() && stack[stack.len() - 1] < n {
-                let t = stack.pop().unwrap();
-                dic.insert(t, n);
+                if let Some(t) = stack.pop() {
+                    dic.insert(t, n);
+                }
             }
             stack.push(n);
         }

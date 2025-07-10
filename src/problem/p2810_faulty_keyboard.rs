@@ -47,15 +47,15 @@ impl Solution {
         }
 
         let mut arr = vec![];
-        for b in s.as_bytes() {
-            if *b == b'i' {
+        for &b in s.as_bytes() {
+            if b == b'i' {
                 arr.reverse();
             } else {
-                arr.push(*b);
+                arr.push(b);
             }
         }
 
-        String::from_utf8(arr).unwrap()
+        String::from_utf8_lossy(arr.as_slice()).to_string()
     }
 }
 

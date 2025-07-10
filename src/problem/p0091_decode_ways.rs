@@ -55,19 +55,20 @@ impl Solution {
             return 0;
         }
 
-        let mut dp = vec![0; s.len() + 1];
+        let n = s.len();
+        let mut dp = vec![0; n + 1];
         dp[0] = 1;
         dp[1] = 1;
-        for i in 2..=s.len() {
-            if Self::is_valid(&s[i - 1..i]) {
-                dp[i] += dp[i - 1];
+        for i in 1..n {
+            if Solution::is_valid(&s[i..i + 1]) {
+                dp[i + 1] = dp[i];
             }
-            if Self::is_valid(&s[i - 2..i]) {
-                dp[i] += dp[i - 2];
+            if Solution::is_valid(&s[i - 1..i + 1]) {
+                dp[i + 1] += dp[i - 1];
             }
         }
 
-        dp[s.len()]
+        dp[n]
     }
 
     fn is_valid(s: &str) -> bool {
@@ -76,11 +77,8 @@ impl Solution {
         }
 
         let n = s.parse::<i32>().unwrap();
-        if n > 26 {
-            return false;
-        }
 
-        true
+        n > 0 && n <= 26
     }
 }
 

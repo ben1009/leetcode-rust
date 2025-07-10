@@ -33,19 +33,20 @@ impl Solution {
         }
 
         let mut ret = 0;
-        let mut l = vec![0; height.len()];
+        let n = height.len();
+        let mut l = vec![0; n];
         l[0] = height[0];
-        for i in 1..height.len() {
+        for i in 1..n {
             l[i] = std::cmp::max(l[i - 1], height[i]);
         }
 
-        let mut r = vec![0; height.len()];
-        r[height.len() - 1] = height[height.len() - 1];
-        for i in (0..=height.len() - 2).rev() {
+        let mut r = vec![0; n];
+        r[n - 1] = height[n - 1];
+        for i in (0..=n - 2).rev() {
             r[i] = std::cmp::max(r[i + 1], height[i]);
         }
 
-        for i in 1..height.len() - 1 {
+        for i in 1..n - 1 {
             ret += std::cmp::max(0, std::cmp::min(l[i - 1], r[i + 1]) - height[i]);
         }
 

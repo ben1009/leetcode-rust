@@ -38,7 +38,7 @@ impl Solution {
         intervals.sort_by(|a, b| a[0].cmp(&b[0]));
         let mut ret = vec![intervals[0].clone()];
 
-        for item in &intervals[1..] {
+        for item in intervals.iter().skip(1) {
             let t = ret.last_mut().unwrap();
             if t[1] < item[0] {
                 ret.push(item.to_vec());

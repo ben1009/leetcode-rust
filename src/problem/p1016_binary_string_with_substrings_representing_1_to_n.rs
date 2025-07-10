@@ -25,7 +25,7 @@ pub struct Solution {}
 impl Solution {
     pub fn query_string(s: String, n: i32) -> bool {
         for i in 1..=n {
-            if !s.contains(&format!("{:b}", i)) {
+            if !s.contains(&format!("{i:b}")) {
                 return false;
             }
         }

@@ -54,16 +54,17 @@ use crate::util::linked_list::ListNode;
 // }
 impl Solution {
     pub fn remove_nth_from_end(head: Option<Box<ListNode>>, n: i32) -> Option<Box<ListNode>> {
-        let mut root_pointer = ListNode { val: 0, next: head };
+        let mut root_pointer = ListNode::new(0);
+        root_pointer.next = head.clone();
         let mut pre = &mut root_pointer;
-        let mut current = &pre.clone();
-        for _i in 0..n {
-            current = current.next.as_ref().unwrap();
-        }
+        let mut head = head.as_ref().unwrap();
 
-        while let Some(ref n) = current.next {
-            current = n;
+        for _ in 1..n {
+            head = head.next.as_ref().unwrap();
+        }
+        while let Some(n) = head.next.as_ref() {
             pre = pre.next.as_mut().unwrap();
+            head = n;
         }
         pre.next = pre.next.as_mut().unwrap().next.take();
 

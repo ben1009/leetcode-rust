@@ -58,30 +58,23 @@ impl Solution {
             return vec![];
         }
 
-        let mut stack = vec![];
         let mut root = root;
+        let mut stack = vec![];
         let mut ret = vec![];
         let mut pre = Some(Rc::new(RefCell::new(TreeNode::new(0))));
-        while root.is_some() || !stack.is_empty() {
-            if root.is_some() {
-                stack.push(root.clone());
-                let n = root.as_ref().unwrap().borrow().left.clone();
-                root = n;
-                continue;
-            }
-
-            root.clone_from(stack.last().unwrap());
-            // root = stack.last().unwrap().clone();
-            if root.as_ref().unwrap().borrow().right.is_none()
-                || root.as_ref().unwrap().borrow().right == pre
-            {
-                stack.pop();
-                ret.push(root.as_ref().unwrap().borrow().val);
-                pre = root;
-                root = None;
+        while !stack.is_empty() || root.is_some() {
+            if let Some(n) = root {
+                stack.push(n.clone());
+                root = n.borrow_mut().left.take();
             } else {
-                let n = root.as_ref().unwrap().borrow().right.clone();
-                root = n;
+                let n = stack[stack.len() - 1].clone();
+                if n.borrow().right.is_none() || n.borrow().right == pre {
+                    stack.pop();
+                    ret.push(n.borrow().val);
+                    pre = Some(n);
+                } else {
+                    root = n.borrow_mut().right.take();
+                }
             }
         }
 

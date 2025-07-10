@@ -33,13 +33,12 @@ pub struct Solution {}
 
 impl Solution {
     pub fn number_game(nums: Vec<i32>) -> Vec<i32> {
-        let mut ret = vec![0; nums.len()];
         let mut nums = nums;
         nums.sort();
-
-        for i in (1..nums.len()).step_by(2) {
-            ret[i] = nums[i - 1];
-            ret[i - 1] = nums[i];
+        let mut ret = vec![0; nums.len()];
+        for i in (0..nums.len()).step_by(2) {
+            ret[i] = nums[i + 1];
+            ret[i + 1] = nums[i];
         }
 
         ret

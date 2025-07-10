@@ -59,20 +59,18 @@ impl Solution {
             return vec![];
         }
 
+        let mut ret = vec![];
         let mut stack = vec![];
         let mut root = root;
-        let mut ret = vec![];
-        while root.is_some() || !stack.is_empty() {
-            if root.is_some() {
-                stack.push(root.clone());
-                let t = root.as_ref().unwrap().borrow().left.clone();
-                root = t;
-                continue;
+        while !stack.is_empty() || root.is_some() {
+            if let Some(n) = root {
+                stack.push(n.clone());
+                root = n.borrow_mut().left.take()
+            } else {
+                let n = stack.pop().unwrap();
+                ret.push(n.borrow().val);
+                root = n.borrow_mut().right.take();
             }
-            root = stack.pop().unwrap();
-            ret.push(root.as_ref().unwrap().borrow().val);
-            let t = root.as_ref().unwrap().borrow().right.clone();
-            root = t;
         }
 
         ret

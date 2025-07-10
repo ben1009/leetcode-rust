@@ -49,13 +49,14 @@ impl Solution {
             return nums[0];
         }
 
-        let (mut lo, mut hi) = (0, nums.len() - 1);
+        let mut lo = 0;
+        let mut hi = nums.len() - 1;
         while lo < hi {
             let mid = lo + (hi - lo) / 2;
-            if nums[mid] > nums[hi] {
-                lo = mid + 1;
-            } else {
+            if nums[mid] < nums[hi] {
                 hi = mid;
+            } else {
+                lo = mid + 1;
             }
         }
 

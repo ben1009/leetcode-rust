@@ -32,11 +32,11 @@
 // Constraints:
 
 // 2 <= nums.length <= 105
-// 1 <= nums[i] < 109
+// 1 <= nums[i] < 10~9
 // All integers in nums have the same number of digits.
 
-// problem: https://leetcode.com/problems/sum-of-digit-differences-between-two-pairs/
-// solution: https://leetcode.com/problems/sum-of-digit-differences-between-two-pairs/discuss/?currentPage=1&orderBy=most_votes&query=
+// problem: https://leetcode.com/problems/sum-of-digit-differences-of-all-pairs/description/
+// solution: https://leetcode.com/problems/sum-of-digit-differences-of-all-pairs/discuss/?currentPage=1&orderBy=most_votes&query=
 
 pub struct Solution {}
 
@@ -45,18 +45,21 @@ impl Solution {
         let mut ret = 0;
         let m = nums[0].to_string().len();
         let mut count = vec![vec![0; 10]; m];
-        for (i, &n) in nums.iter().enumerate() {
+        for &n in &nums {
             let mut k = n;
             for c in count.iter_mut() {
                 let d = (k % 10) as usize;
-                ret += i - c[d];
-
                 c[d] += 1;
                 k /= 10;
             }
         }
+        for c in count.iter() {
+            for &item in c.iter() {
+                ret += item as i64 * (nums.len() as i64 - item as i64);
+            }
+        }
 
-        ret as i64
+        ret / 2
     }
 }
 
