@@ -52,7 +52,11 @@
 /// The Graph is connected and all nodes can be visited starting from the given node.
 pub struct Solution {}
 
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{
+    cell::RefCell,
+    collections::{HashMap, VecDeque, hash_map::Entry},
+    rc::Rc,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct GraphNode {
@@ -74,42 +78,34 @@ impl Solution {
         node.as_ref()?;
 
         let mut map = HashMap::new();
-        Self::bfs(node?, &mut map);
+        Solution::bfs(node.unwrap(), &mut map);
 
-        Some(map.get(&1)?.clone())
+        Some(map[&1].clone())
     }
 
-    fn bfs(
-        node: Rc<RefCell<GraphNode>>,
-        map: &mut HashMap<i32, Rc<RefCell<GraphNode>>>,
-    ) -> Option<()> {
-        let mut stack = vec![node.clone()];
+    fn bfs(node: Rc<RefCell<GraphNode>>, map: &mut HashMap<i32, Rc<RefCell<GraphNode>>>) {
+        let mut queue = VecDeque::from([node.clone()]);
         map.insert(
             node.borrow().val,
             Rc::new(RefCell::new(GraphNode::new(node.borrow().val))),
         );
 
-        while let Some(node) = stack.pop() {
-            for n in &node.borrow().neighbors {
+        while let Some(node) = queue.pop_front() {
+            for n in node.borrow().neighbors.iter() {
                 let mut c_node = Rc::new(RefCell::new(GraphNode::new(n.borrow().val)));
                 match map.entry(n.borrow().val) {
-                    std::collections::hash_map::Entry::Occupied(m) => {
+                    Entry::Occupied(m) => {
                         c_node = m.get().clone();
                     }
-                    std::collections::hash_map::Entry::Vacant(m) => {
+                    Entry::Vacant(m) => {
                         m.insert(c_node.clone());
-                        stack.push(n.clone());
+                        queue.push_back(n.clone());
                     }
                 }
 
-                map.get(&node.borrow().val)?
-                    .borrow_mut()
-                    .neighbors
-                    .push(c_node);
+                map[&node.borrow().val].borrow_mut().neighbors.push(c_node);
             }
         }
-
-        None
     }
 }
 

@@ -26,23 +26,20 @@ pub struct Solution {}
 // submission codes start here
 
 impl Solution {
-    pub fn remove_trailing_zeros_1(num: String) -> String {
-        num.trim_end_matches('0').to_string()
-    }
-
     pub fn remove_trailing_zeros(num: String) -> String {
-        let mut n = num.as_bytes();
-        let mut i = n.len() as i32 - 1;
-        while i >= 0 && n[i as usize] == b'0' {
+        if num.len() == 1 {
+            return num;
+        }
+
+        let mut i = num.len() - 1;
+        let n = num.as_bytes();
+        while i > 0 && n[i] == b'0' {
             i -= 1;
         }
 
-        n = &n[0..=i as usize];
-
-        String::from_utf8_lossy(n).to_string()
+        num[..=i].to_string()
     }
 }
-
 // submission codes end
 
 #[cfg(test)]
@@ -56,11 +53,5 @@ mod tests {
             "512301"
         );
         assert_eq!(Solution::remove_trailing_zeros("123".to_string()), "123");
-
-        assert_eq!(
-            Solution::remove_trailing_zeros_1("51230100".to_string()),
-            "512301"
-        );
-        assert_eq!(Solution::remove_trailing_zeros_1("123".to_string()), "123");
     }
 }

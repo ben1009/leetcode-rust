@@ -61,18 +61,20 @@ impl Solution {
             return root1;
         }
 
-        let val = root1.as_ref().unwrap().borrow().val + root2.as_ref().unwrap().borrow().val;
-        let root = Some(Rc::new(RefCell::new(TreeNode::new(val))));
-        root.as_ref().unwrap().borrow_mut().left = Self::merge_trees(
+        let l = Self::merge_trees(
             root1.as_ref().unwrap().borrow().left.clone(),
             root2.as_ref().unwrap().borrow().left.clone(),
         );
-        root.as_ref().unwrap().borrow_mut().right = Self::merge_trees(
+        let r = Self::merge_trees(
             root1.as_ref().unwrap().borrow().right.clone(),
             root2.as_ref().unwrap().borrow().right.clone(),
         );
+        let val = root1.as_ref().unwrap().borrow().val + root2.as_ref().unwrap().borrow().val;
+        let t = Some(Rc::new(RefCell::new(TreeNode::new(val))));
+        t.as_ref().unwrap().borrow_mut().left = l;
+        t.as_ref().unwrap().borrow_mut().right = r;
 
-        root
+        t
     }
 }
 

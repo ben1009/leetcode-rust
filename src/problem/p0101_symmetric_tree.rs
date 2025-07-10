@@ -53,30 +53,25 @@ impl Solution {
             return true;
         }
 
-        Self::is_sym(
-            root.as_ref().unwrap().borrow().left.clone(),
-            root.as_ref().unwrap().borrow().right.clone(),
-        )
+        let mut t = root.as_ref().unwrap().borrow_mut();
+        Solution::is_sym(t.left.take(), t.right.take())
     }
 
-    fn is_sym(r: Option<Rc<RefCell<TreeNode>>>, l: Option<Rc<RefCell<TreeNode>>>) -> bool {
-        if r.is_none() && l.is_none() {
+    fn is_sym(left: Option<Rc<RefCell<TreeNode>>>, right: Option<Rc<RefCell<TreeNode>>>) -> bool {
+        if left.is_none() && right.is_none() {
             return true;
         }
-        if r.is_none() || l.is_none() {
+        if left.is_none() || right.is_none() {
             return false;
         }
-        if r.as_ref().unwrap().borrow().val != l.as_ref().unwrap().borrow().val {
+        if left.as_ref().unwrap().borrow().val != right.as_ref().unwrap().borrow().val {
             return false;
         }
 
-        Self::is_sym(
-            r.as_ref().unwrap().borrow().left.clone(),
-            l.as_ref().unwrap().borrow().right.clone(),
-        ) && Self::is_sym(
-            r.as_ref().unwrap().borrow().right.clone(),
-            l.as_ref().unwrap().borrow().left.clone(),
-        )
+        let mut l = left.as_ref().unwrap().borrow_mut();
+        let mut r = right.as_ref().unwrap().borrow_mut();
+        Solution::is_sym(l.left.take(), r.right.take())
+            && Solution::is_sym(l.right.take(), r.left.take())
     }
 }
 

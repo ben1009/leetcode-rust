@@ -25,26 +25,26 @@ pub struct Solution {}
 
 impl Solution {
     pub fn reverse_vowels(mut s: String) -> String {
-        if s.len() < 2 {
+        if s.len() == 1 {
             return s;
         }
-        let set = HashSet::from([b'a', b'A', b'e', b'E', b'i', b'I', b'o', b'O', b'u', b'U']);
 
         let s1 = unsafe { s.as_bytes_mut() };
-        let mut i = 0;
-        let mut j = s1.len() - 1;
-        while i < j {
-            if !set.contains(&s1[i]) {
-                i += 1;
+        let mut lo = 0;
+        let mut hi = s1.len() - 1;
+        let dic = HashSet::from([b'a', b'e', b'i', b'o', b'u', b'A', b'E', b'I', b'O', b'U']);
+        while lo < hi {
+            if !dic.contains(&s1[lo]) {
+                lo += 1;
                 continue;
             }
-            if !set.contains(&s1[j]) {
-                j -= 1;
+            if !dic.contains(&s1[hi]) {
+                hi -= 1;
                 continue;
             }
-            s1.swap(i, j);
-            i += 1;
-            j -= 1;
+            s1.swap(lo, hi);
+            lo += 1;
+            hi -= 1;
         }
 
         s

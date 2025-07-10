@@ -44,21 +44,21 @@ pub struct Solution {}
 
 impl Solution {
     pub fn is_array_special(nums: Vec<i32>, queries: Vec<Vec<i32>>) -> Vec<bool> {
-        let mut dic = vec![0];
+        let mut dic = vec![0; nums.len()];
         for i in 1..nums.len() {
             if nums[i] % 2 != nums[i - 1] % 2 {
-                dic.push(0);
+                dic[i] = 0;
             } else {
-                dic.push(1);
+                dic[i] = 1;
             }
         }
         for i in 1..dic.len() {
             dic[i] += dic[i - 1];
         }
 
-        let mut ret = vec![];
-        for q in queries {
-            ret.push(dic[q[1] as usize] == dic[q[0] as usize]);
+        let mut ret = vec![false; queries.len()];
+        for (i, q) in queries.iter().enumerate() {
+            ret[i] = dic[q[1] as usize] == dic[q[0] as usize];
         }
 
         ret

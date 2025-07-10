@@ -42,14 +42,12 @@ impl Solution {
     pub fn pivot_index(nums: Vec<i32>) -> i32 {
         let mut r = nums.iter().sum::<i32>();
         let mut l = 0;
-        for i in 0..nums.len() {
-            if i > 0 {
-                l += nums[i - 1];
-            }
-            r -= nums[i];
+        for (idx, n) in nums.iter().enumerate() {
+            r -= n;
             if l == r {
-                return i as i32;
+                return idx as i32;
             }
+            l += n;
         }
 
         -1

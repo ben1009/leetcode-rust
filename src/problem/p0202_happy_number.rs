@@ -43,10 +43,10 @@ impl Solution {
         }
 
         let mut slow = n;
-        let mut fast = Self::next(n);
+        let mut fast = Solution::next(n);
         while slow != fast {
-            slow = Self::next(slow);
-            fast = Self::next(Self::next(fast));
+            slow = Solution::next(slow);
+            fast = Solution::next(Solution::next(fast));
         }
 
         slow == 1
@@ -55,7 +55,7 @@ impl Solution {
     fn next(mut n: i32) -> i32 {
         let mut ret = 0;
         while n > 0 {
-            ret += (n % 10) * (n % 10);
+            ret += (n % 10).pow(2);
             n /= 10;
         }
 

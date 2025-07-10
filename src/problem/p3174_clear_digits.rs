@@ -70,5 +70,6 @@ mod tests {
         assert_eq!(Solution::clear_digits("abc".to_string()), "abc".to_string());
         assert_eq!(Solution::clear_digits("cb34".to_string()), "".to_string());
         assert_eq!(Solution::clear_digits("1".to_string()), "1".to_string());
+        assert_eq!(Solution::clear_digits("11".to_string()), "".to_string());
     }
 }

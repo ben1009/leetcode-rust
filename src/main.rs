@@ -120,7 +120,7 @@ fn main() {
         } else {
             _id = id_arg
                 .parse::<u32>()
-                .unwrap_or_else(|_| panic!("not a number: {}", id_arg));
+                .unwrap_or_else(|_| panic!("not a number: {id_arg}"));
             if initialized_ids.contains(&_id) {
                 println!("The problem you chose has been initialized in problem/");
                 continue;
@@ -129,9 +129,8 @@ fn main() {
 
         let problem = fetcher::get_problem(_id).unwrap_or_else(|| {
             panic!(
-                "Error: failed to get problem #{} \
-                 (The problem may be paid-only or may not be exist).",
-                _id
+                "Error: failed to get problem #{_id} \
+                 (The problem may be paid-only or may not be exist)."
             )
         });
         let code = problem.code_definition.iter().find(|&d| d.value == *"rust");
@@ -157,9 +156,8 @@ fn generate_random_id(except_ids: &[u32]) -> u32 {
             return res;
         }
         println!(
-            "Generate a random num ({}), but it is invalid (the problem may have been solved \
-             or may have no rust version). Regenerate..",
-            res
+            "Generate a random num ({res}), but it is invalid (the problem may have been solved \
+             or may have no rust version). Regenerate.."
         );
     }
 }
@@ -291,7 +289,7 @@ fn deal_solving(id: &u32) {
         problem.question_id,
         problem.title_slug.replace('-', "_")
     );
-    let file_path = Path::new("./src/problem").join(format!("{}.rs", file_name));
+    let file_path = Path::new("./src/problem").join(format!("{file_name}.rs"));
     // check problem/ existence
     if !file_path.exists() {
         panic!("problem does not exist");
@@ -302,7 +300,7 @@ fn deal_solving(id: &u32) {
         problem.question_id,
         problem.title_slug.replace('-', "_")
     );
-    let solution_path = Path::new("./src/solution").join(format!("{}.rs", solution_name));
+    let solution_path = Path::new("./src/solution").join(format!("{solution_name}.rs"));
     if solution_path.exists() {
         panic!("solution exists");
     }
@@ -310,7 +308,7 @@ fn deal_solving(id: &u32) {
     fs::rename(file_path, solution_path).unwrap();
     // remove from problem/mod.rs
     let mod_file = "./src/problem/mod.rs";
-    let target_line = format!("mod {};", file_name);
+    let target_line = format!("mod {file_name};");
     let lines: Vec<String> = io::BufReader::new(File::open(mod_file).unwrap())
         .lines()
         .map(|x| x.unwrap())
@@ -322,7 +320,7 @@ fn deal_solving(id: &u32) {
         .append(true)
         .open("./src/solution/mod.rs")
         .unwrap();
-    let _ = writeln!(lib_file, "mod {};", solution_name);
+    let _ = writeln!(lib_file, "mod {solution_name};");
 }
 
 fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) {
@@ -331,8 +329,7 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
         problem.question_id,
         problem.title_slug.replace('-', "_")
     );
-    let file_path = Path::new("./src/problem").join(format!("{}.rs", file_name));
-
+    let file_path = Path::new("./src/problem").join(format!("{file_name}.rs"));
     let template = fs::read_to_string("./template.rs").unwrap();
     let source = template
         .replace("__PROBLEM_TITLE__", &problem.title)
@@ -361,7 +358,7 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
             .append(true)
             .open("./src/problem/mod.rs")
             .unwrap();
-        let _ = writeln!(lib_file, "pub mod {};", file_name);
+        let _ = writeln!(lib_file, "pub mod {file_name};");
     }
 }
 
@@ -378,9 +375,9 @@ mod test {
         // pub mod p0001_two_sum;
         pub mod p0002_add_two_numbers;
         pub mod p0003_longest_substring_without_repeating_characters;"#;
-        writeln!(file, "{}", content).unwrap();
+        writeln!(file, "{content}").unwrap();
         let ids = get_initialized_ids(path.to_str().unwrap());
-        println!("{:?}", ids);
+        println!("{ids:?}");
         assert!(ids.len() == 2);
         assert!(ids[0] == 2);
         assert!(ids[1] == 3);

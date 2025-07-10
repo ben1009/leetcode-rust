@@ -36,7 +36,7 @@ pub struct Solution {}
 impl Solution {
     pub fn letter_combinations(digits: String) -> Vec<String> {
         if digits.is_empty() {
-            return Vec::new();
+            return vec![];
         }
 
         let dic = HashMap::from([
@@ -51,26 +51,28 @@ impl Solution {
         ]);
 
         let mut ret = vec![];
-        Self::dfs(digits.as_bytes(), 0, &dic, &mut vec![], &mut ret);
+        Self::dfs(digits.as_bytes(), &dic, 0, &mut vec![], &mut ret);
 
         ret
     }
 
     fn dfs(
         digits: &[u8],
-        idx: usize,
         dic: &HashMap<u8, &str>,
+        idx: usize,
         tmp: &mut Vec<u8>,
         ret: &mut Vec<String>,
     ) {
         if tmp.len() == digits.len() {
-            ret.push(String::from_utf8(tmp.clone()).unwrap());
+            ret.push(String::from_utf8_lossy(tmp).to_string());
+
             return;
         }
 
-        for c in dic[&digits[idx]].as_bytes() {
-            tmp.push(*c);
-            Self::dfs(digits, idx + 1, dic, tmp, ret);
+        let s = dic[&digits[idx]].as_bytes();
+        for item in s {
+            tmp.push(*item);
+            Solution::dfs(digits, dic, idx + 1, tmp, ret);
             tmp.pop();
         }
     }

@@ -37,14 +37,13 @@ impl Solution {
         }
 
         let mut ret = nums[0];
-        let mut pre_min = ret;
-        let mut pre_max = ret;
-        for n in nums.iter().skip(1) {
-            let t_min = pre_min;
-            pre_min = cmp::min(cmp::min(pre_min * n, pre_max * n), *n);
-            pre_max = cmp::max(cmp::max(t_min * n, pre_max * n), *n);
-
-            ret = cmp::max(ret, pre_max);
+        let mut ret_min = 1;
+        let mut ret_max = 1;
+        for &n in nums.iter() {
+            let mi = ret_min;
+            ret_min = cmp::min(cmp::min(ret_min * n, ret_max * n), n);
+            ret_max = cmp::max(cmp::max(mi * n, ret_max * n), n);
+            ret = cmp::max(ret, ret_max);
         }
 
         ret

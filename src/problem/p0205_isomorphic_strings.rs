@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, hash_map::Entry};
 
 /// [205] Isomorphic Strings
 ///
@@ -35,18 +35,32 @@ impl Solution {
             return true;
         }
 
-        let mut ss = HashMap::new();
-        let mut tt = HashMap::new();
+        let mut s_m = HashMap::new();
+        let mut t_m = HashMap::new();
         let s = s.as_bytes();
         let t = t.as_bytes();
         for i in 0..s.len() {
-            ss.insert(s[i], t[i]);
-            tt.insert(t[i], s[i]);
+            match s_m.entry(s[i]) {
+                Entry::Occupied(e) => {
+                    if e.get() != &t[i] {
+                        return false;
+                    }
+                }
+                Entry::Vacant(e) => {
+                    e.insert(t[i]);
+                }
+            }
         }
-
-        for i in 0..s.len() {
-            if ss[&s[i]] != t[i] || tt[&t[i]] != s[i] {
-                return false;
+        for i in 0..t.len() {
+            match t_m.entry(t[i]) {
+                Entry::Occupied(e) => {
+                    if e.get() != &s[i] {
+                        return false;
+                    }
+                }
+                Entry::Vacant(e) => {
+                    e.insert(s[i]);
+                }
             }
         }
 

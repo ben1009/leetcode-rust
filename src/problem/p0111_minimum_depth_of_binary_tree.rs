@@ -53,21 +53,19 @@ impl Solution {
             return 0;
         }
 
-        let mut root = root;
-        let mut ret = 1;
-        let mut queue = VecDeque::from([(root, ret)]);
-        while !queue.is_empty() {
-            (root, ret) = queue.pop_front().unwrap();
-            if root.as_ref().unwrap().borrow().left.is_none()
-                && root.as_ref().unwrap().borrow().right.is_none()
-            {
+        let mut ret = 0;
+        let mut queue = VecDeque::from([(root.unwrap(), 1)]);
+        while let Some((n, d)) = queue.pop_front() {
+            if n.borrow().left.is_none() && n.borrow().right.is_none() {
+                ret = d;
                 break;
             }
-            if let l @ Some(_) = &root.as_ref().unwrap().borrow().left {
-                queue.push_back((l.clone(), ret + 1));
+
+            if let Some(l) = n.borrow_mut().left.take() {
+                queue.push_back((l, d + 1));
             }
-            if let r @ Some(_) = &root.as_ref().unwrap().borrow().right {
-                queue.push_back((r.clone(), ret + 1));
+            if let Some(r) = n.borrow_mut().right.take() {
+                queue.push_back((r, d + 1));
             }
         }
 

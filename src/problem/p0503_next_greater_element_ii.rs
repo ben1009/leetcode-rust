@@ -30,8 +30,9 @@ impl Solution {
         let mut stack = vec![];
         for i in 0..2 * nums.len() {
             while !stack.is_empty() && nums[stack[stack.len() - 1]] < nums[i % nums.len()] {
-                let j = stack.pop().unwrap();
-                ret[j] = nums[i % nums.len()];
+                if let Some(j) = stack.pop() {
+                    ret[j] = nums[i % nums.len()];
+                }
             }
             if i < nums.len() {
                 stack.push(i);

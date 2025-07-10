@@ -1,3 +1,5 @@
+use std::vec;
+
 /// [22] Generate Parentheses
 ///
 /// Given n pairs of parentheses, write a function to generate all combinations of well-formed
@@ -22,26 +24,27 @@ pub struct Solution {}
 impl Solution {
     pub fn generate_parenthesis(n: i32) -> Vec<String> {
         let mut ret = vec![];
-        Self::gen(n, 0, 0, &mut vec![], &mut ret);
+        Solution::gen(n, 0, 0, &mut vec![], &mut ret);
 
         ret
     }
 
-    fn gen(n: i32, l: i32, r: i32, tmp: &mut Vec<u8>, ret: &mut Vec<String>) {
-        if tmp.len() == n as usize * 2 {
-            ret.push(String::from_utf8(tmp.clone()).unwrap());
+    fn gen(n: i32, l: i32, r: i32, t: &mut Vec<u8>, ret: &mut Vec<String>) {
+        if t.len() == n as usize * 2 {
+            ret.push(String::from_utf8_lossy(t).to_string());
+
             return;
         }
 
         if l < n {
-            tmp.push(b'(');
-            Self::gen(n, l + 1, r, tmp, ret);
-            tmp.pop();
+            t.push(b'(');
+            Solution::gen(n, l + 1, r, t, ret);
+            t.pop();
         }
         if r < l {
-            tmp.push(b')');
-            Self::gen(n, l, r + 1, tmp, ret);
-            tmp.pop();
+            t.push(b')');
+            Solution::gen(n, l, r + 1, t, ret);
+            t.pop();
         }
     }
 }

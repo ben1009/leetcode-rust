@@ -49,6 +49,7 @@ impl Solution {
 
         let mut ret = 0;
         let mut count = 0;
+        // 10101010100
         for b in s.as_bytes().iter().rev() {
             if b == &b'0' {
                 count += 1;

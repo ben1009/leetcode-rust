@@ -52,10 +52,6 @@ pub struct Solution {}
 impl Solution {
     #[allow(clippy::ptr_arg)]
     pub fn merge(nums1: &mut Vec<i32>, m: i32, nums2: &Vec<i32>, n: i32) {
-        if nums2.is_empty() {
-            return;
-        }
-
         let mut i = m - 1;
         let mut j = n - 1;
         let mut k = m + n - 1;

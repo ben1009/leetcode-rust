@@ -40,9 +40,6 @@
 // 1 <= nums.length <= 100
 // 1 <= nums[i] <= 100
 
-// https://leetcode.com/problems/special-array-with-x-elements-greater-than-x
-// https://leetcode.com/problems/special-array-with-x-elements-greater-than-x/discuss/?currentPage=1&orderBy=most_votes&query=
-
 pub struct Solution {}
 
 impl Solution {

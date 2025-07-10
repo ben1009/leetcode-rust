@@ -41,9 +41,10 @@ impl Solution {
         let mut ret = arr[0];
         let mut no_del = arr[0];
         let mut del = 0;
-        for item in arr.iter().skip(1) {
+        for &item in arr.iter().skip(1) {
+            // dp[i] of delete one element, max(del_one_max_before_i+arr[i],no_del)
             del = std::cmp::max(del + item, no_del);
-            no_del = std::cmp::max(no_del + item, *item);
+            no_del = std::cmp::max(no_del + item, item);
             ret = std::cmp::max(ret, std::cmp::max(del, no_del));
         }
 

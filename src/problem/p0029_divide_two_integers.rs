@@ -34,40 +34,35 @@ pub struct Solution {}
 
 impl Solution {
     pub fn divide(dividend: i32, divisor: i32) -> i32 {
-        let mut dd: i64 = dividend as i64;
-        let mut di: i64 = divisor as i64;
-        let mut ret: i64 = 0;
-        let mut sign = 1;
-        if dd * di < 0 {
-            sign = -1;
-        }
-        dd = dd.abs();
-        di = di.abs();
-
-        let mut i = 0;
-        while dd >= di {
-            di <<= 1;
-            i += 1;
-        }
-
-        while i >= 0 {
-            if dd >= di {
-                dd -= di;
-                ret += 1 << i;
-            }
-            di >>= 1;
-            i -= 1;
-        }
-
-        ret *= sign;
-        if ret > i32::MAX as i64 {
+        if (dividend as i64 / divisor as i64) >= i32::MAX as i64 {
             return i32::MAX;
         }
-        if ret < i32::MIN as i64 {
+        if (dividend as i64 / divisor as i64) <= i32::MIN as i64 {
             return i32::MIN;
         }
 
-        ret as i32
+        let mut sign = 1;
+        if dividend * divisor < 0 {
+            sign = -1;
+        }
+
+        let mut dd = dividend.abs() as i64;
+        let dr = divisor.abs() as i64;
+        let mut n = 0;
+        while dd >= dr << n {
+            n += 1;
+        }
+        let mut ret = 0;
+        // dd=dr*(1<<n + 1<<(n-1) ... 1<<0)
+        while n >= 0 {
+            if dd >= dr << n {
+                ret += 1 << n;
+                dd -= dr << n;
+            }
+            n -= 1;
+        }
+
+        ret * sign
     }
 }
 

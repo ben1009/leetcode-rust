@@ -28,13 +28,11 @@ impl Solution {
     pub fn subarray_sum(nums: Vec<i32>, k: i32) -> i32 {
         let mut ret = 0;
         let mut sum = 0;
-        let mut dic = std::collections::HashMap::new();
+        let mut dic = std::collections::HashMap::from([(0, 1)]);
 
         for item in nums {
             sum += item;
-            if sum == k {
-                ret += 1;
-            }
+            // 0...i......j, sum[0..j] - sum[0..i] = k, sum[0..i] + sum[i+1..j] = sum[0..j]
             if let Some(v) = dic.get(&(sum - k)) {
                 ret += v;
             }

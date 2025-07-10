@@ -13,7 +13,7 @@ min_version = "0.36.10"
 [tasks.install-nextest]
 category = "Misc"
 description = "install cargo-nextest"
-install_crate = { crate_name = "cargo-nextest", version = "0.9.87", binary = "cargo", test_arg = [
+install_crate = { crate_name = "cargo-nextest", version = "0.9.96", binary = "cargo", test_arg = [
     "nextest",
     "--help",
 ] }
@@ -50,7 +50,7 @@ args = ["fmt", "--all"]
 [tasks.check-typos]
 category = "Dev - check"
 description = "Run cargo typos-cli check"
-install_crate = { version = "1.28.4", crate_name = "typos-cli", binary = "typos", test_arg = [
+install_crate = { version = "1.32.0", crate_name = "typos-cli", binary = "typos", test_arg = [
     "--help",
 ] }
 script = """
@@ -80,7 +80,7 @@ cargo hakari verify > /dev/null
 [tasks.check-machete]
 category = "Dev - check"
 description = "Run cargo machete check"
-install_crate = { version = "0.7.0", crate_name = "cargo-machete", binary = "cargo", test_arg = [
+install_crate = { version = "0.8.0", crate_name = "cargo-machete", binary = "cargo", test_arg = [
     "machete",
     "--help",
 ] }

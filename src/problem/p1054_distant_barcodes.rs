@@ -30,30 +30,30 @@ impl Solution {
         }
 
         let mut map: HashMap<i32, i32> = HashMap::new();
-        let mut key = 0;
-        for item in &barcodes {
-            map.entry(*item).and_modify(|v| *v += 1).or_insert(1);
-            if *map.entry(key).or_default() < map[item] {
-                key = *item;
+        let mut max_key = 0;
+        for &code in &barcodes {
+            map.entry(code).and_modify(|v| *v += 1).or_insert(1);
+            if *map.entry(max_key).or_default() < map[&code] {
+                max_key = code;
             }
         }
 
         let mut ret = vec![0; barcodes.len()];
         let mut i = 0;
-        for _c in 1..=map[&key] {
-            ret[i] = key;
+        for _ in 1..=map[&max_key] {
+            ret[i] = max_key;
             i += 2;
         }
 
-        for (k, v) in &map {
-            if *k == key {
+        for (&k, &v) in &map {
+            if k == max_key {
                 continue;
             }
-            for _c in 1..=*v {
+            for _ in 1..=v {
                 if i >= barcodes.len() {
                     i = 1;
                 }
-                ret[i] = *k;
+                ret[i] = k;
                 i += 2;
             }
         }

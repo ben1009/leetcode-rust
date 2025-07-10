@@ -51,14 +51,14 @@ impl Solution {
             return 0;
         }
 
-        let mut dag: HashMap<i32, Vec<i32>> = HashMap::new();
-        for (idx, v) in manager.iter().enumerate() {
-            dag.entry(*v).or_default().push(idx as i32);
+        let mut dag: HashMap<_, Vec<_>> = HashMap::new();
+        for (idx, &v) in manager.iter().enumerate() {
+            dag.entry(v as usize).or_default().push(idx);
         }
 
-        Self::dfs(
+        Solution::dfs(
             &dag,
-            head_id,
+            head_id as usize,
             &inform_time,
             inform_time[head_id as usize],
             0,
@@ -66,8 +66,8 @@ impl Solution {
     }
 
     fn dfs(
-        dag: &HashMap<i32, Vec<i32>>,
-        id: i32,
+        dag: &HashMap<usize, Vec<usize>>,
+        id: usize,
         inform_time: &Vec<i32>,
         time: i32,
         mut ret: i32,
@@ -77,8 +77,8 @@ impl Solution {
             return ret.max(time);
         }
 
-        for i in list.unwrap() {
-            ret = Self::dfs(dag, *i, inform_time, time + inform_time[*i as usize], ret)
+        for &i in list.unwrap() {
+            ret = Solution::dfs(dag, i, inform_time, time + inform_time[i], ret)
         }
 
         ret

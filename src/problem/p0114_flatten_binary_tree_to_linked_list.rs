@@ -57,33 +57,27 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::util::tree::TreeNode;
 impl Solution {
-    #[allow(clippy::assigning_clones)]
     pub fn flatten(root: &Option<Rc<RefCell<TreeNode>>>) {
         if root.is_none() {
             return;
         }
 
         let mut root = root.as_ref().unwrap().borrow_mut();
-        Self::flatten(&root.left.clone());
-        Self::flatten(&root.right.clone());
+        Solution::flatten(&root.left);
+        Solution::flatten(&root.right);
 
         if root.left.is_none() {
             return;
         }
-        let n = Self::find_right_last(root.left.clone());
-        n.as_ref()
-            .unwrap()
-            .borrow_mut()
-            .right
-            .clone_from(&root.right);
-        // n.as_ref().unwrap().borrow_mut().right = root.right.clone();
-        root.right = root.left.clone();
-        root.left = None
+
+        let n = Solution::find_right_last(root.left.clone());
+        n.as_ref().unwrap().borrow_mut().right = root.right.take();
+        root.right = root.left.take();
     }
 
     fn find_right_last(mut root: Option<Rc<RefCell<TreeNode>>>) -> Option<Rc<RefCell<TreeNode>>> {
         loop {
-            let n = root.as_ref().unwrap().borrow_mut().right.clone();
+            let n = root.as_ref().unwrap().borrow().right.clone();
             match n {
                 n @ Some(_) => root = n,
                 None => break,
