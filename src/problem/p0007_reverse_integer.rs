@@ -31,7 +31,7 @@ pub struct Solution {}
 
 impl Solution {
     pub fn reverse(x: i32) -> i32 {
-        if x == 0 {
+        if (-9..=9).contains(&x) {
             return x;
         }
 

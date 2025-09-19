@@ -37,6 +37,7 @@ pub mod p0152_maximum_product_subarray;
 pub mod p0153_find_minimum_in_rotated_sorted_array;
 pub mod p0155_min_stack;
 pub mod p0165_compare_version_numbers;
+pub mod p0190_reverse_bits;
 pub mod p0202_happy_number;
 pub mod p0205_isomorphic_strings;
 pub mod p0243_shortest_word_distance;

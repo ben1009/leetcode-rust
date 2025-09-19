@@ -24,12 +24,12 @@ pub struct Solution {}
 impl Solution {
     pub fn generate_parenthesis(n: i32) -> Vec<String> {
         let mut ret = vec![];
-        Solution::gen(n, 0, 0, &mut vec![], &mut ret);
+        Solution::gene(n, 0, 0, &mut vec![], &mut ret);
 
         ret
     }
 
-    fn gen(n: i32, l: i32, r: i32, t: &mut Vec<u8>, ret: &mut Vec<String>) {
+    fn gene(n: i32, l: i32, r: i32, t: &mut Vec<u8>, ret: &mut Vec<String>) {
         if t.len() == n as usize * 2 {
             ret.push(String::from_utf8_lossy(t).to_string());
 
@@ -38,12 +38,12 @@ impl Solution {
 
         if l < n {
             t.push(b'(');
-            Solution::gen(n, l + 1, r, t, ret);
+            Solution::gene(n, l + 1, r, t, ret);
             t.pop();
         }
         if r < l {
             t.push(b')');
-            Solution::gen(n, l, r + 1, t, ret);
+            Solution::gene(n, l, r + 1, t, ret);
             t.pop();
         }
     }

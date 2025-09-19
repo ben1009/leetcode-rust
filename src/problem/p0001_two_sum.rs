@@ -42,12 +42,13 @@ pub struct Solution {}
 
 impl Solution {
     pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
-        let mut map = HashMap::new();
-        for (i, &n) in nums.iter().enumerate() {
-            if let Some(&j) = map.get(&(target - n)) {
-                return vec![j, i as i32];
+        let mut dic = HashMap::new();
+        for (idx, &n) in nums.iter().enumerate() {
+            if let Some(&v) = dic.get(&(target - n)) {
+                return vec![v as i32, idx as i32];
             }
-            map.insert(n, i as i32);
+
+            dic.insert(n, idx);
         }
 
         vec![]
@@ -62,8 +63,10 @@ mod tests {
 
     #[test]
     fn test_1() {
-        assert!(Solution::two_sum(vec![2, 7, 11, 15], 9) == vec![0, 1]);
-        assert!(Solution::two_sum(vec![3, 2, 4], 6) == vec![1, 2]);
-        assert!(Solution::two_sum(vec![3, 3], 6) == vec![0, 1]);
+        assert_eq!(Solution::two_sum(vec![2, 7, 11, 15], 9), vec![0, 1]);
+        assert_eq!(Solution::two_sum(vec![3, 2, 4], 6), vec![1, 2]);
+        assert_eq!(Solution::two_sum(vec![3, 3], 6), vec![0, 1]);
+        assert_eq!(Solution::two_sum(vec![3, 2, 3], 6), vec![0, 2]);
+        assert_eq!(Solution::two_sum(vec![0, 4, 3, 0], 0), vec![0, 3]);
     }
 }

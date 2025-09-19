@@ -168,10 +168,10 @@ fn get_initialized_ids(path: &str) -> Vec<u32> {
 
     let mut ret = vec![];
     for l in content.lines() {
-        if !l.trim().starts_with("//") {
-            if let Some(id) = id_pattern.captures(l) {
-                ret.push(id.get(1).unwrap().as_str().parse::<u32>().unwrap());
-            }
+        if !l.trim().starts_with("//")
+            && let Some(id) = id_pattern.captures(l)
+        {
+            ret.push(id.get(1).unwrap().as_str().parse::<u32>().unwrap());
         }
     }
 

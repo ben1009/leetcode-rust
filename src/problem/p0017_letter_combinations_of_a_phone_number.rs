@@ -51,7 +51,7 @@ impl Solution {
         ]);
 
         let mut ret = vec![];
-        Self::dfs(digits.as_bytes(), &dic, 0, &mut vec![], &mut ret);
+        Solution::dfs(digits.as_bytes(), &dic, &mut vec![], &mut ret, 0);
 
         ret
     }
@@ -59,9 +59,9 @@ impl Solution {
     fn dfs(
         digits: &[u8],
         dic: &HashMap<u8, &str>,
-        idx: usize,
         tmp: &mut Vec<u8>,
         ret: &mut Vec<String>,
+        idx: usize,
     ) {
         if tmp.len() == digits.len() {
             ret.push(String::from_utf8_lossy(tmp).to_string());
@@ -69,10 +69,10 @@ impl Solution {
             return;
         }
 
-        let s = dic[&digits[idx]].as_bytes();
-        for item in s {
-            tmp.push(*item);
-            Solution::dfs(digits, dic, idx + 1, tmp, ret);
+        let str = dic[&digits[idx]].as_bytes();
+        for s in str {
+            tmp.push(*s);
+            Solution::dfs(digits, dic, tmp, ret, idx + 1);
             tmp.pop();
         }
     }

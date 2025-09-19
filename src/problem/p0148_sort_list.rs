@@ -189,7 +189,7 @@ impl Solution {
     fn len(head: &mut Option<Box<ListNode>>) -> i32 {
         let mut len = 0;
         let mut head = head;
-        while let Some(ref mut n) = head {
+        while let Some(n) = head {
             head = &mut n.next;
             len += 1;
         }

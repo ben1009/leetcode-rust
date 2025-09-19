@@ -30,11 +30,11 @@ pub fn to_tree(vec: Vec<Option<i32>>) -> Option<Rc<RefCell<TreeNode>>> {
             parent.borrow_mut().left = Some(Rc::new(RefCell::new(TreeNode::new(v))));
             queue.push_back(parent.borrow().left.as_ref().unwrap().clone());
         }
-        if children.len() > 1 {
-            if let Some(v) = children[1] {
-                parent.borrow_mut().right = Some(Rc::new(RefCell::new(TreeNode::new(v))));
-                queue.push_back(parent.borrow().right.as_ref().unwrap().clone());
-            }
+        if children.len() > 1
+            && let Some(v) = children[1]
+        {
+            parent.borrow_mut().right = Some(Rc::new(RefCell::new(TreeNode::new(v))));
+            queue.push_back(parent.borrow().right.as_ref().unwrap().clone());
         }
     }
     head
