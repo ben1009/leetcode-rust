@@ -78,16 +78,16 @@ impl Solution {
 
         let mut hi = nums.len() as i32 - 1;
         let mut lo = 0;
-        while lo as i32 <= hi {
-            if nums[lo] == val {
-                nums.swap(lo, hi as usize);
+        while lo <= hi {
+            if nums[lo as usize] == val {
+                nums.swap(lo as usize, hi as usize);
                 hi -= 1;
             } else {
                 lo += 1;
             }
         }
 
-        hi + 1
+        lo
     }
 }
 

@@ -74,5 +74,6 @@ mod tests {
         assert!(Solution::is_happy(19));
         assert!(!Solution::is_happy(2));
         assert!(Solution::is_happy(1));
+        assert!(!Solution::is_happy(3));
     }
 }

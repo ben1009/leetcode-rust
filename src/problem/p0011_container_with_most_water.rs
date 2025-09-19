@@ -1,3 +1,5 @@
+use std::cmp;
+
 /// [11] Container With Most Water
 ///
 /// You are given an integer array height of length n. There are n vertical lines drawn such that
@@ -37,12 +39,10 @@ impl Solution {
         let mut j = height.len() - 1;
         let mut t;
         while i != j {
-            t = (j - i) as i32;
+            t = (j - i) as i32 * cmp::min(height[i], height[j]);
             if height[i] < height[j] {
-                t *= height[i];
                 i += 1;
             } else {
-                t *= height[j];
                 j -= 1;
             }
             ret = ret.max(t);

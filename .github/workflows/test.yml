@@ -12,7 +12,7 @@ concurrency:
 
 env:    
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
-  RUST_TOOLCHAIN: nightly-2025-07-01
+  RUST_TOOLCHAIN: nightly-2025-09-01
 
 name: Test
 jobs:

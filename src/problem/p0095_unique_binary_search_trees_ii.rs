@@ -45,18 +45,18 @@ use std::{cell::RefCell, rc::Rc, vec};
 use crate::util::tree::TreeNode;
 impl Solution {
     pub fn generate_trees(n: i32) -> Vec<Option<Rc<RefCell<TreeNode>>>> {
-        Self::gen(1, n)
+        Self::gene(1, n)
     }
 
-    fn gen(i: i32, j: i32) -> Vec<Option<Rc<RefCell<TreeNode>>>> {
+    fn gene(i: i32, j: i32) -> Vec<Option<Rc<RefCell<TreeNode>>>> {
         if i > j {
             return vec![None];
         }
 
         let mut ret = vec![];
         for k in i..=j {
-            let left = Self::gen(i, k - 1);
-            let right = Self::gen(k + 1, j);
+            let left = Self::gene(i, k - 1);
+            let right = Self::gene(k + 1, j);
             for l in &left {
                 for r in &right {
                     let mut node = TreeNode::new(k);

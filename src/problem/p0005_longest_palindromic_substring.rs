@@ -31,15 +31,15 @@ impl Solution {
             return s;
         }
 
-        let s = s.as_bytes();
-        let mut ret: &[u8] = &[];
-        for i in 0..s.len() - 1 {
-            let s1 = Solution::pali(s, i as i32, i);
-            let s2 = Solution::pali(s, i as i32, i + 1);
-            if s1.len() > ret.len() {
+        let bb = s.as_bytes();
+        let mut ret: &[_] = &[];
+        for i in 0..bb.len() - 1 {
+            let s1 = Solution::is_pali(bb, i as i32, i);
+            let s2 = Solution::is_pali(bb, i as i32, i + 1);
+            if ret.len() < s1.len() {
                 ret = s1;
             }
-            if s2.len() > ret.len() {
+            if ret.len() < s2.len() {
                 ret = s2;
             }
         }
@@ -47,13 +47,17 @@ impl Solution {
         String::from_utf8_lossy(ret).to_string()
     }
 
-    fn pali(s: &[u8], mut l: i32, mut r: usize) -> &[u8] {
-        while l >= 0 && r < s.len() && s[l as usize] == s[r] {
-            l -= 1;
-            r += 1;
+    fn is_pali(bb: &[u8], mut i: i32, mut j: usize) -> &[u8] {
+        while i >= 0 && j < bb.len() {
+            if bb[i as usize] != bb[j] {
+                break;
+            }
+
+            i -= 1;
+            j += 1;
         }
 
-        &s[(l + 1) as usize..r]
+        &bb[(i + 1) as usize..j]
     }
 }
 

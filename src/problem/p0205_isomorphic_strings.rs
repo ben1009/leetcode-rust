@@ -31,16 +31,13 @@ pub struct Solution {}
 
 impl Solution {
     pub fn is_isomorphic(s: String, t: String) -> bool {
-        if s.len() == 1 {
-            return true;
-        }
-
-        let mut s_m = HashMap::new();
-        let mut t_m = HashMap::new();
+        let mut ss = HashMap::new();
+        let mut tt = HashMap::new();
         let s = s.as_bytes();
         let t = t.as_bytes();
+
         for i in 0..s.len() {
-            match s_m.entry(s[i]) {
+            match ss.entry(s[i]) {
                 Entry::Occupied(e) => {
                     if e.get() != &t[i] {
                         return false;
@@ -52,7 +49,7 @@ impl Solution {
             }
         }
         for i in 0..t.len() {
-            match t_m.entry(t[i]) {
+            match tt.entry(t[i]) {
                 Entry::Occupied(e) => {
                     if e.get() != &s[i] {
                         return false;
