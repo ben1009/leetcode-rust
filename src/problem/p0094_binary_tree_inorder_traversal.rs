@@ -65,7 +65,7 @@ impl Solution {
         while !stack.is_empty() || root.is_some() {
             if let Some(n) = root {
                 stack.push(n.clone());
-                root = n.borrow_mut().left.take()
+                root = n.borrow_mut().left.take();
             } else {
                 let n = stack.pop().unwrap();
                 ret.push(n.borrow().val);

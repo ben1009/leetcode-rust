@@ -53,14 +53,11 @@ impl Solution {
             return 0;
         }
 
-        let mut ret = 0;
         let mut queue = VecDeque::from([(root.unwrap(), 1)]);
         while let Some((n, d)) = queue.pop_front() {
             if n.borrow().left.is_none() && n.borrow().right.is_none() {
-                ret = d;
-                break;
+                return d;
             }
-
             if let Some(l) = n.borrow_mut().left.take() {
                 queue.push_back((l, d + 1));
             }
@@ -69,7 +66,7 @@ impl Solution {
             }
         }
 
-        ret
+        -1
     }
 }
 

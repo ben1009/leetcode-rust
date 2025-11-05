@@ -50,7 +50,7 @@ args = ["fmt", "--all"]
 [tasks.check-typos]
 category = "Dev - check"
 description = "Run cargo typos-cli check"
-install_crate = { version = "1.32.0", crate_name = "typos-cli", binary = "typos", test_arg = [
+install_crate = { version = "1.38.1", crate_name = "typos-cli", binary = "typos", test_arg = [
     "--help",
 ] }
 script = """
