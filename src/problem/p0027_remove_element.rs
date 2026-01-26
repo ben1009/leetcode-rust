@@ -59,15 +59,18 @@ impl Solution {
             return 0;
         }
 
-        let mut lo = 0;
-        for i in 0..nums.len() {
-            if nums[i] != val {
-                nums[lo] = nums[i];
-                lo += 1;
+        let mut i = 0;
+        let mut j = nums.len() as i32 - 1;
+        while i as i32 <= j {
+            if nums[i] == val {
+                nums.swap(i, j as usize);
+                j -= 1;
+            } else {
+                i += 1;
             }
         }
 
-        lo as i32
+        i as i32
     }
 
     // any order

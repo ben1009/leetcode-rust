@@ -43,15 +43,13 @@ impl Solution {
             return false;
         }
 
-        let dic = HashMap::from([(')', '('), (']', '['), ('}', '{')]);
         let mut stack = vec![];
-        for c in s.chars() {
-            if let t @ Some(_) = stack.last() {
-                if t == dic.get(&c) {
-                    stack.pop();
-                }
+        let dic = HashMap::from([('(', ')'), ('[', ']'), ('{', '}')]);
+        for b in s.chars() {
+            if !stack.is_empty() && dic[&stack[stack.len() - 1]] == b {
+                stack.pop();
             } else {
-                stack.push(c);
+                stack.push(b);
             }
         }
 

@@ -31,17 +31,14 @@ pub struct Solution {}
 
 impl Solution {
     pub fn reverse(x: i32) -> i32 {
-        if (-9..=9).contains(&x) {
-            return x;
-        }
-
-        let mut ret: i64 = 0;
+        let mut ret = 0;
         let mut x = x;
         while x != 0 {
-            ret = x as i64 % 10 + ret * 10;
+            ret = ret * 10 + x as i64 % 10;
             if ret > i32::MAX as i64 || ret < i32::MIN as i64 {
                 return 0;
             }
+
             x /= 10;
         }
 
