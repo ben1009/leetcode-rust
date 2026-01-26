@@ -62,6 +62,7 @@ pub mod p1004_max_consecutive_ones_iii;
 pub mod p1016_binary_string_with_substrings_representing_1_to_n;
 pub mod p1054_distant_barcodes;
 pub mod p1186_maximum_subarray_sum_with_one_deletion;
+pub mod p1200_minimum_absolute_difference;
 pub mod p1376_time_needed_to_inform_all_employees;
 pub mod p1608_special_array;
 pub mod p2437_number_of_valid_clock_times;

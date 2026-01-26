@@ -36,7 +36,7 @@
 ///     lists[i] is sorted in ascending order.
 ///     The sum of lists[i].length will not exceed 10^4.
 pub struct Solution {}
-use std::{cmp::Reverse, collections::BinaryHeap};
+use std::{cmp::Reverse, collections::binary_heap};
 
 use crate::util::linked_list::ListNode;
 
@@ -67,23 +67,23 @@ impl Solution {
             return None;
         }
 
-        let mut ret = ListNode::new(0);
-        let mut head = &mut ret;
-        let mut heap = BinaryHeap::new();
-        for list in lists.into_iter().flatten() {
-            heap.push(Reverse(list));
+        let mut root_pointer = ListNode::new(0);
+        let mut current = &mut root_pointer;
+        let mut heap = binary_heap::BinaryHeap::new();
+        for n in lists.into_iter().flatten() {
+            heap.push(Reverse(n));
         }
 
-        while let Some(Reverse(mut t)) = heap.pop() {
-            let n = t.next.take();
-            head.next = Some(t);
-            head = head.next.as_mut().unwrap();
-            if let Some(n) = n {
+        while let Some(Reverse(mut n)) = heap.pop() {
+            let next = n.next.take();
+            current.next = Some(n);
+            current = current.next.as_mut().unwrap();
+            if let Some(n) = next {
                 heap.push(Reverse(n));
             }
         }
 
-        ret.next
+        root_pointer.next
     }
 }
 
