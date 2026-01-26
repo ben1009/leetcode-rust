@@ -26,15 +26,17 @@
 // 2 <= arr.length <= 105
 // -106 <= arr[i] <= 106
 
+use std::vec;
+
 pub struct Solution {}
 
 impl Solution {
     pub fn minimum_abs_difference(arr: Vec<i32>) -> Vec<Vec<i32>> {
-        let mut ret = Vec::new();
         let mut arr = arr;
         arr.sort_unstable();
-        let mut min_diff = i32::MAX;
-        for i in 1..arr.len() {
+        let mut ret = vec![vec![arr[0], arr[1]]];
+        let mut min_diff = arr[1] - arr[0];
+        for i in 2..arr.len() {
             let diff = arr[i] - arr[i - 1];
             if diff < min_diff {
                 min_diff = diff;
@@ -52,6 +54,7 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_1200() {
         assert_eq!(
