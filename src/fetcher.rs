@@ -59,13 +59,14 @@ pub fn get_problem(frontend_question_id: u32) -> Option<Problem> {
                 }
             };
 
-            let code_definition: Vec<CodeDefinition> = match serde_json::from_str(&resp.data.question.code_definition) {
-                Ok(cd) => cd,
-                Err(e) => {
-                    println!("Failed to parse code definition: {}", e);
-                    return None;
-                }
-            };
+            let code_definition: Vec<CodeDefinition> =
+                match serde_json::from_str(&resp.data.question.code_definition) {
+                    Ok(cd) => cd,
+                    Err(e) => {
+                        println!("Failed to parse code definition: {}", e);
+                        return None;
+                    }
+                };
 
             let return_type = match serde_json::from_str::<Value>(&resp.data.question.meta_data) {
                 Ok(v) => v["return"]["type"].to_string().replace('"', ""),
@@ -118,13 +119,14 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
     }
     let resp: RawProblem = recv.unwrap();
 
-    let code_definition: Vec<CodeDefinition> = match serde_json::from_str(&resp.data.question.code_definition) {
-        Ok(cd) => cd,
-        Err(e) => {
-            println!("Failed to parse code definition: {}", e);
-            return None;
-        }
-    };
+    let code_definition: Vec<CodeDefinition> =
+        match serde_json::from_str(&resp.data.question.code_definition) {
+            Ok(cd) => cd,
+            Err(e) => {
+                println!("Failed to parse code definition: {}", e);
+                return None;
+            }
+        };
 
     let return_type = match serde_json::from_str::<Value>(&resp.data.question.meta_data) {
         Ok(v) => v["return"]["type"].to_string().replace('"', ""),
@@ -136,7 +138,11 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
 
     Some(Problem {
         title: problem_stat.stat.question_title.clone().unwrap_or_default(),
-        title_slug: problem_stat.stat.question_title_slug.clone().unwrap_or_default(),
+        title_slug: problem_stat
+            .stat
+            .question_title_slug
+            .clone()
+            .unwrap_or_default(),
         code_definition,
         content: resp.data.question.content,
         sample_test_case: resp.data.question.sample_test_case,
@@ -156,7 +162,7 @@ pub fn get_problems() -> Option<Problems> {
             return None;
         }
     };
-    
+
     let headers = {
         let mut h = reqwest::header::HeaderMap::new();
         h.insert(
@@ -210,8 +216,7 @@ pub fn get_problems() -> Option<Problems> {
         );
         h.insert(
             "Cookie",
-            reqwest::header::HeaderValue::from_str(&cookie)
-                .unwrap(),
+            reqwest::header::HeaderValue::from_str(&cookie).unwrap(),
         );
         h
     };
