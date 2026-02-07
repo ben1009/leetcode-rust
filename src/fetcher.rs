@@ -116,9 +116,7 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
         );
         return None;
     }
-    let resp: RawProblem = match recv.unwrap() {
-        r => r,
-    };
+    let resp: RawProblem = recv.unwrap();
 
     let code_definition: Vec<CodeDefinition> = match serde_json::from_str(&resp.data.question.code_definition) {
         Ok(cd) => cd,
