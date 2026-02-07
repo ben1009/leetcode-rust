@@ -46,10 +46,18 @@ fn main() {
         let mut _is_solving = false;
         let mut _id: u32 = 0;
         let mut id_arg = String::new();
-        io::stdin()
+        let n = io::stdin()
             .read_line(&mut id_arg)
             .expect("Failed to read line");
+        // EOF: exit the interactive loop
+        if n == 0 {
+            break;
+        }
         let id_arg = id_arg.trim();
+        if id_arg.is_empty() {
+            // empty input: prompt again
+            continue;
+        }
 
         if random_pattern.is_match(id_arg) {
             println!("You select random mode.");
@@ -74,7 +82,13 @@ fn main() {
             // deal all problems
             let pool = ThreadPool::new().unwrap();
             let mut tasks = vec![];
-            let problems = fetcher::get_problems().unwrap();
+            let problems = match fetcher::get_problems() {
+                Some(p) => p,
+                None => {
+                    println!("Failed to fetch problems list, aborting 'all' operation");
+                    break;
+                }
+            };
             let mod_file_addon = Arc::new(Mutex::new(vec![]));
             for problem_stat in problems.stat_status_pairs {
                 if initialized_ids.contains(&problem_stat.stat.frontend_question_id) {
@@ -118,21 +132,28 @@ fn main() {
             let _ = writeln!(lib_file, "{}", mod_file_addon.lock().unwrap().join("\n"));
             break;
         } else {
-            _id = id_arg
-                .parse::<u32>()
-                .unwrap_or_else(|_| panic!("not a number: {id_arg}"));
+            _id = match id_arg.parse::<u32>() {
+                Ok(v) => v,
+                Err(_) => {
+                    println!("not a number: {}", id_arg);
+                    continue;
+                }
+            };
             if initialized_ids.contains(&_id) {
                 println!("The problem you chose has been initialized in problem/");
                 continue;
             }
         }
 
-        let problem = fetcher::get_problem(_id).unwrap_or_else(|| {
-            panic!(
-                "Error: failed to get problem #{_id} \
-                 (The problem may be paid-only or may not be exist)."
-            )
-        });
+        let problem = match fetcher::get_problem(_id) {
+            Some(p) => p,
+            None => {
+                println!(
+                    "Error: failed to get problem #{_id} (The problem may be paid-only or may not exist)."
+                );
+                continue;
+            }
+        };
         let code = problem.code_definition.iter().find(|&d| d.value == *"rust");
         if code.is_none() {
             println!("Problem {} has no rust version.", &_id);
