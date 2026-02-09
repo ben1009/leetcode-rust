@@ -1,3 +1,5 @@
+use std::{cmp, mem};
+
 /// [14] Longest Common Prefix
 ///
 /// Write a function to find the longest common prefix string amongst an array of strings.
@@ -28,24 +30,25 @@ pub struct Solution {}
 // submission codes start here
 
 impl Solution {
-    pub fn longest_common_prefix(strs: Vec<String>) -> String {
+    pub fn longest_common_prefix(mut strs: Vec<String>) -> String {
         if strs.len() == 1 {
-            return strs[0].to_string();
+            return mem::take(&mut strs[0]);
         }
 
-        let mut ret = strs[0].to_string();
-        for str in strs.iter().skip(1) {
+        let mut ret = strs[0].as_bytes();
+        for s in strs.iter().skip(1) {
             let mut j = 0;
-            while j < std::cmp::min(ret.len(), str.len()) {
-                if ret.as_bytes()[j] != str.as_bytes()[j] {
+            let s = s.as_bytes();
+            while j < cmp::min(ret.len(), s.len()) {
+                if ret[j] != s[j] {
                     break;
                 }
                 j += 1;
             }
-            ret = ret[..j].to_string();
+            ret = &ret[..j];
         }
 
-        ret
+        String::from_utf8_lossy(ret).to_string()
     }
 }
 

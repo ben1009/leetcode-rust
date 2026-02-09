@@ -20,7 +20,13 @@ query questionData($titleSlug: String!) {
 const QUESTION_QUERY_OPERATION: &str = "questionData";
 
 pub fn get_problem(frontend_question_id: u32) -> Option<Problem> {
-    let problems = get_problems().unwrap();
+    let problems = match get_problems() {
+        Some(p) => p,
+        None => {
+            println!("Failed to fetch problems list");
+            return None;
+        }
+    };
     for problem in problems.stat_status_pairs.iter() {
         if problem.stat.frontend_question_id == frontend_question_id {
             if problem.paid_only {
@@ -28,27 +34,57 @@ pub fn get_problem(frontend_question_id: u32) -> Option<Problem> {
             }
             println!("getting problem ...");
             let client = reqwest::blocking::Client::new();
-            let resp: RawProblem = client
+            let slug = match problem.stat.question_title_slug.as_ref() {
+                Some(s) => s,
+                None => {
+                    println!("Problem {} has no title slug", frontend_question_id);
+                    return None;
+                }
+            };
+            let send_res = client
                 .post(GRAPHQL_URL)
-                .json(&Query::question_query(
-                    problem.stat.question_title_slug.as_ref().unwrap(),
-                ))
-                .send()
-                .unwrap()
-                .json()
-                .unwrap();
+                .json(&Query::question_query(slug))
+                .send();
+            let resp: RawProblem = match send_res {
+                Ok(r) => match r.json() {
+                    Ok(json) => json,
+                    Err(e) => {
+                        println!("Failed to parse problem response JSON: {}", e);
+                        return None;
+                    }
+                },
+                Err(e) => {
+                    println!("HTTP request failed: {}", e);
+                    return None;
+                }
+            };
+
+            let code_definition: Vec<CodeDefinition> =
+                match serde_json::from_str(&resp.data.question.code_definition) {
+                    Ok(cd) => cd,
+                    Err(e) => {
+                        println!("Failed to parse code definition: {}", e);
+                        return None;
+                    }
+                };
+
+            let return_type = match serde_json::from_str::<Value>(&resp.data.question.meta_data) {
+                Ok(v) => v["return"]["type"].to_string().replace('"', ""),
+                Err(e) => {
+                    println!("Failed to parse meta_data: {}", e);
+                    return None;
+                }
+            };
+
             return Some(Problem {
-                title: problem.stat.question_title.clone().unwrap(),
-                title_slug: problem.stat.question_title_slug.clone().unwrap(),
-                code_definition: serde_json::from_str(&resp.data.question.code_definition).unwrap(),
+                title: problem.stat.question_title.clone().unwrap_or_default(),
+                title_slug: problem.stat.question_title_slug.clone().unwrap_or_default(),
+                code_definition,
                 content: resp.data.question.content,
                 sample_test_case: resp.data.question.sample_test_case,
                 difficulty: problem.difficulty.to_string(),
                 question_id: problem.stat.frontend_question_id,
-                return_type: {
-                    let v: Value = serde_json::from_str(&resp.data.question.meta_data).unwrap();
-                    v["return"]["type"].to_string().replace('\"', "")
-                },
+                return_type,
             });
         }
     }
@@ -73,33 +109,60 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
         );
         return None;
     }
-    let resp = resp.unwrap().recv_json().await;
-    if resp.is_err() {
+    let recv = resp.unwrap().recv_json().await;
+    if recv.is_err() {
         println!(
             "Problem {} not initialized due to some error",
             &problem_stat.stat.frontend_question_id
         );
         return None;
     }
-    let resp: RawProblem = resp.unwrap();
+    let resp: RawProblem = recv.unwrap();
+
+    let code_definition: Vec<CodeDefinition> =
+        match serde_json::from_str(&resp.data.question.code_definition) {
+            Ok(cd) => cd,
+            Err(e) => {
+                println!("Failed to parse code definition: {}", e);
+                return None;
+            }
+        };
+
+    let return_type = match serde_json::from_str::<Value>(&resp.data.question.meta_data) {
+        Ok(v) => v["return"]["type"].to_string().replace('"', ""),
+        Err(e) => {
+            println!("Failed to parse meta_data: {}", e);
+            return None;
+        }
+    };
 
     Some(Problem {
-        title: problem_stat.stat.question_title.clone().unwrap(),
-        title_slug: problem_stat.stat.question_title_slug.clone().unwrap(),
-        code_definition: serde_json::from_str(&resp.data.question.code_definition).unwrap(),
+        title: problem_stat.stat.question_title.clone().unwrap_or_default(),
+        title_slug: problem_stat
+            .stat
+            .question_title_slug
+            .clone()
+            .unwrap_or_default(),
+        code_definition,
         content: resp.data.question.content,
         sample_test_case: resp.data.question.sample_test_case,
         difficulty: problem_stat.difficulty.to_string(),
         question_id: problem_stat.stat.frontend_question_id,
-        return_type: {
-            let v: Value = serde_json::from_str(&resp.data.question.meta_data).unwrap();
-            v["return"]["type"].to_string().replace('\"', "")
-        },
+        return_type,
     })
 }
 
 pub fn get_problems() -> Option<Problems> {
     println!("getting all problems ...");
+    let cookie = match std::env::var("LEETCODE_COOKIE") {
+        Ok(c) if !c.is_empty() => c,
+        _ => {
+            println!("Error: LEETCODE_COOKIE is not set or empty in .env file or environment");
+            println!("Please set a valid LeetCode session cookie to fetch problems");
+            return None;
+        }
+    };
+
     let headers = {
         let mut h = reqwest::header::HeaderMap::new();
         h.insert(
@@ -153,26 +216,41 @@ pub fn get_problems() -> Option<Problems> {
         );
         h.insert(
             "Cookie",
-            reqwest::header::HeaderValue::from_str(
-                &std::env::var("LEETCODE_COOKIE")
-                    .expect("Please set LEETCODE_COOKIE in .env file or environment"),
-            )
-            .unwrap(),
+            reqwest::header::HeaderValue::from_str(&cookie).unwrap(),
         );
         h
     };
-    let client = reqwest::blocking::Client::builder()
+    let client = match reqwest::blocking::Client::builder()
         .connection_verbose(true)
         .http2_prior_knowledge()
         .gzip(true)
         .build()
-        .unwrap();
+    {
+        Ok(c) => c,
+        Err(e) => {
+            println!("Failed to build HTTP client: {}", e);
+            return None;
+        }
+    };
     let get = client.get(PROBLEMS_URL).headers(headers);
     // println!("Get: {:?}", get);
-    let response = get.send().unwrap();
+    let response = match get.send() {
+        Ok(r) => r,
+        Err(e) => {
+            println!("Failed to fetch problems URL: {}", e);
+            return None;
+        }
+    };
+    let status = response.status();
+    println!("Response status: {}", status);
     // println!("Response: {:?}", response);
-    let result = response.json();
-    result.unwrap()
+    match response.json::<Problems>() {
+        Ok(p) => Some(p),
+        Err(e) => {
+            println!("Failed to decode problems JSON: {}", e);
+            None
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]

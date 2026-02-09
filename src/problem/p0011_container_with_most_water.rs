@@ -37,15 +37,13 @@ impl Solution {
         let mut ret = 0;
         let mut i = 0;
         let mut j = height.len() - 1;
-        let mut t;
         while i != j {
-            t = (j - i) as i32 * cmp::min(height[i], height[j]);
+            ret = ret.max((j - i) as i32 * cmp::min(height[i], height[j]));
             if height[i] < height[j] {
                 i += 1;
             } else {
                 j -= 1;
             }
-            ret = ret.max(t);
         }
 
         ret
