@@ -170,9 +170,9 @@ fn main() {
 fn generate_random_id(except_ids: &[u32]) -> u32 {
     use rand::Rng;
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     loop {
-        let res: u32 = rng.gen_range(1..1106);
+        let res: u32 = rng.random_range(1..1106);
         if !except_ids.contains(&res) {
             return res;
         }
