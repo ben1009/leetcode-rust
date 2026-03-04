@@ -171,14 +171,7 @@ pub fn get_problems() -> Option<Problems> {
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
             ),
         );
-        h.insert(
-            "Accept-Encoding",
-            reqwest::header::HeaderValue::from_static("gzip, deflate, br"),
-        );
-        h.insert(
-            "Accept-Language",
-            reqwest::header::HeaderValue::from_static("zh-CN,en-US;q=0.7,en;q=0.3"),
-        );
+
         h.insert(
             "Connection",
             reqwest::header::HeaderValue::from_static("keep-alive"),
@@ -186,8 +179,42 @@ pub fn get_problems() -> Option<Problems> {
         h.insert(
             "User-Agent",
             reqwest::header::HeaderValue::from_static(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
             ),
+        );
+        h.insert(
+            "Accept-Encoding",
+            reqwest::header::HeaderValue::from_static("gzip, deflate, br, zstd"),
+        );
+        h.insert(
+            "Accept-Language",
+            reqwest::header::HeaderValue::from_static("en-US,en;q=0.9"),
+        );
+        h.insert(
+            "Cache-Control",
+            reqwest::header::HeaderValue::from_static("no-cache"),
+        );
+        h.insert(
+            "Pragma",
+            reqwest::header::HeaderValue::from_static("no-cache"),
+        );
+        h.insert(
+            "Priority",
+            reqwest::header::HeaderValue::from_static("u=0, i"),
+        );
+        h.insert(
+            "Sec-CH-UA",
+            reqwest::header::HeaderValue::from_static(
+                "\"Not(A:Brand\";v=\"99\", \"Google Chrome\";v=\"133\", \"Chromium\";v=\"133\"",
+            ),
+        );
+        h.insert(
+            "Sec-CH-UA-Mobile",
+            reqwest::header::HeaderValue::from_static("?0"),
+        );
+        h.insert(
+            "Sec-CH-UA-Platform",
+            reqwest::header::HeaderValue::from_static("\"macOS\""),
         );
         h.insert(
             "Sec-Fetch-Dest",
@@ -220,12 +247,7 @@ pub fn get_problems() -> Option<Problems> {
         );
         h
     };
-    let client = match reqwest::blocking::Client::builder()
-        .connection_verbose(true)
-        .http2_prior_knowledge()
-        .gzip(true)
-        .build()
-    {
+    let client = match reqwest::blocking::Client::builder().gzip(true).build() {
         Ok(c) => c,
         Err(e) => {
             println!("Failed to build HTTP client: {}", e);
@@ -365,6 +387,138 @@ impl Display for Difficulty {
             2 => f.write_str("Medium"),
             3 => f.write_str("Hard"),
             _ => f.write_str("Unknown"),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_difficulty_display() {
+        assert_eq!(format!("{}", Difficulty { level: 1 }), "Easy");
+        assert_eq!(format!("{}", Difficulty { level: 2 }), "Medium");
+        assert_eq!(format!("{}", Difficulty { level: 3 }), "Hard");
+        assert_eq!(format!("{}", Difficulty { level: 4 }), "Unknown");
+        assert_eq!(format!("{}", Difficulty { level: 0 }), "Unknown");
+    }
+
+    #[test]
+    fn test_code_definition_deserialization() {
+        let json = r#"[{"value":"rust","text":"Rust","defaultCode":"struct Solution;"}]"#;
+        let defs: Vec<CodeDefinition> = serde_json::from_str(json).unwrap();
+        assert_eq!(defs.len(), 1);
+        assert_eq!(defs[0].value, "rust");
+        assert_eq!(defs[0].text, "Rust");
+        assert_eq!(defs[0].default_code, "struct Solution;");
+    }
+
+    #[test]
+    fn test_query_serialization() {
+        let query = Query::question_query("two-sum");
+        assert_eq!(query.operation_name, "questionData");
+        let json = serde_json::to_string(&query).unwrap();
+        assert!(json.contains("two-sum"));
+        assert!(json.contains("questionData"));
+    }
+
+    #[test]
+    fn test_problems_deserialization() {
+        let json = r#"{
+            "user_name": "test",
+            "num_solved": 10,
+            "num_total": 100,
+            "ac_easy": 5,
+            "ac_medium": 3,
+            "ac_hard": 2,
+            "stat_status_pairs": [{
+                "stat": {
+                    "question_id": 1,
+                    "question__article__slug": null,
+                    "question__title": "Two Sum",
+                    "question__title_slug": "two-sum",
+                    "question__hide": false,
+                    "total_acs": 1000,
+                    "total_submitted": 2000,
+                    "frontend_question_id": 1,
+                    "is_new_question": false
+                },
+                "difficulty": {"level": 1},
+                "paid_only": false,
+                "is_favor": false,
+                "frequency": 0,
+                "progress": 0
+            }]
+        }"#;
+        let problems: Problems = serde_json::from_str(json).unwrap();
+        assert_eq!(problems.user_name, "test");
+        assert_eq!(problems.num_solved, 10);
+        assert_eq!(problems.stat_status_pairs.len(), 1);
+        assert_eq!(problems.stat_status_pairs[0].stat.frontend_question_id, 1);
+        assert!(!problems.stat_status_pairs[0].paid_only);
+    }
+
+    #[test]
+    fn test_raw_problem_deserialization() {
+        let json = r#"{
+            "data": {
+                "question": {
+                    "content": "<p>Test content</p>",
+                    "stats": "{\"totalAccepted\": \"100\"}",
+                    "codeDefinition": "[{\"value\":\"rust\",\"text\":\"Rust\",\"defaultCode\":\"struct Solution;\"}]",
+                    "sampleTestCase": "[1,2,3]\n4",
+                    "metaData": "{\"return\":{\"type\":\"integer[]\"}}"
+                }
+            }
+        }"#;
+        let raw: RawProblem = serde_json::from_str(json).unwrap();
+        assert_eq!(raw.data.question.content, "<p>Test content</p>");
+        assert_eq!(raw.data.question.sample_test_case, "[1,2,3]\n4");
+    }
+
+    #[test]
+    fn test_get_problems_missing_cookie() {
+        // Save original cookie value
+        let original = std::env::var("LEETCODE_COOKIE").ok();
+
+        // Remove cookie
+        unsafe {
+            std::env::remove_var("LEETCODE_COOKIE");
+        }
+
+        // Should return None when cookie is missing
+        let result = get_problems();
+        assert!(result.is_none());
+
+        // Restore original cookie
+        unsafe {
+            if let Some(cookie) = original {
+                std::env::set_var("LEETCODE_COOKIE", cookie);
+            }
+        }
+    }
+
+    #[test]
+    fn test_get_problems_empty_cookie() {
+        // Save original cookie value
+        let original = std::env::var("LEETCODE_COOKIE").ok();
+
+        // Set empty cookie
+        unsafe {
+            std::env::set_var("LEETCODE_COOKIE", "");
+        }
+
+        // Should return None when cookie is empty
+        let result = get_problems();
+        assert!(result.is_none());
+
+        // Restore original cookie
+        unsafe {
+            std::env::remove_var("LEETCODE_COOKIE");
+            if let Some(cookie) = original {
+                std::env::set_var("LEETCODE_COOKIE", cookie);
+            }
         }
     }
 }
