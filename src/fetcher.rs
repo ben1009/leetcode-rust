@@ -33,6 +33,7 @@ pub fn get_problem(frontend_question_id: u32) -> Option<Problem> {
                 return None;
             }
             println!("getting problem ...");
+            let headers = build_headers();
             let client = reqwest::blocking::Client::new();
             let slug = match problem.stat.question_title_slug.as_ref() {
                 Some(s) => s,
@@ -43,6 +44,7 @@ pub fn get_problem(frontend_question_id: u32) -> Option<Problem> {
             };
             let send_res = client
                 .post(GRAPHQL_URL)
+                .headers(headers)
                 .json(&Query::question_query(slug))
                 .send();
             let resp: RawProblem = match send_res {
@@ -152,101 +154,44 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
     })
 }
 
+/// Build HTTP headers for LeetCode API requests
+/// Cookie is optional - only needed for authenticated requests
+fn build_headers() -> reqwest::header::HeaderMap {
+    let mut h = reqwest::header::HeaderMap::new();
+    h.insert(
+        "Accept",
+        reqwest::header::HeaderValue::from_static("application/json, text/plain, */*"),
+    );
+    h.insert(
+        "User-Agent",
+        reqwest::header::HeaderValue::from_static(
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+        ),
+    );
+    h.insert(
+        "Accept-Language",
+        reqwest::header::HeaderValue::from_static("en-US,en;q=0.9"),
+    );
+    h.insert(
+        "Referer",
+        reqwest::header::HeaderValue::from_static("https://leetcode.com/"),
+    );
+
+    // Add cookie if available (optional, only needed for authenticated endpoints)
+    if let Ok(cookie) = std::env::var("LEETCODE_COOKIE")
+        && !cookie.is_empty()
+        && let Ok(cookie_value) = reqwest::header::HeaderValue::from_str(&cookie)
+    {
+        h.insert("Cookie", cookie_value);
+    }
+
+    h
+}
+
 pub fn get_problems() -> Option<Problems> {
     println!("getting all problems ...");
-    let cookie = match std::env::var("LEETCODE_COOKIE") {
-        Ok(c) if !c.is_empty() => c,
-        _ => {
-            println!("Error: LEETCODE_COOKIE is not set or empty in .env file or environment");
-            println!("Please set a valid LeetCode session cookie to fetch problems");
-            return None;
-        }
-    };
 
-    let headers = {
-        let mut h = reqwest::header::HeaderMap::new();
-        h.insert(
-            "Accept",
-            reqwest::header::HeaderValue::from_static(
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            ),
-        );
-
-        h.insert(
-            "Connection",
-            reqwest::header::HeaderValue::from_static("keep-alive"),
-        );
-        h.insert(
-            "User-Agent",
-            reqwest::header::HeaderValue::from_static(
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-            ),
-        );
-        h.insert(
-            "Accept-Encoding",
-            reqwest::header::HeaderValue::from_static("gzip, deflate, br, zstd"),
-        );
-        h.insert(
-            "Accept-Language",
-            reqwest::header::HeaderValue::from_static("en-US,en;q=0.9"),
-        );
-        h.insert(
-            "Cache-Control",
-            reqwest::header::HeaderValue::from_static("no-cache"),
-        );
-        h.insert(
-            "Pragma",
-            reqwest::header::HeaderValue::from_static("no-cache"),
-        );
-        h.insert(
-            "Priority",
-            reqwest::header::HeaderValue::from_static("u=0, i"),
-        );
-        h.insert(
-            "Sec-CH-UA",
-            reqwest::header::HeaderValue::from_static(
-                "\"Not(A:Brand\";v=\"99\", \"Google Chrome\";v=\"133\", \"Chromium\";v=\"133\"",
-            ),
-        );
-        h.insert(
-            "Sec-CH-UA-Mobile",
-            reqwest::header::HeaderValue::from_static("?0"),
-        );
-        h.insert(
-            "Sec-CH-UA-Platform",
-            reqwest::header::HeaderValue::from_static("\"macOS\""),
-        );
-        h.insert(
-            "Sec-Fetch-Dest",
-            reqwest::header::HeaderValue::from_static("document"),
-        );
-        h.insert(
-            "Sec-Fetch-Mode",
-            reqwest::header::HeaderValue::from_static("navigate"),
-        );
-        h.insert(
-            "Sec-Fetch-Site",
-            reqwest::header::HeaderValue::from_static("none"),
-        );
-        h.insert(
-            "Sec-Fetch-User",
-            reqwest::header::HeaderValue::from_static("?1"),
-        );
-        h.insert(
-            "Upgrade-Insecure-Requests",
-            reqwest::header::HeaderValue::from_static("1"),
-        );
-
-        h.insert(
-            "Host",
-            reqwest::header::HeaderValue::from_static("leetcode.com"),
-        );
-        h.insert(
-            "Cookie",
-            reqwest::header::HeaderValue::from_str(&cookie).unwrap(),
-        );
-        h
-    };
+    let headers = build_headers();
     let client = match reqwest::blocking::Client::builder().gzip(true).build() {
         Ok(c) => c,
         Err(e) => {
@@ -255,7 +200,6 @@ pub fn get_problems() -> Option<Problems> {
         }
     };
     let get = client.get(PROBLEMS_URL).headers(headers);
-    // println!("Get: {:?}", get);
     let response = match get.send() {
         Ok(r) => r,
         Err(e) => {
@@ -265,7 +209,10 @@ pub fn get_problems() -> Option<Problems> {
     };
     let status = response.status();
     println!("Response status: {}", status);
-    // println!("Response: {:?}", response);
+    if !status.is_success() {
+        println!("Failed to fetch problems: HTTP {}", status);
+        return None;
+    }
     match response.json::<Problems>() {
         Ok(p) => Some(p),
         Err(e) => {
@@ -478,40 +425,38 @@ mod tests {
     }
 
     #[test]
-    fn test_get_problems_missing_cookie() {
+    fn test_build_headers() {
         // Save original cookie value
         let original = std::env::var("LEETCODE_COOKIE").ok();
 
-        // Remove cookie
-        unsafe {
-            std::env::remove_var("LEETCODE_COOKIE");
-        }
-
-        // Should return None when cookie is missing
-        let result = get_problems();
-        assert!(result.is_none());
-
-        // Restore original cookie
-        unsafe {
-            if let Some(cookie) = original {
-                std::env::set_var("LEETCODE_COOKIE", cookie);
-            }
-        }
-    }
-
-    #[test]
-    fn test_get_problems_empty_cookie() {
-        // Save original cookie value
-        let original = std::env::var("LEETCODE_COOKIE").ok();
-
-        // Set empty cookie
+        // Test 1: Without cookie (empty env var)
         unsafe {
             std::env::set_var("LEETCODE_COOKIE", "");
         }
 
-        // Should return None when cookie is empty
-        let result = get_problems();
-        assert!(result.is_none());
+        let headers = build_headers();
+
+        // Verify required headers are present
+        assert!(headers.contains_key("User-Agent"));
+        assert!(headers.contains_key("Accept"));
+        assert!(headers.contains_key("Referer"));
+
+        // Cookie header should not be present when env var is empty
+        assert!(!headers.contains_key("Cookie"));
+
+        // Test 2: With cookie
+        unsafe {
+            std::env::set_var("LEETCODE_COOKIE", "test_cookie_value");
+        }
+
+        let headers = build_headers();
+
+        // Cookie header should be present
+        assert!(headers.contains_key("Cookie"));
+        assert_eq!(
+            headers.get("Cookie").unwrap().to_str().unwrap(),
+            "test_cookie_value"
+        );
 
         // Restore original cookie
         unsafe {
