@@ -444,7 +444,7 @@ mod tests {
         // Cookie header should not be present when env var is empty
         assert!(!headers.contains_key("Cookie"));
 
-        // Test 2: With cookie
+        // Test 2: With valid cookie
         unsafe {
             std::env::set_var("LEETCODE_COOKIE", "test_cookie_value");
         }
@@ -457,6 +457,15 @@ mod tests {
             headers.get("Cookie").unwrap().to_str().unwrap(),
             "test_cookie_value"
         );
+
+        // Test 3: With invalid cookie characters (should not panic, just skip cookie)
+        unsafe {
+            std::env::set_var("LEETCODE_COOKIE", "invalid\n\rcookie");
+        }
+
+        let headers = build_headers();
+        // Cookie should not be present when it contains invalid characters
+        assert!(!headers.contains_key("Cookie"));
 
         // Restore original cookie
         unsafe {
