@@ -1,223 +1,422 @@
+//! LeetCode Rust CLI - Generate solution templates from LeetCode
+//!
+//! Usage: leetcode-rust [COMMAND]
+//!
+//! Commands:
+//!   get      Get a specific problem by ID
+//!   random   Get a random problem
+//!   all      Initialize all problems (warning: fetches all problems!)
+//!   solve    Move a problem from problem/ to solution/
+//!   list     List all initialized problems
+//!   help     Print this message or the help of the given subcommand(s)
+//!
+//! Options:
+//!   -h, --help     Print help
+//!   -V, --version  Print version
+
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
 extern crate dotenv;
 
+mod error;
 mod fetcher;
 
 use std::{
     fs,
     fs::File,
-    io,
     io::{BufRead, Write},
     path::Path,
     sync::{Arc, Mutex},
 };
 
+use clap::{Parser, Subcommand};
 use dotenv::dotenv;
 use futures::{
     executor::{ThreadPool, block_on},
     future::join_all,
     task::SpawnExt,
 };
+use indicatif::{ProgressBar, ProgressStyle};
 use regex::Regex;
 
-use crate::fetcher::{CodeDefinition, Problem};
+use crate::{
+    error::{LeetCodeError, Result},
+    fetcher::{CodeDefinition, Problem},
+};
 
-/// main() helps to generate the submission template .rs
+/// LeetCode Rust CLI - Generate solution templates from LeetCode
+#[derive(Parser)]
+#[command(name = "leetcode-rust")]
+#[command(about = "Generate LeetCode solution templates in Rust")]
+#[command(version = "0.2.0")]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Get a specific problem by ID
+    Get {
+        /// Problem ID to fetch
+        id: u32,
+    },
+    /// Get a random problem
+    Random,
+    /// Initialize all problems (warning: fetches all problems!)
+    All,
+    /// Move a problem from problem/ to solution/
+    Solve {
+        /// Problem ID to solve
+        id: u32,
+    },
+    /// List all initialized problems
+    List,
+}
+
 fn main() {
-    println!("Welcome to leetcode-rust system.\n");
-    dotenv().unwrap();
+    println!("🦀 Welcome to leetcode-rust CLI\n");
 
-    let mut initialized_ids = get_initialized_ids("./src/problem/mod.rs");
-    let random_pattern = Regex::new(r"^random$").unwrap();
-    let solving_pattern = Regex::new(r"^solve (\d+)$").unwrap();
-    let all_pattern = Regex::new(r"^all$").unwrap();
-
-    loop {
-        println!(
-            "Please enter a frontend problem id, \n\
-            or \"random\" to generate a random one, \n\
-            or \"solve $i\" to move problem to solution/, \n\
-            or \"all\" to initialize all problems \n"
-        );
-        let mut _is_random = false;
-        let mut _is_solving = false;
-        let mut _id: u32 = 0;
-        let mut id_arg = String::new();
-        let n = io::stdin()
-            .read_line(&mut id_arg)
-            .expect("Failed to read line");
-        // EOF: exit the interactive loop
-        if n == 0 {
-            break;
-        }
-        let id_arg = id_arg.trim();
-        if id_arg.is_empty() {
-            // empty input: prompt again
-            continue;
-        }
-
-        if random_pattern.is_match(id_arg) {
-            println!("You select random mode.");
-            _id = generate_random_id(&initialized_ids);
-            _is_random = true;
-            println!("Generate random problem: {}", &_id);
-        } else if solving_pattern.is_match(id_arg) {
-            // solve a problem
-            // move it from problem/ to solution/
-            _is_solving = true;
-            _id = solving_pattern
-                .captures(id_arg)
-                .unwrap()
-                .get(1)
-                .unwrap()
-                .as_str()
-                .parse()
-                .unwrap();
-            deal_solving(&_id);
-            break;
-        } else if all_pattern.is_match(id_arg) {
-            // deal all problems
-            let pool = ThreadPool::new().unwrap();
-            let mut tasks = vec![];
-            let problems = match fetcher::get_problems() {
-                Some(p) => p,
-                None => {
-                    println!("Failed to fetch problems list, aborting 'all' operation");
-                    break;
-                }
-            };
-            let mod_file_addon = Arc::new(Mutex::new(vec![]));
-            for problem_stat in problems.stat_status_pairs {
-                if initialized_ids.contains(&problem_stat.stat.frontend_question_id) {
-                    continue;
-                }
-                let mod_file_addon = mod_file_addon.clone();
-                tasks.push(
-                    pool.spawn_with_handle(async move {
-                        let problem = fetcher::get_problem_async(problem_stat).await;
-                        if problem.is_none() {
-                            return;
-                        }
-                        let problem = problem.unwrap();
-                        let code = problem.code_definition.iter().find(|&d| d.value == *"rust");
-                        if code.is_none() {
-                            println!("Problem {} has no rust version.", problem.question_id);
-                            return;
-                        }
-                        // not sure this can be async
-                        async {
-                            mod_file_addon.lock().unwrap().push(format!(
-                                "mod p{:04}_{};",
-                                problem.question_id,
-                                problem.title_slug.replace('-', "_")
-                            ));
-                        }
-                        .await;
-                        let code = code.unwrap();
-                        // not sure this can be async
-                        // maybe should use async-std io
-                        async { deal_problem(&problem, code, false) }.await
-                    })
-                    .unwrap(),
-                );
-            }
-            block_on(join_all(tasks));
-            let mut lib_file = fs::OpenOptions::new()
-                .append(true)
-                .open("./src/problem/mod.rs")
-                .unwrap();
-            let _ = writeln!(lib_file, "{}", mod_file_addon.lock().unwrap().join("\n"));
-            break;
-        } else {
-            _id = match id_arg.parse::<u32>() {
-                Ok(v) => v,
-                Err(_) => {
-                    println!("not a number: {}", id_arg);
-                    continue;
-                }
-            };
-            if initialized_ids.contains(&_id) {
-                println!("The problem you chose has been initialized in problem/");
-                continue;
-            }
-        }
-
-        let problem = match fetcher::get_problem(_id) {
-            Some(p) => p,
-            None => {
-                println!(
-                    "Error: failed to get problem #{_id} (The problem may be paid-only or may not exist)."
-                );
-                continue;
-            }
-        };
-        let code = problem.code_definition.iter().find(|&d| d.value == *"rust");
-        if code.is_none() {
-            println!("Problem {} has no rust version.", &_id);
-            initialized_ids.push(problem.question_id);
-            continue;
-        }
-        let code = code.unwrap();
-        deal_problem(&problem, code, true);
-        break;
+    // Load environment variables
+    if let Err(e) = dotenv() {
+        eprintln!("⚠️  Warning: Failed to load .env file: {}", e);
     }
-    println!("Done, Thanks for using leetcode-rust system.\n");
+
+    let cli = Cli::parse();
+
+    let result = match cli.command {
+        Commands::Get { id } => handle_get(id),
+        Commands::Random => handle_random(),
+        Commands::All => handle_all(),
+        Commands::Solve { id } => handle_solve(id),
+        Commands::List => handle_list(),
+    };
+
+    match result {
+        Ok(()) => {
+            println!("\n✅ Done! Thanks for using leetcode-rust CLI.\n");
+        }
+        Err(e) => {
+            eprintln!("\n❌ Error: {}", e);
+            std::process::exit(1);
+        }
+    }
 }
 
-fn generate_random_id(except_ids: &[u32]) -> u32 {
+/// Handle the `get` command - fetch a specific problem
+fn handle_get(id: u32) -> Result<()> {
+    let initialized_ids = get_initialized_ids("./src/problem/mod.rs")?;
+
+    if initialized_ids.contains(&id) {
+        return Err(LeetCodeError::AlreadyInitialized(id));
+    }
+
+    let problem = fetcher::get_problem(id)?;
+    let code = find_rust_code(&problem)?;
+
+    deal_problem(&problem, &code, true)?;
+
+    println!(
+        "✅ Successfully created problem #{}: {} [{}]",
+        problem.question_id, problem.title, problem.difficulty
+    );
+
+    Ok(())
+}
+
+/// Handle the `random` command - fetch a random problem
+fn handle_random() -> Result<()> {
+    let initialized_ids = get_initialized_ids("./src/problem/mod.rs")?;
+
+    println!("🎲 Finding a random problem...");
+
+    let problems = fetcher::get_problems()?;
+    let available_problems: Vec<_> = problems
+        .stat_status_pairs
+        .iter()
+        .filter(|p| !p.paid_only && !initialized_ids.contains(&p.stat.frontend_question_id))
+        .collect();
+
+    if available_problems.is_empty() {
+        return Err(LeetCodeError::InvalidInput(
+            "No available problems found".to_string(),
+        ));
+    }
+
     use rand::Rng;
-
     let mut rng = rand::rng();
-    loop {
-        let res: u32 = rng.random_range(1..1106);
-        if !except_ids.contains(&res) {
-            return res;
-        }
-        println!(
-            "Generate a random num ({res}), but it is invalid (the problem may have been solved \
-             or may have no rust version). Regenerate.."
-        );
-    }
+    let selected = available_problems[rng.random_range(0..available_problems.len())];
+    let id = selected.stat.frontend_question_id;
+
+    println!("🎲 Selected random problem: #{}\n", id);
+
+    let problem = fetcher::get_problem(id)?;
+    let code = find_rust_code(&problem)?;
+
+    deal_problem(&problem, &code, true)?;
+
+    println!(
+        "✅ Successfully created problem #{}: {} [{}]",
+        problem.question_id, problem.title, problem.difficulty
+    );
+
+    Ok(())
 }
 
-fn get_initialized_ids(path: &str) -> Vec<u32> {
-    let content = fs::read_to_string(path).unwrap();
-    let id_pattern = Regex::new(r"p(\d{4})_").unwrap();
+/// Handle the `all` command - fetch all problems
+fn handle_all() -> Result<()> {
+    println!("⚠️  Warning: This will fetch ALL LeetCode problems.");
+    println!("   This may take a while and make many API requests.\n");
+
+    let initialized_ids = get_initialized_ids("./src/problem/mod.rs")?;
+    let problems = fetcher::get_problems()?;
+
+    let to_fetch: Vec<_> = problems
+        .stat_status_pairs
+        .into_iter()
+        .filter(|p| !p.paid_only && !initialized_ids.contains(&p.stat.frontend_question_id))
+        .collect();
+
+    let total = to_fetch.len();
+    println!("📊 Found {} problems to fetch\n", total);
+
+    if total == 0 {
+        println!("✅ All problems are already initialized!");
+        return Ok(());
+    }
+
+    // Create progress bar
+    let pb = ProgressBar::new(total as u64);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template(
+                "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})",
+            )
+            .unwrap()
+            .progress_chars("#>-"),
+    );
+
+    let pool = ThreadPool::new().map_err(|e| LeetCodeError::AsyncRuntime(e.to_string()))?;
+
+    let mod_file_addon = Arc::new(Mutex::new(Vec::new()));
+    let pb = Arc::new(Mutex::new(pb));
+
+    let mut tasks = vec![];
+
+    for problem_stat in to_fetch {
+        let mod_file_addon = mod_file_addon.clone();
+        let pb = pb.clone();
+
+        let task = pool
+            .spawn_with_handle(async move {
+                let id = problem_stat.stat.frontend_question_id;
+
+                match fetcher::get_problem_async(problem_stat.clone()).await {
+                    Ok(problem) => {
+                        match find_rust_code(&problem) {
+                            Ok(code) => {
+                                // Generate module line
+                                let file_name = format!(
+                                    "p{:04}_{}",
+                                    problem.question_id,
+                                    problem.title_slug.replace('-', "_")
+                                );
+                                mod_file_addon
+                                    .lock()
+                                    .unwrap()
+                                    .push(format!("pub mod {file_name};"));
+
+                                // Write problem file (async block for consistency)
+                                let result = async { deal_problem(&problem, &code, false) }.await;
+
+                                if let Err(e) = result {
+                                    eprintln!("\n⚠️  Failed to write problem #{}: {}", id, e);
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("\n⚠️  Problem #{} has no Rust version: {}", id, e);
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("\n⚠️  Failed to fetch problem #{}: {}", id, e);
+                    }
+                }
+
+                pb.lock().unwrap().inc(1);
+            })
+            .map_err(|e| LeetCodeError::AsyncRuntime(e.to_string()))?;
+
+        tasks.push(task);
+    }
+
+    block_on(join_all(tasks));
+
+    pb.lock()
+        .unwrap()
+        .finish_with_message("Done fetching problems");
+
+    // Write all module declarations at once
+    let mut lib_file = fs::OpenOptions::new()
+        .append(true)
+        .open("./src/problem/mod.rs")
+        .map_err(|e| LeetCodeError::file_operation("open", "./src/problem/mod.rs", e))?;
+
+    let declarations = mod_file_addon.lock().unwrap().join("\n");
+    if !declarations.is_empty() {
+        writeln!(lib_file, "\n{}", declarations)
+            .map_err(|e| LeetCodeError::file_operation("write", "./src/problem/mod.rs", e))?;
+    }
+
+    println!("\n✅ Finished fetching all problems!");
+
+    Ok(())
+}
+
+/// Handle the `solve` command - move problem to solution/
+fn handle_solve(id: u32) -> Result<()> {
+    println!("📝 Moving problem #{} to solution/...", id);
+
+    let problem = fetcher::get_problem(id)?;
+
+    let file_name = format!(
+        "p{:04}_{}",
+        problem.question_id,
+        problem.title_slug.replace('-', "_")
+    );
+    let file_path = Path::new("./src/problem").join(format!("{file_name}.rs"));
+
+    // Check problem/ existence
+    if !file_path.exists() {
+        return Err(LeetCodeError::ProblemNotExist(id));
+    }
+
+    // Check solution/ no existence
+    let solution_name = format!(
+        "s{:04}_{}",
+        problem.question_id,
+        problem.title_slug.replace('-', "_")
+    );
+    let solution_path = Path::new("./src/solution").join(format!("{solution_name}.rs"));
+
+    if solution_path.exists() {
+        return Err(LeetCodeError::SolutionExists(id));
+    }
+
+    // Rename/move file
+    fs::rename(&file_path, &solution_path)
+        .map_err(|e| LeetCodeError::file_operation("rename", &file_path, e))?;
+
+    // Remove from problem/mod.rs
+    let mod_file = "./src/problem/mod.rs";
+    let target_line = format!("pub mod {file_name};");
+    let lines: Vec<String> = std::io::BufReader::new(
+        File::open(mod_file).map_err(|e| LeetCodeError::file_operation("open", mod_file, e))?,
+    )
+    .lines()
+    .map(|x| x.unwrap())
+    .filter(|x| *x != target_line)
+    .collect();
+
+    fs::write(mod_file, lines.join("\n"))
+        .map_err(|e| LeetCodeError::file_operation("write", mod_file, e))?;
+
+    // Insert into solution/mod.rs
+    let mut lib_file = fs::OpenOptions::new()
+        .append(true)
+        .open("./src/solution/mod.rs")
+        .map_err(|e| LeetCodeError::file_operation("open", "./src/solution/mod.rs", e))?;
+
+    writeln!(lib_file, "pub mod {solution_name};")
+        .map_err(|e| LeetCodeError::file_operation("write", "./src/solution/mod.rs", e))?;
+
+    println!("✅ Successfully moved problem #{} to solution/", id);
+
+    Ok(())
+}
+
+/// Handle the `list` command - list initialized problems
+fn handle_list() -> Result<()> {
+    let initialized_ids = get_initialized_ids("./src/problem/mod.rs")?;
+
+    if initialized_ids.is_empty() {
+        println!("No problems initialized yet.");
+        println!("\nUse one of the following commands to get started:");
+        println!("  leetcode-rust get <id>    - Get a specific problem");
+        println!("  leetcode-rust random      - Get a random problem");
+        return Ok(());
+    }
+
+    println!(
+        "📚 Initialized problems ({} total):\n",
+        initialized_ids.len()
+    );
+
+    // Group by hundreds for better readability
+    let mut ids = initialized_ids;
+    ids.sort_unstable();
+
+    for chunk in ids.chunks(10) {
+        let ids_str: Vec<String> = chunk.iter().map(|id| format!("#{}", id)).collect();
+        println!("  {}", ids_str.join(", "));
+    }
+
+    Ok(())
+}
+
+/// Find Rust code definition in a problem
+fn find_rust_code(problem: &Problem) -> Result<CodeDefinition> {
+    problem
+        .code_definition
+        .iter()
+        .find(|d| d.value == "rust")
+        .cloned()
+        .ok_or(LeetCodeError::NoRustVersion(problem.question_id))
+}
+
+/// Get list of already initialized problem IDs
+fn get_initialized_ids(path: &str) -> Result<Vec<u32>> {
+    let content =
+        fs::read_to_string(path).map_err(|e| LeetCodeError::file_operation("read", path, e))?;
+    let id_pattern = Regex::new(r"p(\d{4})_")?;
 
     let mut ret = vec![];
-    for l in content.lines() {
-        if !l.trim().starts_with("//")
-            && let Some(id) = id_pattern.captures(l)
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if !trimmed.starts_with("//")
+            && let Some(id) = id_pattern.captures(trimmed)
+            && let Ok(id_num) = id.get(1).unwrap().as_str().parse::<u32>()
         {
-            ret.push(id.get(1).unwrap().as_str().parse::<u32>().unwrap());
+            ret.push(id_num);
         }
     }
 
-    ret
+    Ok(ret)
 }
 
+/// Parse extra use statements based on code content
 fn parse_extra_use(code: &str) -> String {
     let mut extra_use_line = String::new();
-    // a linked-list problem
     if code.contains("pub struct ListNode") {
-        extra_use_line.push_str("\nuse crate::util::linked_list::{ListNode, to_list};")
+        extra_use_line.push_str("\nuse crate::util::linked_list::{ListNode, to_list};");
     }
     if code.contains("pub struct TreeNode") {
-        extra_use_line.push_str("\nuse crate::util::tree::{TreeNode, to_tree};")
+        extra_use_line.push_str("\nuse crate::util::tree::{TreeNode, to_tree};");
     }
     if code.contains("pub struct Point") {
-        extra_use_line.push_str("\nuse crate::util::point::Point;")
+        extra_use_line.push_str("\nuse crate::util::point::Point;");
     }
     extra_use_line
 }
 
+/// Build problem link
 fn parse_problem_link(problem: &Problem) -> String {
     format!("https://leetcode.com/problems/{}/", problem.title_slug)
 }
 
+/// Build discuss link
 fn parse_discuss_link(problem: &Problem) -> String {
     format!(
         "https://leetcode.com/problems/{}/discuss/?currentPage=1&orderBy=most_votes&query=",
@@ -225,8 +424,9 @@ fn parse_discuss_link(problem: &Problem) -> String {
     )
 }
 
+/// Insert default return value in code template
 fn insert_return_in_code(return_type: &str, code: &str) -> String {
-    let re = Regex::new(r"\{[ \n]+}").unwrap();
+    let re = Regex::new(r"\{\s*}").unwrap();
     match return_type {
         "ListNode" => re
             .replace(code, "{\n        Some(Box::new(ListNode::new(0)))\n    }")
@@ -244,7 +444,6 @@ fn insert_return_in_code(return_type: &str, code: &str) -> String {
         "double" => re.replace(code, "{\n        0f64\n    }").to_string(),
         "double[]" => re.replace(code, "{\n        vec![]\n    }").to_string(),
         "int[]" => re.replace(code, "{\n        vec![]\n    }").to_string(),
-
         "integer" => re.replace(code, "{\n        0\n    }").to_string(),
         "integer[]" => re.replace(code, "{\n        vec![]\n    }").to_string(),
         "integer[][]" => re.replace(code, "{\n        vec![]\n    }").to_string(),
@@ -268,8 +467,8 @@ fn insert_return_in_code(return_type: &str, code: &str) -> String {
     }
 }
 
+/// Clean HTML content for Rust comments
 fn build_desc(content: &str) -> String {
-    // TODO: fix this shit
     content
         .replace("<strong>", "")
         .replace("</strong>", "")
@@ -303,55 +502,18 @@ fn build_desc(content: &str) -> String {
         .replace('\n', "\n * ")
 }
 
-fn deal_solving(id: &u32) {
-    let problem = fetcher::get_problem(*id).unwrap();
+/// Generate problem file from template
+fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) -> Result<()> {
     let file_name = format!(
         "p{:04}_{}",
         problem.question_id,
         problem.title_slug.replace('-', "_")
     );
     let file_path = Path::new("./src/problem").join(format!("{file_name}.rs"));
-    // check problem/ existence
-    if !file_path.exists() {
-        panic!("problem does not exist");
-    }
-    // check solution/ no existence
-    let solution_name = format!(
-        "s{:04}_{}",
-        problem.question_id,
-        problem.title_slug.replace('-', "_")
-    );
-    let solution_path = Path::new("./src/solution").join(format!("{solution_name}.rs"));
-    if solution_path.exists() {
-        panic!("solution exists");
-    }
-    // rename/move file
-    fs::rename(file_path, solution_path).unwrap();
-    // remove from problem/mod.rs
-    let mod_file = "./src/problem/mod.rs";
-    let target_line = format!("mod {file_name};");
-    let lines: Vec<String> = io::BufReader::new(File::open(mod_file).unwrap())
-        .lines()
-        .map(|x| x.unwrap())
-        .filter(|x| *x != target_line)
-        .collect();
-    let _ = fs::write(mod_file, lines.join("\n"));
-    // insert into solution/mod.rs
-    let mut lib_file = fs::OpenOptions::new()
-        .append(true)
-        .open("./src/solution/mod.rs")
-        .unwrap();
-    let _ = writeln!(lib_file, "mod {solution_name};");
-}
 
-fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) {
-    let file_name = format!(
-        "p{:04}_{}",
-        problem.question_id,
-        problem.title_slug.replace('-', "_")
-    );
-    let file_path = Path::new("./src/problem").join(format!("{file_name}.rs"));
-    let template = fs::read_to_string("./template.rs").unwrap();
+    let template = fs::read_to_string("./template.rs")
+        .map_err(|e| LeetCodeError::Template(format!("Failed to read template.rs: {}", e)))?;
+
     let source = template
         .replace("__PROBLEM_TITLE__", &problem.title)
         .replace("__PROBLEM_DESC__", &build_desc(&problem.content))
@@ -368,19 +530,25 @@ fn deal_problem(problem: &Problem, code: &CodeDefinition, write_mod_file: bool) 
         .write(true)
         .create(true)
         .truncate(true)
-        .open(file_path)
-        .unwrap();
+        .open(&file_path)
+        .map_err(|e| LeetCodeError::file_operation("create", &file_path, e))?;
 
-    file.write_all(source.as_bytes()).unwrap();
+    file.write_all(source.as_bytes())
+        .map_err(|e| LeetCodeError::file_operation("write", &file_path, e))?;
+
     drop(file);
 
     if write_mod_file {
         let mut lib_file = fs::OpenOptions::new()
             .append(true)
             .open("./src/problem/mod.rs")
-            .unwrap();
-        let _ = writeln!(lib_file, "pub mod {file_name};");
+            .map_err(|e| LeetCodeError::file_operation("open", "./src/problem/mod.rs", e))?;
+
+        writeln!(lib_file, "pub mod {file_name};")
+            .map_err(|e| LeetCodeError::file_operation("write", "./src/problem/mod.rs", e))?;
     }
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -397,10 +565,48 @@ mod test {
         pub mod p0002_add_two_numbers;
         pub mod p0003_longest_substring_without_repeating_characters;"#;
         writeln!(file, "{content}").unwrap();
-        let ids = get_initialized_ids(path.to_str().unwrap());
+        let ids = get_initialized_ids(path.to_str().unwrap()).unwrap();
         println!("{ids:?}");
         assert!(ids.len() == 2);
         assert!(ids[0] == 2);
         assert!(ids[1] == 3);
+    }
+
+    #[test]
+    fn test_parse_extra_use() {
+        let code_with_listnode = "pub struct ListNode";
+        assert!(parse_extra_use(code_with_listnode).contains("linked_list"));
+
+        let code_with_treenode = "pub struct TreeNode";
+        assert!(parse_extra_use(code_with_treenode).contains("tree"));
+
+        let code_with_point = "pub struct Point";
+        assert!(parse_extra_use(code_with_point).contains("point"));
+
+        let code_empty = "struct Solution;";
+        assert!(parse_extra_use(code_empty).is_empty());
+    }
+
+    #[test]
+    fn test_insert_return_in_code() {
+        let code = "impl Solution { pub fn test() {} }";
+        let result = insert_return_in_code("integer", code);
+        assert!(result.contains("0"));
+
+        let result = insert_return_in_code("string", code);
+        assert!(result.contains("String::new()"));
+
+        let result = insert_return_in_code("int[]", code);
+        assert!(result.contains("vec![]"));
+    }
+
+    #[test]
+    fn test_build_desc() {
+        let html = "<p>Hello <strong>world</strong></p>";
+        let result = build_desc(html);
+        assert!(!result.contains("<p>"));
+        assert!(!result.contains("<strong>"));
+        assert!(result.contains("Hello"));
+        assert!(result.contains("world"));
     }
 }
