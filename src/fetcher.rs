@@ -1,9 +1,13 @@
-extern crate reqwest;
-extern crate serde_json;
+//! LeetCode API client with retry logic and user-friendly error handling
 
-use std::fmt::{Display, Error, Formatter};
+use std::{
+    fmt::{Display, Formatter},
+    time::Duration,
+};
 
 use serde_json::Value;
+
+use crate::error::{LeetCodeError, Result};
 
 const PROBLEMS_URL: &str = "https://leetcode.com/api/problems/algorithms/";
 const GRAPHQL_URL: &str = "https://leetcode.com/graphql";
@@ -19,126 +23,187 @@ query questionData($titleSlug: String!) {
 }"#;
 const QUESTION_QUERY_OPERATION: &str = "questionData";
 
-pub fn get_problem(frontend_question_id: u32) -> Option<Problem> {
-    let problems = match get_problems() {
-        Some(p) => p,
-        None => {
-            println!("Failed to fetch problems list");
-            return None;
-        }
-    };
-    for problem in problems.stat_status_pairs.iter() {
-        if problem.stat.frontend_question_id == frontend_question_id {
-            if problem.paid_only {
-                return None;
+/// Maximum number of retries for network requests
+const MAX_RETRIES: u32 = 3;
+/// Initial retry delay in milliseconds
+const INITIAL_RETRY_DELAY_MS: u64 = 500;
+
+/// Execute an operation with exponential backoff retry
+async fn with_retry<F, Fut, T>(operation: F, operation_name: &str) -> Result<T>
+where
+    F: Fn() -> Fut,
+    Fut: std::future::Future<Output = Result<T>>,
+{
+    let mut delay = INITIAL_RETRY_DELAY_MS;
+
+    for attempt in 1..=MAX_RETRIES {
+        match operation().await {
+            Ok(result) => return Ok(result),
+            Err(e) if attempt < MAX_RETRIES => {
+                eprintln!(
+                    "⚠️  {} failed (attempt {}/{}): {}. Retrying in {}ms...",
+                    operation_name, attempt, MAX_RETRIES, e, delay
+                );
+                tokio::time::sleep(Duration::from_millis(delay)).await;
+                delay *= 2; // Exponential backoff
             }
-            println!("getting problem ...");
-            let headers = build_headers();
-            let client = reqwest::blocking::Client::new();
-            let slug = match problem.stat.question_title_slug.as_ref() {
-                Some(s) => s,
-                None => {
-                    println!("Problem {} has no title slug", frontend_question_id);
-                    return None;
-                }
-            };
-            let send_res = client
-                .post(GRAPHQL_URL)
-                .headers(headers)
-                .json(&Query::question_query(slug))
-                .send();
-            let resp: RawProblem = match send_res {
-                Ok(r) => match r.json() {
-                    Ok(json) => json,
-                    Err(e) => {
-                        println!("Failed to parse problem response JSON: {}", e);
-                        return None;
-                    }
-                },
-                Err(e) => {
-                    println!("HTTP request failed: {}", e);
-                    return None;
-                }
-            };
-
-            let code_definition: Vec<CodeDefinition> =
-                match serde_json::from_str(&resp.data.question.code_definition) {
-                    Ok(cd) => cd,
-                    Err(e) => {
-                        println!("Failed to parse code definition: {}", e);
-                        return None;
-                    }
-                };
-
-            let return_type = match serde_json::from_str::<Value>(&resp.data.question.meta_data) {
-                Ok(v) => v["return"]["type"].to_string().replace('"', ""),
-                Err(e) => {
-                    println!("Failed to parse meta_data: {}", e);
-                    return None;
-                }
-            };
-
-            return Some(Problem {
-                title: problem.stat.question_title.clone().unwrap_or_default(),
-                title_slug: problem.stat.question_title_slug.clone().unwrap_or_default(),
-                code_definition,
-                content: resp.data.question.content,
-                sample_test_case: resp.data.question.sample_test_case,
-                difficulty: problem.difficulty.to_string(),
-                question_id: problem.stat.frontend_question_id,
-                return_type,
-            });
+            Err(e) => {
+                return Err(LeetCodeError::retry_exhausted(MAX_RETRIES, e.to_string()));
+            }
         }
     }
-    None
+
+    unreachable!()
 }
 
-pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> {
+/// Execute a blocking operation with exponential backoff retry
+fn with_retry_blocking<F, T>(operation: F, operation_name: &str) -> Result<T>
+where
+    F: Fn() -> Result<T>,
+{
+    let mut delay = INITIAL_RETRY_DELAY_MS;
+
+    for attempt in 1..=MAX_RETRIES {
+        match operation() {
+            Ok(result) => return Ok(result),
+            Err(e) if attempt < MAX_RETRIES => {
+                eprintln!(
+                    "⚠️  {} failed (attempt {}/{}): {}. Retrying in {}ms...",
+                    operation_name, attempt, MAX_RETRIES, e, delay
+                );
+                std::thread::sleep(Duration::from_millis(delay));
+                delay *= 2; // Exponential backoff
+            }
+            Err(e) => {
+                return Err(LeetCodeError::retry_exhausted(MAX_RETRIES, e.to_string()));
+            }
+        }
+    }
+
+    unreachable!()
+}
+
+/// Fetch a single problem by its frontend ID
+pub fn get_problem(frontend_question_id: u32) -> Result<Problem> {
+    eprintln!(
+        "📡 Fetching problem list to find problem #{}...",
+        frontend_question_id
+    );
+    let problems = get_problems()?;
+
+    let problem_stat = problems
+        .stat_status_pairs
+        .iter()
+        .find(|p| p.stat.frontend_question_id == frontend_question_id)
+        .ok_or(LeetCodeError::ProblemNotFound(frontend_question_id))?;
+
     if problem_stat.paid_only {
-        println!(
-            "Problem {} is paid-only",
-            &problem_stat.stat.frontend_question_id
-        );
-        return None;
+        return Err(LeetCodeError::ProblemNotFound(frontend_question_id));
     }
-    let resp = surf::post(GRAPHQL_URL).body_json(&Query::question_query(
-        problem_stat.stat.question_title_slug.as_ref().unwrap(),
-    ));
-    if resp.is_err() {
-        println!(
-            "Problem {} not initialized due to some error",
-            &problem_stat.stat.frontend_question_id
-        );
-        return None;
-    }
-    let recv = resp.unwrap().recv_json().await;
-    if recv.is_err() {
-        println!(
-            "Problem {} not initialized due to some error",
-            &problem_stat.stat.frontend_question_id
-        );
-        return None;
-    }
-    let resp: RawProblem = recv.unwrap();
+
+    let slug = problem_stat
+        .stat
+        .question_title_slug
+        .as_ref()
+        .ok_or(LeetCodeError::MissingTitleSlug(frontend_question_id))?;
+
+    eprintln!("📡 Fetching problem details for '{}'...", slug);
+
+    with_retry_blocking(
+        || {
+            fetch_problem_detail(
+                &problem_stat.stat,
+                slug,
+                &problem_stat.difficulty.to_string(),
+            )
+        },
+        "Fetch problem detail",
+    )
+}
+
+fn fetch_problem_detail(stat: &Stat, slug: &str, difficulty: &str) -> Result<Problem> {
+    let headers = build_headers();
+    let client = reqwest::blocking::Client::new();
+
+    let response = client
+        .post(GRAPHQL_URL)
+        .headers(headers)
+        .json(&Query::question_query(slug))
+        .send()
+        .map_err(|e| LeetCodeError::Http(e.to_string()))?;
+
+    let raw_problem: RawProblem = response
+        .json()
+        .map_err(|e| LeetCodeError::Http(format!("Failed to parse response: {}", e)))?;
 
     let code_definition: Vec<CodeDefinition> =
-        match serde_json::from_str(&resp.data.question.code_definition) {
-            Ok(cd) => cd,
-            Err(e) => {
-                println!("Failed to parse code definition: {}", e);
-                return None;
-            }
-        };
+        serde_json::from_str(&raw_problem.data.question.code_definition)
+            .map_err(|e| LeetCodeError::CodeDefinitionParse(e.to_string()))?;
 
-    let return_type = match serde_json::from_str::<Value>(&resp.data.question.meta_data) {
+    let return_type = match serde_json::from_str::<Value>(&raw_problem.data.question.meta_data) {
         Ok(v) => v["return"]["type"].to_string().replace('"', ""),
-        Err(e) => {
-            println!("Failed to parse meta_data: {}", e);
-            return None;
-        }
+        Err(e) => return Err(LeetCodeError::MetadataParse(e.to_string())),
     };
 
-    Some(Problem {
+    Ok(Problem {
+        title: stat.question_title.clone().unwrap_or_default(),
+        title_slug: stat.question_title_slug.clone().unwrap_or_default(),
+        code_definition,
+        content: raw_problem.data.question.content,
+        sample_test_case: raw_problem.data.question.sample_test_case,
+        difficulty: difficulty.to_string(),
+        question_id: stat.frontend_question_id,
+        return_type,
+    })
+}
+
+/// Fetch problem asynchronously with retry logic
+pub async fn get_problem_async(problem_stat: StatWithStatus) -> Result<Problem> {
+    if problem_stat.paid_only {
+        return Err(LeetCodeError::ProblemNotFound(
+            problem_stat.stat.frontend_question_id,
+        ));
+    }
+
+    let slug =
+        problem_stat
+            .stat
+            .question_title_slug
+            .as_ref()
+            .ok_or(LeetCodeError::MissingTitleSlug(
+                problem_stat.stat.frontend_question_id,
+            ))?;
+
+    with_retry(
+        || fetch_problem_detail_async(slug, &problem_stat),
+        &format!(
+            "Fetch problem #{} async",
+            problem_stat.stat.frontend_question_id
+        ),
+    )
+    .await
+}
+
+async fn fetch_problem_detail_async(slug: &str, problem_stat: &StatWithStatus) -> Result<Problem> {
+    let resp = surf::post(GRAPHQL_URL)
+        .body_json(&Query::question_query(slug))
+        .map_err(|e| LeetCodeError::Http(e.to_string()))?;
+
+    let raw_problem: RawProblem = resp
+        .recv_json()
+        .await
+        .map_err(|e| LeetCodeError::Http(format!("Failed to receive JSON: {}", e)))?;
+
+    let code_definition: Vec<CodeDefinition> =
+        serde_json::from_str(&raw_problem.data.question.code_definition)
+            .map_err(|e| LeetCodeError::CodeDefinitionParse(e.to_string()))?;
+
+    let return_type = match serde_json::from_str::<Value>(&raw_problem.data.question.meta_data) {
+        Ok(v) => v["return"]["type"].to_string().replace('"', ""),
+        Err(e) => return Err(LeetCodeError::MetadataParse(e.to_string())),
+    };
+
+    Ok(Problem {
         title: problem_stat.stat.question_title.clone().unwrap_or_default(),
         title_slug: problem_stat
             .stat
@@ -146,8 +211,8 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
             .clone()
             .unwrap_or_default(),
         code_definition,
-        content: resp.data.question.content,
-        sample_test_case: resp.data.question.sample_test_case,
+        content: raw_problem.data.question.content,
+        sample_test_case: raw_problem.data.question.sample_test_case,
         difficulty: problem_stat.difficulty.to_string(),
         question_id: problem_stat.stat.frontend_question_id,
         return_type,
@@ -155,7 +220,6 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Option<Problem> 
 }
 
 /// Build HTTP headers for LeetCode API requests
-/// Cookie is optional - only needed for authenticated requests
 fn build_headers() -> reqwest::header::HeaderMap {
     let mut h = reqwest::header::HeaderMap::new();
     h.insert(
@@ -165,7 +229,8 @@ fn build_headers() -> reqwest::header::HeaderMap {
     h.insert(
         "User-Agent",
         reqwest::header::HeaderValue::from_static(
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 \
+             (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
         ),
     );
     h.insert(
@@ -188,41 +253,39 @@ fn build_headers() -> reqwest::header::HeaderMap {
     h
 }
 
-pub fn get_problems() -> Option<Problems> {
-    println!("getting all problems ...");
+/// Fetch all problems list
+pub fn get_problems() -> Result<Problems> {
+    eprintln!("📡 Fetching problem list from LeetCode...");
 
-    let headers = build_headers();
-    let client = match reqwest::blocking::Client::builder().gzip(true).build() {
-        Ok(c) => c,
-        Err(e) => {
-            println!("Failed to build HTTP client: {}", e);
-            return None;
-        }
-    };
-    let get = client.get(PROBLEMS_URL).headers(headers);
-    let response = match get.send() {
-        Ok(r) => r,
-        Err(e) => {
-            println!("Failed to fetch problems URL: {}", e);
-            return None;
-        }
-    };
-    let status = response.status();
-    println!("Response status: {}", status);
-    if !status.is_success() {
-        println!("Failed to fetch problems: HTTP {}", status);
-        return None;
-    }
-    match response.json::<Problems>() {
-        Ok(p) => Some(p),
-        Err(e) => {
-            println!("Failed to decode problems JSON: {}", e);
-            None
-        }
-    }
+    with_retry_blocking(
+        || {
+            let headers = build_headers();
+            let client = reqwest::blocking::Client::builder()
+                .gzip(true)
+                .build()
+                .map_err(|e| LeetCodeError::HttpClientBuild(e.to_string()))?;
+
+            let response = client
+                .get(PROBLEMS_URL)
+                .headers(headers)
+                .send()
+                .map_err(|e| LeetCodeError::Http(e.to_string()))?;
+
+            let status = response.status();
+            if !status.is_success() {
+                return Err(LeetCodeError::Http(format!("HTTP {}", status)));
+            }
+
+            response
+                .json::<Problems>()
+                .map_err(|e| LeetCodeError::Http(format!("Failed to decode JSON: {}", e)))
+        },
+        "Fetch problems list",
+    )
 }
 
-#[derive(Serialize, Deserialize)]
+/// Problem data structure
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Problem {
     pub title: String,
     pub title_slug: String,
@@ -236,7 +299,8 @@ pub struct Problem {
     pub return_type: String,
 }
 
-#[derive(Serialize, Deserialize)]
+/// Code definition for a specific language
+#[derive(Serialize, Deserialize, Clone)]
 pub struct CodeDefinition {
     pub value: String,
     pub text: String,
@@ -244,6 +308,7 @@ pub struct CodeDefinition {
     pub default_code: String,
 }
 
+/// GraphQL query structure
 #[derive(Debug, Serialize, Deserialize)]
 struct Query {
     #[serde(rename = "operationName")]
@@ -262,6 +327,7 @@ impl Query {
     }
 }
 
+/// Raw problem response from GraphQL
 #[derive(Debug, Serialize, Deserialize)]
 struct RawProblem {
     data: Data,
@@ -284,51 +350,69 @@ struct Question {
     meta_data: String,
 }
 
+/// Problems list response
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Problems {
+    #[allow(dead_code)]
     user_name: String,
+    #[allow(dead_code)]
     num_solved: u32,
+    #[allow(dead_code)]
     num_total: u32,
+    #[allow(dead_code)]
     ac_easy: u32,
+    #[allow(dead_code)]
     ac_medium: u32,
+    #[allow(dead_code)]
     ac_hard: u32,
     pub stat_status_pairs: Vec<StatWithStatus>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+/// Problem status with metadata
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct StatWithStatus {
     pub stat: Stat,
-    difficulty: Difficulty,
-    paid_only: bool,
+    pub difficulty: Difficulty,
+    pub paid_only: bool,
+    #[allow(dead_code)]
     is_favor: bool,
+    #[allow(dead_code)]
     frequency: u32,
+    #[allow(dead_code)]
     progress: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+/// Problem statistics
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Stat {
+    #[allow(dead_code)]
     question_id: u32,
     #[serde(rename = "question__article__slug")]
+    #[allow(dead_code)]
     question_article_slug: Option<String>,
     #[serde(rename = "question__title")]
-    question_title: Option<String>,
+    pub question_title: Option<String>,
     #[serde(rename = "question__title_slug")]
-    question_title_slug: Option<String>,
+    pub question_title_slug: Option<String>,
     #[serde(rename = "question__hide")]
+    #[allow(dead_code)]
     question_hide: bool,
+    #[allow(dead_code)]
     total_acs: u32,
+    #[allow(dead_code)]
     total_submitted: u32,
     pub frontend_question_id: u32,
+    #[allow(dead_code)]
     is_new_question: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Difficulty {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Difficulty {
     level: u32,
 }
 
 impl Display for Difficulty {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self.level {
             1 => f.write_str("Easy"),
             2 => f.write_str("Medium"),
@@ -474,5 +558,14 @@ mod tests {
                 std::env::set_var("LEETCODE_COOKIE", cookie);
             }
         }
+    }
+
+    #[test]
+    fn test_leetcode_error_display() {
+        let err = LeetCodeError::ProblemNotFound(42);
+        assert!(err.to_string().contains("Problem #42 not found"));
+
+        let err = LeetCodeError::NoRustVersion(42);
+        assert!(err.to_string().contains("Problem #42 has no Rust version"));
     }
 }
