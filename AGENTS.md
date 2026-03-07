@@ -226,15 +226,16 @@ tree![1, 2, 3]    // Create binary tree from level-order values
 
 | Crate | Purpose |
 |-------|---------|
+| `backon` | Exponential backoff retry for network requests |
 | `clap` | CLI argument parsing with derive macros |
-| `reqwest` | HTTP client for LeetCode API |
-| `serde` / `serde_json` | JSON serialization |
-| `regex` | Text processing in template generation |
 | `dotenv` | Environment variable loading |
 | `futures` | Async runtime for bulk problem fetching |
-| `rand` | Random problem selection |
-| `thiserror` | Structured error handling |
 | `indicatif` | Progress bars for long operations |
+| `rand` | Random problem selection |
+| `regex` | Text processing in template generation |
+| `reqwest` | HTTP client for LeetCode API |
+| `serde` / `serde_json` | JSON serialization |
+| `thiserror` | Structured error handling |
 | `tokio` | Async runtime for retry delays |
 
 ## Error Handling
@@ -242,12 +243,29 @@ tree![1, 2, 3]    // Create binary tree from level-order values
 The CLI uses structured error handling with `thiserror`:
 
 - **User-friendly messages**: No more panics - all errors display helpful messages
-- **Retry logic**: Network requests automatically retry with exponential backoff (3 retries)
+- **Retry logic**: Network requests automatically retry with exponential backoff using `backon` crate (3 retries)
 - **Specific error types**: `ProblemNotFound`, `NoRustVersion`, `AlreadyInitialized`, etc.
 
 Example error output:
 ```
 ❌ Error: Problem #99999 not found (may be paid-only or doesn't exist)
+```
+
+### Retry Implementation
+
+The fetcher uses `backon` for resilient network requests:
+
+```rust
+// Blocking retry
+(|| fetch_problem_detail(...))
+    .retry(ExponentialBuilder::default().with_max_times(3))
+    .call()
+
+// Async retry
+(|| async { fetch_problem_detail_async(...).await })
+    .retry(ExponentialBuilder::default().with_max_times(3))
+    .sleep(tokio::time::sleep)
+    .await
 ```
 
 ## Development Notes
