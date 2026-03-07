@@ -609,4 +609,143 @@ mod test {
         assert!(result.contains("Hello"));
         assert!(result.contains("world"));
     }
+
+    #[test]
+    fn test_insert_return_in_code_all_types() {
+        let code = "impl Solution { pub fn test() {} }";
+
+        // Test integer
+        let result = insert_return_in_code("integer", code);
+        assert!(result.contains("0"));
+
+        // Test boolean
+        let result = insert_return_in_code("boolean", code);
+        assert!(result.contains("false"));
+
+        // Test character
+        let result = insert_return_in_code("character", code);
+        assert!(result.contains("'0'"));
+
+        // Test double
+        let result = insert_return_in_code("double", code);
+        assert!(result.contains("0f64"));
+
+        // Test ListNode
+        let result = insert_return_in_code("ListNode", code);
+        assert!(result.contains("ListNode::new(0)"));
+
+        // Test TreeNode
+        let result = insert_return_in_code("TreeNode", code);
+        assert!(result.contains("TreeNode::new(0)"));
+
+        // Test null/void (should return code unchanged)
+        let result = insert_return_in_code("null", code);
+        assert_eq!(result, code);
+        let result = insert_return_in_code("void", code);
+        assert_eq!(result, code);
+
+        // Test unknown type (should return code unchanged)
+        let result = insert_return_in_code("unknown_type", code);
+        assert_eq!(result, code);
+    }
+
+    #[test]
+    fn test_insert_return_in_code_array_types() {
+        let code = "impl Solution { pub fn test() {} }";
+
+        // All array types should return vec![]
+        let array_types = vec![
+            "int[]",
+            "integer[]",
+            "integer[][]",
+            "double[]",
+            "string[]",
+            "character[][]",
+            "ListNode[]",
+            "list<String>",
+            "list<TreeNode>",
+            "list<boolean>",
+            "list<double>",
+            "list<integer>",
+            "list<list<integer>>",
+            "list<list<string>>",
+            "list<string>",
+        ];
+
+        for ty in array_types {
+            let result = insert_return_in_code(ty, code);
+            assert!(
+                result.contains("vec![]"),
+                "Type {} should return vec![]",
+                ty
+            );
+        }
+    }
+
+    #[test]
+    fn test_build_desc_html_entities() {
+        // Test HTML entity replacements
+        let html = "&gt; &lt; &quot; &minus; &#39; &nbsp;";
+        let result = build_desc(html);
+        assert!(result.contains(">"));
+        assert!(result.contains("<"));
+        assert!(result.contains("\""));
+        assert!(result.contains("-"));
+        assert!(result.contains("'"));
+        assert!(result.contains(" "));
+    }
+
+    #[test]
+    fn test_build_desc_sup_sub() {
+        let html = "x<sup>2</sup> and y<sub>i</sub>";
+        let result = build_desc(html);
+        assert!(result.contains("x^2"));
+        assert!(!result.contains("<sup>"));
+        assert!(!result.contains("<sub>"));
+    }
+
+    #[test]
+    fn test_build_desc_lists() {
+        let html = "<ul><li>item1</li><li>item2</li></ul>";
+        let result = build_desc(html);
+        assert!(!result.contains("<ul>"));
+        assert!(!result.contains("</ul>"));
+        assert!(!result.contains("<li>"));
+        assert!(!result.contains("</li>"));
+        assert!(result.contains("item1"));
+        assert!(result.contains("item2"));
+    }
+
+    #[test]
+    fn test_parse_problem_link() {
+        let problem = Problem {
+            title: "Two Sum".to_string(),
+            title_slug: "two-sum".to_string(),
+            content: "".to_string(),
+            code_definition: vec![],
+            sample_test_case: "".to_string(),
+            difficulty: "Easy".to_string(),
+            question_id: 1,
+            return_type: "integer[]".to_string(),
+        };
+        let link = parse_problem_link(&problem);
+        assert_eq!(link, "https://leetcode.com/problems/two-sum/");
+    }
+
+    #[test]
+    fn test_parse_discuss_link() {
+        let problem = Problem {
+            title: "Two Sum".to_string(),
+            title_slug: "two-sum".to_string(),
+            content: "".to_string(),
+            code_definition: vec![],
+            sample_test_case: "".to_string(),
+            difficulty: "Easy".to_string(),
+            question_id: 1,
+            return_type: "integer[]".to_string(),
+        };
+        let link = parse_discuss_link(&problem);
+        assert!(link.contains("leetcode.com/problems/two-sum/discuss/"));
+        assert!(link.contains("orderBy=most_votes"));
+    }
 }
