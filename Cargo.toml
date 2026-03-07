@@ -5,6 +5,7 @@ authors = ["ben1009"]
 edition = "2024"
 
 [dependencies]
+backon = "1"
 clap = { version = "4.5", features = ["derive"] }
 dotenv = "0.15.0"
 futures = { version = "0.3.30", features = ["thread-pool"] }

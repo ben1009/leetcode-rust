@@ -52,6 +52,7 @@ pub enum LeetCodeError {
     HttpClientBuild(String),
 
     /// Network error with retry exhaustion
+    #[allow(dead_code)]
     #[error("Network error after {retries} retries: {message}")]
     NetworkRetryExhausted { retries: u32, message: String },
 
@@ -107,6 +108,7 @@ impl LeetCodeError {
     }
 
     /// Create a network retry exhausted error
+    #[allow(dead_code)]
     pub fn retry_exhausted(retries: u32, message: impl Into<String>) -> Self {
         Self::NetworkRetryExhausted {
             retries,
