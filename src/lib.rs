@@ -1,4 +1,5 @@
 #![feature(test)]
+#![allow(unused_features)]
 
 #[macro_use]
 pub mod util;

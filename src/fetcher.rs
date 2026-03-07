@@ -1,10 +1,8 @@
 //! LeetCode API client with retry logic and user-friendly error handling
 
-use std::{
-    fmt::{Display, Formatter},
-    time::Duration,
-};
+use std::fmt::{Display, Formatter};
 
+use backon::{BlockingRetryable, ExponentialBuilder, Retryable};
 use serde_json::Value;
 
 use crate::error::{LeetCodeError, Result};
@@ -22,66 +20,6 @@ query questionData($titleSlug: String!) {
     }
 }"#;
 const QUESTION_QUERY_OPERATION: &str = "questionData";
-
-/// Maximum number of retries for network requests
-const MAX_RETRIES: u32 = 3;
-/// Initial retry delay in milliseconds
-const INITIAL_RETRY_DELAY_MS: u64 = 500;
-
-/// Execute an operation with exponential backoff retry
-async fn with_retry<F, Fut, T>(operation: F, operation_name: &str) -> Result<T>
-where
-    F: Fn() -> Fut,
-    Fut: std::future::Future<Output = Result<T>>,
-{
-    let mut delay = INITIAL_RETRY_DELAY_MS;
-
-    for attempt in 1..=MAX_RETRIES {
-        match operation().await {
-            Ok(result) => return Ok(result),
-            Err(e) if attempt < MAX_RETRIES => {
-                eprintln!(
-                    "⚠️  {} failed (attempt {}/{}): {}. Retrying in {}ms...",
-                    operation_name, attempt, MAX_RETRIES, e, delay
-                );
-                tokio::time::sleep(Duration::from_millis(delay)).await;
-                delay *= 2; // Exponential backoff
-            }
-            Err(e) => {
-                return Err(LeetCodeError::retry_exhausted(MAX_RETRIES, e.to_string()));
-            }
-        }
-    }
-
-    unreachable!()
-}
-
-/// Execute a blocking operation with exponential backoff retry
-fn with_retry_blocking<F, T>(operation: F, operation_name: &str) -> Result<T>
-where
-    F: Fn() -> Result<T>,
-{
-    let mut delay = INITIAL_RETRY_DELAY_MS;
-
-    for attempt in 1..=MAX_RETRIES {
-        match operation() {
-            Ok(result) => return Ok(result),
-            Err(e) if attempt < MAX_RETRIES => {
-                eprintln!(
-                    "⚠️  {} failed (attempt {}/{}): {}. Retrying in {}ms...",
-                    operation_name, attempt, MAX_RETRIES, e, delay
-                );
-                std::thread::sleep(Duration::from_millis(delay));
-                delay *= 2; // Exponential backoff
-            }
-            Err(e) => {
-                return Err(LeetCodeError::retry_exhausted(MAX_RETRIES, e.to_string()));
-            }
-        }
-    }
-
-    unreachable!()
-}
 
 /// Fetch a single problem by its frontend ID
 pub fn get_problem(frontend_question_id: u32) -> Result<Problem> {
@@ -109,16 +47,22 @@ pub fn get_problem(frontend_question_id: u32) -> Result<Problem> {
 
     eprintln!("📡 Fetching problem details for '{}'...", slug);
 
-    with_retry_blocking(
-        || {
-            fetch_problem_detail(
-                &problem_stat.stat,
-                slug,
-                &problem_stat.difficulty.to_string(),
-            )
-        },
-        "Fetch problem detail",
-    )
+    // Use backon for retry with exponential backoff
+    (|| {
+        fetch_problem_detail(
+            &problem_stat.stat,
+            slug,
+            &problem_stat.difficulty.to_string(),
+        )
+    })
+    .retry(ExponentialBuilder::default().with_max_times(3))
+    .notify(|err: &LeetCodeError, dur: std::time::Duration| {
+        eprintln!(
+            "⚠️  Fetch problem detail failed: {}. Retrying in {:?}...",
+            err, dur
+        );
+    })
+    .call()
 }
 
 fn fetch_problem_detail(stat: &Stat, slug: &str, difficulty: &str) -> Result<Problem> {
@@ -174,14 +118,17 @@ pub async fn get_problem_async(problem_stat: StatWithStatus) -> Result<Problem> 
                 problem_stat.stat.frontend_question_id,
             ))?;
 
-    with_retry(
-        || fetch_problem_detail_async(slug, &problem_stat),
-        &format!(
-            "Fetch problem #{} async",
-            problem_stat.stat.frontend_question_id
-        ),
-    )
-    .await
+    // Use backon for async retry
+    (|| async { fetch_problem_detail_async(slug, &problem_stat).await })
+        .retry(ExponentialBuilder::default().with_max_times(3))
+        .sleep(tokio::time::sleep)
+        .notify(|err: &LeetCodeError, dur: std::time::Duration| {
+            eprintln!(
+                "⚠️  Fetch problem #{} async failed: {}. Retrying in {:?}...",
+                problem_stat.stat.frontend_question_id, err, dur
+            );
+        })
+        .await
 }
 
 async fn fetch_problem_detail_async(slug: &str, problem_stat: &StatWithStatus) -> Result<Problem> {
@@ -257,31 +204,39 @@ fn build_headers() -> reqwest::header::HeaderMap {
 pub fn get_problems() -> Result<Problems> {
     eprintln!("📡 Fetching problem list from LeetCode...");
 
-    with_retry_blocking(
-        || {
-            let headers = build_headers();
-            let client = reqwest::blocking::Client::builder()
-                .gzip(true)
-                .build()
-                .map_err(|e| LeetCodeError::HttpClientBuild(e.to_string()))?;
+    // Use backon for retry
+    (|| fetch_problems_impl())
+        .retry(ExponentialBuilder::default().with_max_times(3))
+        .notify(|err: &LeetCodeError, dur: std::time::Duration| {
+            eprintln!(
+                "⚠️  Fetch problems list failed: {}. Retrying in {:?}...",
+                err, dur
+            );
+        })
+        .call()
+}
 
-            let response = client
-                .get(PROBLEMS_URL)
-                .headers(headers)
-                .send()
-                .map_err(|e| LeetCodeError::Http(e.to_string()))?;
+fn fetch_problems_impl() -> Result<Problems> {
+    let headers = build_headers();
+    let client = reqwest::blocking::Client::builder()
+        .gzip(true)
+        .build()
+        .map_err(|e| LeetCodeError::HttpClientBuild(e.to_string()))?;
 
-            let status = response.status();
-            if !status.is_success() {
-                return Err(LeetCodeError::Http(format!("HTTP {}", status)));
-            }
+    let response = client
+        .get(PROBLEMS_URL)
+        .headers(headers)
+        .send()
+        .map_err(|e| LeetCodeError::Http(e.to_string()))?;
 
-            response
-                .json::<Problems>()
-                .map_err(|e| LeetCodeError::Http(format!("Failed to decode JSON: {}", e)))
-        },
-        "Fetch problems list",
-    )
+    let status = response.status();
+    if !status.is_success() {
+        return Err(LeetCodeError::Http(format!("HTTP {}", status)));
+    }
+
+    response
+        .json::<Problems>()
+        .map_err(|e| LeetCodeError::Http(format!("Failed to decode JSON: {}", e)))
 }
 
 /// Problem data structure
@@ -426,6 +381,12 @@ impl Display for Difficulty {
 mod tests {
     use super::*;
 
+    // Skip tests that use HTTP clients under Miri (FFI not supported)
+    #[cfg(miri)]
+    fn skip_under_miri() {
+        panic!("This test uses FFI and cannot run under Miri");
+    }
+
     #[test]
     fn test_difficulty_display() {
         assert_eq!(format!("{}", Difficulty { level: 1 }), "Easy");
@@ -509,6 +470,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(miri, ignore)]
     fn test_build_headers() {
         // Save original cookie value
         let original = std::env::var("LEETCODE_COOKIE").ok();
