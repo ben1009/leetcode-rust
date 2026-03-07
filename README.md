@@ -52,3 +52,4 @@ cargo nextest run
 2. Run `cargo run -- get 1` to fetch problem #1
 3. Implement your solution in the generated file
 4. Run `cargo test test_1` to verify
+# Mergify label test
