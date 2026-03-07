@@ -718,6 +718,7 @@ mod test {
 
     #[test]
     fn test_parse_problem_link() {
+        use crate::fetcher::Problem;
         let problem = Problem {
             title: "Two Sum".to_string(),
             title_slug: "two-sum".to_string(),
@@ -734,6 +735,7 @@ mod test {
 
     #[test]
     fn test_parse_discuss_link() {
+        use crate::fetcher::Problem;
         let problem = Problem {
             title: "Two Sum".to_string(),
             title_slug: "two-sum".to_string(),

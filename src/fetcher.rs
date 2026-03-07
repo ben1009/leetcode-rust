@@ -381,12 +381,6 @@ impl Display for Difficulty {
 mod tests {
     use super::*;
 
-    // Skip tests that use HTTP clients under Miri (FFI not supported)
-    #[cfg(miri)]
-    fn skip_under_miri() {
-        panic!("This test uses FFI and cannot run under Miri");
-    }
-
     #[test]
     fn test_difficulty_display() {
         assert_eq!(format!("{}", Difficulty { level: 1 }), "Easy");
